@@ -32,37 +32,107 @@
 #define MAIN_QM_H_
 
 #include "qpc.h"
+#include "bsp_basic.h"
 
-//$declare${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+//================================================
+//====================Signals=====================
+//================================================
 
-//${Shared::signals} .........................................................
-enum signals {
-    // Publish Subscribe Signals
+//$declare${CPU2::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU2::Signals::private_signals} ..........................................
+enum private_signals {
+// Publish Subscribe Signals
     TIMEOUT_SIG = Q_USER_SIG,
+
     // - Only PRIVATE
 
     MAX_PUB_SIG,
 
-    INIT_SINGLE_TARGET_SIG = 32,
+    // COMMON Signals
+    RUNNING_QF_SIG,
+    INIT_COMPLETE_SIG,
+
+    // IPC OC Signals
+    IPC_RECEIVE_MSG_SIG,
+    IPC_SEND_MSG_SIG,
+    IPC_FULL_BUS_SIG,
+    IPC_RESET_CH_SIG,
+
+    MAX_PRIVATE_SIG,
+};
+//$enddecl${CPU2::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$declare${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${Shared::Signals::shared_signals} .........................................
+enum shared_signals {
+    SHARED_SIGNALS_INIT = 128,
     // - GLOBAL
 
     // - lOCAL
 
-    // - PRIVATE
-
     MAX_SIG
 };
+
+//${Shared::Event_Types::OC_Evt} .............................................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    uint16_t ID;
+} OC_Evt;
+
+//${Shared::Event_Types::OC_TimeEvt} .........................................
+typedef struct {
+// protected:
+    QTimeEvt super;
+
+// public:
+    uint16_t ID;
+} OC_TimeEvt;
 //$enddecl${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-// Declare opaque pointers and constructors
+//================================================
+//===================Priorities===================
+//================================================
 
-//$declare${AOs::blinky::globals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+//$declare${CPU2::ao_priority} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${AOs::blinky::globals::ao_blinky} .........................................
-extern QActive * const ao_blinky;
+//${CPU2::ao_priority} .......................................................
+enum ao_priority {
+    // Priority in ascendance order
+    IDLE_TASK=0U,
+    AO_COMMUNICATION_PRIO,
+};
+//$enddecl${CPU2::ao_priority} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-//${AOs::blinky::globals::blinky_ctor} .......................................
-void blinky_ctor(const QActive  * const pAO);
-//$enddecl${AOs::blinky::globals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//================================================
+//================Immutable-Events================
+//================================================
+
+//$declare${CPU2::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU2::Immutable_Events::im_evt_running_qf} ...............................
+extern QEvt const im_evt_running_qf;
+
+//${CPU2::Immutable_Events::im_evt_init_complete} ............................
+extern QEvt const im_evt_init_complete;
+//$enddecl${CPU2::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//================================================
+//=================Active-Objects=================
+//================================================
+
+// AO_Communication
+//$declare${CPU2::AOs::AO_Communication::globals} vvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU2::AOs::AO_Communication::globals::p_ao_communication} ................
+extern QActive * const p_ao_communication;
+
+//${CPU2::AOs::AO_Communication::globals::ao_communication_ctor} .............
+void ao_communication_ctor(const QActive  * const pAO);
+//$enddecl${CPU2::AOs::AO_Communication::globals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #endif // MAIN_QM_H_

@@ -39,3 +39,12 @@
 
 //$define${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 //$enddef${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$define${CPU2::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU2::Immutable_Events::im_evt_running_qf} ...............................
+QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
+
+//${CPU2::Immutable_Events::im_evt_init_complete} ............................
+QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
+//$enddef${CPU2::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,15 @@
+/*
+ * fsbb_control_app.h
+ *
+ *  Created on: 23 de abr de 2024
+ *      Author: ramon.martins
+ */
+
+#ifndef APPLICATION_ACTIVE_OBJECTS_FSBB_CONTROL_APP_FSBB_CONTROL_APP_H_
+#define APPLICATION_ACTIVE_OBJECTS_FSBB_CONTROL_APP_FSBB_CONTROL_APP_H_
+
+
+
+
+
+#endif /* APPLICATION_ACTIVE_OBJECTS_FSBB_CONTROL_APP_FSBB_CONTROL_APP_H_ */

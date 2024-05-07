@@ -8,6 +8,8 @@
 #ifndef BSP_QPC_QPC_SUPPORT_INCLUDE_QPC_SUPPORT_H_
 #define BSP_QPC_QPC_SUPPORT_INCLUDE_QPC_SUPPORT_H_
 
+#include "system_assert.h"
+
 void QF_onStartup(void);
 void QF_onCleanup(void);
 void QF_onClockTick(void);

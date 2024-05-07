@@ -39,3 +39,12 @@
 
 //$define${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 //$enddef${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$define${CM::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CM::Immutable_Events::im_evt_running_qf} .................................
+QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
+
+//${CM::Immutable_Events::im_evt_init_complete} ..............................
+QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
+//$enddef${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

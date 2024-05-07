@@ -9,8 +9,6 @@
 #define APPLICATION_INCLUDE_APPLICATION_H_
 
 #include "CM_Config.h"
-#include "main_qm.h"
-#include "qpc.h"
 
 //
 // Application Function Prototypes(avoid to use this section)

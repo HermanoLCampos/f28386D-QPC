@@ -8,10 +8,9 @@
 #ifndef APPLICATION_INC_C2000_CONFIG_H_
 #define APPLICATION_INC_C2000_CONFIG_H_
 
-#include "board.h"
 #include "c2000ware_libraries.h"
-#include "c2000_freertos.h"
 #include "resources_config.h"
+#include "main_qm.h"
 
 void C2000_Init(void);
 

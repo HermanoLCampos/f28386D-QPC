@@ -6,7 +6,6 @@
  */
 
 #include "freertos_support.h"
-#include "system_assert.h"
 
 
 uint8_t ucHeap[ 1024 ];

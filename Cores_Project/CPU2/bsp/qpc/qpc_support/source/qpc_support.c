@@ -6,9 +6,6 @@
  */
 
 #include "qpc_support.h"
-#include "resources_config.h"
-#include "c2000_freertos.h"
-#include "system_assert.h"
 
 void QF_onStartup(void) {}
 void QF_onCleanup(void) {}

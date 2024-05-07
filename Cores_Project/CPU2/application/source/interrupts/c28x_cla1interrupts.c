@@ -15,7 +15,7 @@ __interrupt void cla1Isr1()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -32,7 +32,7 @@ __interrupt void cla1Isr2()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -49,7 +49,7 @@ __interrupt void cla1Isr3()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -66,7 +66,7 @@ __interrupt void cla1Isr4()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -83,7 +83,7 @@ __interrupt void cla1Isr5()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -100,7 +100,7 @@ __interrupt void cla1Isr6()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -117,7 +117,7 @@ __interrupt void cla1Isr7()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -134,7 +134,7 @@ __interrupt void cla1Isr8()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

@@ -57,8 +57,6 @@
 #define CM_CLK_FREQ (DEVICE_AUXCLK_FREQ) // Line edited to provide compatibility
                                          // with sysconfig
 
-#define ESTOP0 __asm("   bkpt #0")
-
 #include "driverlib_cm.h"
 
 //*****************************************************************************

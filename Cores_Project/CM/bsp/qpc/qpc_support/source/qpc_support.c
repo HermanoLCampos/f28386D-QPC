@@ -6,8 +6,6 @@
  */
 
 #include "qpc_support.h"
-#include "freertos_support.h"
-#include "system_assert.h"
 
 void QF_onStartup(void) {}
 void QF_onCleanup(void) {}

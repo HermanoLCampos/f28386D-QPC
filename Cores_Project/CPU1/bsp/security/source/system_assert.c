@@ -7,13 +7,15 @@
 
 #include "system_assert.h"
 #include "resources_config.h"
-#include "c2000_freertos.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "bsp_basic.h"
 
 void system_assert(const char *filename, int assert_number){
 #if USER_ASSERT
     user_assert(filename, assert_number);
 #endif
     taskDISABLE_INTERRUPTS();
-    ESTOP0;
+    BSP_BKPT;
     while(1);
 }

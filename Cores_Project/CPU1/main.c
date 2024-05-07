@@ -3,7 +3,6 @@
  */
 
 
-#include "FreeRTOS.h"
 #include "application.h"
 
 void main(void)
@@ -18,6 +17,6 @@ void main(void)
     QF_run();
 
     while(1){
-        ESTOP0;
+        BSP_BKPT;
     };
 }

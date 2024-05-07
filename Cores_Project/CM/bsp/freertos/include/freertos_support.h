@@ -12,6 +12,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "system_assert.h"
+
 extern uint8_t ucHeap[ 1024 ];
 
 //

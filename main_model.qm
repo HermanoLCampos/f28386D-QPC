@@ -27,96 +27,832 @@ For more QM examples for QP/C see:
 https://www.state-machine.com/qpc/exa.html</documentation>
  <!--${qpc}-->
  <framework name="qpc"/>
- <!--${Shared}-->
- <package name="Shared" stereotype="0x00">
-  <!--${Shared::signals}-->
-  <attribute name="signals" type="enum" visibility="0x04" properties="0x00">
-   <code>{
-    // Publish Subscribe Signals
+ <!--${OCs}-->
+ <package name="OCs" stereotype="0x00">
+  <!--${OCs::OC_IPC}-->
+  <package name="OC_IPC" stereotype="0x00">
+   <!--${OCs::OC_IPC::OC_IPC}-->
+   <class name="OC_IPC" superclass="qpc::QHsm">
+    <!--${OCs::OC_IPC::OC_IPC::owner}-->
+    <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_IPC::OC_IPC::id}-->
+    <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_IPC::OC_IPC::ctor}-->
+    <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::ctor::owner}-->
+     <parameter name="owner" type="QActive * const"/>
+     <!--${OCs::OC_IPC::OC_IPC::ctor::id}-->
+     <parameter name="id" type="uint16_t"/>
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_IPC_initial));
+me-&gt;owner = owner;
+me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_IPC::OC_IPC::SM}-->
+    <statechart properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::SM::initial}-->
+     <initial target="../1">
+      <initial_glyph conn="4,8,5,3,4">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${OCs::OC_IPC::OC_IPC::SM::Waiting_QF}-->
+     <state name="Waiting_QF">
+      <!--${OCs::OC_IPC::OC_IPC::SM::Waiting_QF::RUNNING_QF}-->
+      <tran trig="RUNNING_QF" target="../../2">
+       <tran_glyph conn="8,10,3,0,10,14">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,4,20,12"/>
+     </state>
+     <!--${OCs::OC_IPC::OC_IPC::SM::Start}-->
+     <state name="Start">
+      <entry>BSP_BKPT;</entry>
+      <!--${OCs::OC_IPC::OC_IPC::SM::Start::INIT_COMPLETE}-->
+      <tran trig="INIT_COMPLETE" target="../../3/3">
+       <tran_glyph conn="8,30,3,3,24,-10,20">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,24,20,12">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <!--${OCs::OC_IPC::OC_IPC::SM::Operation}-->
+     <state name="Operation">
+      <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}-->
+      <tran trig="IPC_RECEIVE_MSG">
+       <tran_glyph conn="36,12,3,-1,16">
+        <action box="0,-2,15,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}-->
+      <tran trig="IPC_SEND_MSG">
+       <tran_glyph conn="36,14,3,-1,16">
+        <action box="0,-2,13,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}-->
+      <tran trig="IPC_FULL_BUS" target="../4">
+       <tran_glyph conn="36,34,3,3,16">
+        <action box="0,-2,12,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Running}-->
+      <state name="Running">
+       <state_glyph node="52,16,14,8"/>
+      </state>
+      <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Error}-->
+      <state name="Error">
+       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Error::IPC_RESET_CH}-->
+       <tran trig="IPC_RESET_CH" target="../../3">
+        <tran_glyph conn="52,36,3,1,18,-16,-4">
+         <action box="0,-2,13,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="52,30,14,8"/>
+      </state>
+      <state_glyph node="36,4,42,42"/>
+     </state>
+     <state_diagram size="96,50"/>
+    </statechart>
+   </class>
+  </package>
+  <!--${OCs::OC_CAN}-->
+  <package name="OC_CAN" stereotype="0x00">
+   <!--${OCs::OC_CAN::OC_CAN}-->
+   <class name="OC_CAN" superclass="qpc::QHsm">
+    <!--${OCs::OC_CAN::OC_CAN::owner}-->
+    <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_CAN::OC_CAN::id}-->
+    <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_CAN::OC_CAN::ctor}-->
+    <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_CAN::OC_CAN::ctor::owner}-->
+     <parameter name="owner" type="QActive * const"/>
+     <!--${OCs::OC_CAN::OC_CAN::ctor::id}-->
+     <parameter name="id" type="uint16_t"/>
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_CAN_initial));
+me-&gt;owner = owner;
+me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_CAN::OC_CAN::SM}-->
+    <statechart properties="0x00">
+     <!--${OCs::OC_CAN::OC_CAN::SM::initial}-->
+     <initial target="../1">
+      <initial_glyph conn="4,8,5,3,4">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${OCs::OC_CAN::OC_CAN::SM::Waiting_QF}-->
+     <state name="Waiting_QF">
+      <!--${OCs::OC_CAN::OC_CAN::SM::Waiting_QF::RUNNING_QF}-->
+      <tran trig="RUNNING_QF" target="../../2">
+       <tran_glyph conn="8,10,3,0,10,16">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,4,20,12"/>
+     </state>
+     <!--${OCs::OC_CAN::OC_CAN::SM::Start}-->
+     <state name="Start">
+      <entry>BSP_BKPT;</entry>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Start::INIT_COMPLETE}-->
+      <tran trig="INIT_COMPLETE" target="../../3">
+       <tran_glyph conn="8,32,3,3,28">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,26,20,12">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <!--${OCs::OC_CAN::OC_CAN::SM::Operation}-->
+     <state name="Operation">
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::initial}-->
+      <initial target="../6">
+       <initial_glyph conn="54,20,5,3,4">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_RECEIVE_MSG}-->
+      <tran trig="CAN_RECEIVE_MSG">
+       <tran_glyph conn="36,10,3,-1,16">
+        <action box="0,-2,16,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_SEND_MSG}-->
+      <tran trig="CAN_SEND_MSG">
+       <tran_glyph conn="36,12,3,-1,16">
+        <action box="0,-2,15,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_PASSIVE_ERROR}-->
+      <tran trig="CAN_PASSIVE_ERROR" target="../5">
+       <tran_glyph conn="36,36,3,3,22">
+        <action box="0,-2,18,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_BUS_OFF}-->
+      <tran trig="CAN_BUS_OFF" target="../7">
+       <tran_glyph conn="36,52,3,3,22">
+        <action box="0,-2,12,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Error_Passive}-->
+      <state name="Error_Passive">
+       <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Error_Passive::CAN_ERROR_CLEAR}-->
+       <tran trig="CAN_ERROR_CLEAR" target="../..">
+        <tran_glyph conn="58,38,3,1,26">
+         <action box="0,-2,17,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="58,32,20,12"/>
+      </state>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Error_Active}-->
+      <state name="Error_Active">
+       <state_glyph node="58,16,20,12"/>
+      </state>
+      <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off}-->
+      <state name="Bus_Off">
+       <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_RECEIVE_MSG}-->
+       <tran trig="CAN_RECEIVE_MSG" target="../..">
+        <tran_glyph conn="58,54,3,1,26">
+         <action box="0,-2,16,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_SEND_MSG}-->
+       <tran trig="CAN_SEND_MSG">
+        <tran_glyph conn="58,56,3,-1,16">
+         <action box="0,-2,15,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="58,48,20,12"/>
+      </state>
+      <state_glyph node="36,4,48,60"/>
+     </state>
+     <state_diagram size="104,71"/>
+    </statechart>
+   </class>
+  </package>
+ </package>
+ <!--${CPU1}-->
+ <package name="CPU1" stereotype="0x00">
+  <!--${CPU1::AOs}-->
+  <package name="AOs" stereotype="0x02">
+   <!--${CPU1::AOs::AO_FSBB_Control}-->
+   <package name="AO_FSBB_Control" stereotype="0x00">
+    <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control}-->
+    <class name="FSBB_Control" superclass="qpc::QActive">
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM}-->
+     <statechart properties="0x00">
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::initial}-->
+      <initial target="../1">
+       <initial_glyph conn="4,8,5,3,4">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF}-->
+      <state name="Waiting_QF">
+       <entry>QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF::RUNNING_QF}-->
+       <tran trig="RUNNING_QF" target="../../2">
+        <tran_glyph conn="8,10,3,0,10,14">
+         <action box="0,-2,11,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,4,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start}-->
+      <state name="Start">
+       <entry>BSP_BKPT;</entry>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
+       <tran trig="INIT_COMPLETE" target="../../3/2">
+        <tran_glyph conn="8,30,3,3,24,-16,18">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,24,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
+      <state name="Operation">
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
+       <tran trig="RESET" target="../2">
+        <tran_glyph conn="36,18,3,3,14">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
+       <tran trig="SET_FAULT" target="../6">
+        <tran_glyph conn="36,34,3,3,14">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
+       <state name="Uncharged">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
+        <tran trig="PRECHARGE_START" target="../../3">
+         <tran_glyph conn="50,16,3,3,28">
+          <action box="0,-2,18,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="50,10,20,12"/>
+       </state>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::PRECHARGE}-->
+       <state name="PRECHARGE">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::PRECHARGE::PRECHARGE_FINISH}-->
+        <tran trig="PRECHARGE_FINISH" target="../../4">
+         <tran_glyph conn="78,14,3,1,22,20,-2">
+          <action box="0,-2,17,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="78,10,20,12"/>
+       </state>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}-->
+       <state name="Idle">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
+        <tran trig="START_CONTROL" target="../../5">
+         <tran_glyph conn="78,36,3,3,28">
+          <action box="0,-2,14,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="78,30,20,12"/>
+       </state>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}-->
+       <state name="Running">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
+        <tran trig="STOP_CONTROL" target="../../7">
+         <tran_glyph conn="106,34,3,1,26,24,-20">
+          <action box="0,-2,14,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="106,30,20,12"/>
+       </state>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault}-->
+       <state name="Fault">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
+        <tran trig="CLEAR_FAULT" target="../../2">
+         <tran_glyph conn="50,35,3,2,18,-13">
+          <action box="0,-2,11,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="50,30,20,12"/>
+       </state>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle}-->
+       <state name="To_Idle">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::IL_0}-->
+        <tran trig="IL_0" target="../../4">
+         <tran_glyph conn="112,56,1,2,-30,-14">
+          <action box="-19,-2,14,2"/>
+         </tran_glyph>
+        </tran>
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::START_CONTROL}-->
+        <tran trig="START_CONTROL" target="../../5">
+         <tran_glyph conn="92,54,3,1,38,-18,-4">
+          <action box="0,-2,14,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="92,50,20,12"/>
+       </state>
+       <state_glyph node="36,4,102,62"/>
+      </state>
+      <state_diagram size="156,124"/>
+     </statechart>
+    </class>
+    <!--${CPU1::AOs::AO_FSBB_Control::inst_ao_fsbb_control}-->
+    <attribute name="inst_ao_fsbb_control" type="FSBB_Control" visibility="0x01" properties="0x00"/>
+    <!--${CPU1::AOs::AO_FSBB_Control::globals}-->
+    <package name="globals" stereotype="0x00">
+     <!--${CPU1::AOs::AO_FSBB_Control::globals::p_ao_fsbb_control}-->
+     <attribute name="p_ao_fsbb_control" type="QActive * const" visibility="0x00" properties="0x00">
+      <code>= &amp;inst_ao_fsbb_control.super;</code>
+     </attribute>
+     <!--${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_ctor}-->
+     <operation name="ao_fsbb_control_ctor" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_~::pAO}-->
+      <parameter name="pAO" type="const QActive  * const"/>
+      <code>FSBB_Control * const me = (FSBB_Control *) pAO;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));</code>
+     </operation>
+    </package>
+   </package>
+   <!--${CPU1::AOs::AO_Communication}-->
+   <package name="AO_Communication" stereotype="0x00">
+    <!--${CPU1::AOs::AO_Communication::Communication}-->
+    <class name="Communication" superclass="qpc::QActive">
+     <!--${CPU1::AOs::AO_Communication::Communication::ipc_cpu2_cpu1}-->
+     <attribute name="ipc_cpu2_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::ipc_cpu2_cm}-->
+     <attribute name="ipc_cpu2_cm" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::canb}-->
+     <attribute name="canb" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::SM}-->
+     <statechart properties="0x00">
+      <!--${CPU1::AOs::AO_Communication::Communication::SM::initial}-->
+      <initial target="../1">
+       <initial_glyph conn="4,8,5,3,4">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF}-->
+      <state name="Waiting_QF">
+       <entry>//BSP_BKPT;
+
+QASM_INIT( &amp;(me-&gt;ipc_cpu2_cpu1.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_cpu2_cm.super)   , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;canb.super)   , (void *)0, (void *)0 );
+
+QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
+       <!--${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
+       <tran trig="RUNNING_QF" target="../../2">
+        <tran_glyph conn="8,10,3,0,10,16">
+         <action box="0,-2,12,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,4,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${CPU1::AOs::AO_Communication::Communication::SM::Start}-->
+      <state name="Start">
+       <entry>BSP_BKPT;
+
+QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cpu1.super),&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cm.super)  ,&amp;im_evt_running_qf, (void *) 0 );
+
+QASM_DISPATCH( &amp;(me-&gt;canb.super),&amp;im_evt_running_qf, (void *) 0 );</entry>
+       <!--${CPU1::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
+       <tran trig="INIT_COMPLETE">
+        <tran_glyph conn="8,32,3,-1,15">
+         <action box="0,-2,14,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,26,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <state_diagram size="80,50"/>
+     </statechart>
+    </class>
+    <!--${CPU1::AOs::AO_Communication::inst_ao_communication}-->
+    <attribute name="inst_ao_communication" type="Communication" visibility="0x01" properties="0x00"/>
+    <!--${CPU1::AOs::AO_Communication::globals}-->
+    <package name="globals" stereotype="0x00">
+     <!--${CPU1::AOs::AO_Communication::globals::p_ao_communication}-->
+     <attribute name="p_ao_communication" type="QActive * const" visibility="0x00" properties="0x00">
+      <code>= &amp;inst_ao_communication.super;</code>
+     </attribute>
+     <!--${CPU1::AOs::AO_Communication::globals::ao_communication_ctor}-->
+     <operation name="ao_communication_ctor" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_Communication::globals::ao_communication~::pAO}-->
+      <parameter name="pAO" type="const QActive  * const"/>
+      <code>Communication * const me = (Communication *) pAO;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
+
+// Orthogonal Components
+
+OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cpu1 ,&amp;me-&gt;super, 1);
+OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);
+
+OC_CAN_ctor(&amp;me-&gt;canb ,&amp;me-&gt;super, 1);</code>
+     </operation>
+    </package>
+   </package>
+  </package>
+  <!--${CPU1::Signals}-->
+  <package name="Signals" stereotype="0x00">
+   <!--${CPU1::Signals::private_signals}-->
+   <attribute name="private_signals" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+// Publish Subscribe Signals
     TIMEOUT_SIG = Q_USER_SIG,
+
     // - Only PRIVATE
 
     MAX_PUB_SIG,
 
-    INIT_SINGLE_TARGET_SIG = 32,
+    // COMMON Signals
+    RUNNING_QF_SIG,
+    INIT_COMPLETE_SIG,
+
+    //FSBB Signals
+    PRECHARGE_START_SIG,
+    PRECHARGE_FINISH_SIG,
+    START_CONTROL_SIG,
+    STOP_CONTROL_SIG,
+    IL_0_SIG,
+    RESET_SIG,
+    SET_FAULT_SIG,
+    CLEAR_FAULT_SIG,
+
+    // CAN OC Signals
+    CAN_RECEIVE_MSG_SIG,
+    CAN_SEND_MSG_SIG,
+    CAN_PASSIVE_ERROR_SIG,
+    CAN_BUS_OFF_SIG,
+    CAN_ERROR_CLEAR_SIG,
+
+    // IPC OC Signals
+    IPC_RECEIVE_MSG_SIG,
+    IPC_SEND_MSG_SIG,
+    IPC_FULL_BUS_SIG,
+    IPC_RESET_CH_SIG,
+
+    MAX_PRIVATE_SIG,
+};</code>
+   </attribute>
+  </package>
+  <!--${CPU1::ao_priority}-->
+  <attribute name="ao_priority" type="enum" visibility="0x04" properties="0x00">
+   <code>{
+    // Priority in ascendance order
+    IDLE_TASK=0U,
+    AO_COMMUNICATION_PRIO,
+    AO_FSBB_CONTROL_PRIO,
+};</code>
+  </attribute>
+  <!--${CPU1::Immutable_Events}-->
+  <package name="Immutable_Events" stereotype="0x00">
+   <!--${CPU1::Immutable_Events::im_evt_running_qf}-->
+   <attribute name="im_evt_running_qf" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(RUNNING_QF_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_init_complete}-->
+   <attribute name="im_evt_init_complete" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(INIT_COMPLETE_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_precharge_start}-->
+   <attribute name="im_evt_precharge_start" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(PRECHARGE_START_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_precharge_finish}-->
+   <attribute name="im_evt_precharge_finish" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_start_control}-->
+   <attribute name="im_evt_start_control" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(START_CONTROL_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_stop_control}-->
+   <attribute name="im_evt_stop_control" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(STOP_CONTROL_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_il_0}-->
+   <attribute name="im_evt_il_0" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(IL_0_SIG);</code>
+   </attribute>
+   <!--${CPU1::Immutable_Events::im_evt_reset}-->
+   <attribute name="im_evt_reset" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(RESET_SIG);</code>
+   </attribute>
+  </package>
+ </package>
+ <!--${CPU2}-->
+ <package name="CPU2" stereotype="0x00">
+  <!--${CPU2::AOs}-->
+  <package name="AOs" stereotype="0x02">
+   <!--${CPU2::AOs::AO_Communication}-->
+   <package name="AO_Communication" stereotype="0x00">
+    <!--${CPU2::AOs::AO_Communication::Communication}-->
+    <class name="Communication" superclass="qpc::QActive">
+     <!--${CPU2::AOs::AO_Communication::Communication::ipc_cpu2_cpu1}-->
+     <attribute name="ipc_cpu2_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU2::AOs::AO_Communication::Communication::ipc_cpu2_cm}-->
+     <attribute name="ipc_cpu2_cm" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU2::AOs::AO_Communication::Communication::SM}-->
+     <statechart properties="0x00">
+      <!--${CPU2::AOs::AO_Communication::Communication::SM::initial}-->
+      <initial target="../1">
+       <initial_glyph conn="4,8,5,3,4">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${CPU2::AOs::AO_Communication::Communication::SM::Waiting_QF}-->
+      <state name="Waiting_QF">
+       <entry>//BSP_BKPT;
+
+QASM_INIT( &amp;(me-&gt;ipc_cpu2_cpu1.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_cpu2_cm.super)   , (void *)0, (void *)0 );
+
+QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
+       <!--${CPU2::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
+       <tran trig="RUNNING_QF" target="../../2">
+        <tran_glyph conn="8,10,3,0,10,16">
+         <action box="0,-2,12,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,4,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${CPU2::AOs::AO_Communication::Communication::SM::Start}-->
+      <state name="Start">
+       <entry>BSP_BKPT;
+
+QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cpu1.super),&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cm.super)  ,&amp;im_evt_running_qf, (void *) 0 );</entry>
+       <!--${CPU2::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
+       <tran trig="INIT_COMPLETE">
+        <tran_glyph conn="8,32,3,-1,15">
+         <action box="0,-2,14,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,26,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <state_diagram size="80,50"/>
+     </statechart>
+    </class>
+    <!--${CPU2::AOs::AO_Communication::inst_ao_communication}-->
+    <attribute name="inst_ao_communication" type="Communication" visibility="0x01" properties="0x00"/>
+    <!--${CPU2::AOs::AO_Communication::globals}-->
+    <package name="globals" stereotype="0x00">
+     <!--${CPU2::AOs::AO_Communication::globals::p_ao_communication}-->
+     <attribute name="p_ao_communication" type="QActive * const" visibility="0x00" properties="0x00">
+      <code>= &amp;inst_ao_communication.super;</code>
+     </attribute>
+     <!--${CPU2::AOs::AO_Communication::globals::ao_communication_ctor}-->
+     <operation name="ao_communication_ctor" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU2::AOs::AO_Communication::globals::ao_communication~::pAO}-->
+      <parameter name="pAO" type="const QActive  * const"/>
+      <code>Communication * const me = (Communication *) pAO;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
+
+// Orthogonal Components
+
+OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cpu1 ,&amp;me-&gt;super, 1);
+OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);</code>
+     </operation>
+    </package>
+   </package>
+  </package>
+  <!--${CPU2::Signals}-->
+  <package name="Signals" stereotype="0x00">
+   <!--${CPU2::Signals::private_signals}-->
+   <attribute name="private_signals" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+// Publish Subscribe Signals
+    TIMEOUT_SIG = Q_USER_SIG,
+
+    // - Only PRIVATE
+
+    MAX_PUB_SIG,
+
+    // COMMON Signals
+    RUNNING_QF_SIG,
+    INIT_COMPLETE_SIG,
+
+    // IPC OC Signals
+    IPC_RECEIVE_MSG_SIG,
+    IPC_SEND_MSG_SIG,
+    IPC_FULL_BUS_SIG,
+    IPC_RESET_CH_SIG,
+
+    MAX_PRIVATE_SIG,
+};</code>
+   </attribute>
+  </package>
+  <!--${CPU2::ao_priority}-->
+  <attribute name="ao_priority" type="enum" visibility="0x04" properties="0x00">
+   <code>{
+    // Priority in ascendance order
+    IDLE_TASK=0U,
+    AO_COMMUNICATION_PRIO,
+};</code>
+  </attribute>
+  <!--${CPU2::Immutable_Events}-->
+  <package name="Immutable_Events" stereotype="0x00">
+   <!--${CPU2::Immutable_Events::im_evt_running_qf}-->
+   <attribute name="im_evt_running_qf" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(RUNNING_QF_SIG);</code>
+   </attribute>
+   <!--${CPU2::Immutable_Events::im_evt_init_complete}-->
+   <attribute name="im_evt_init_complete" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(INIT_COMPLETE_SIG);</code>
+   </attribute>
+  </package>
+ </package>
+ <!--${CM}-->
+ <package name="CM" stereotype="0x00">
+  <!--${CM::AOs}-->
+  <package name="AOs" stereotype="0x02">
+   <!--${CM::AOs::AO_Communication}-->
+   <package name="AO_Communication" stereotype="0x00">
+    <!--${CM::AOs::AO_Communication::Communication}-->
+    <class name="Communication" superclass="qpc::QActive">
+     <!--${CM::AOs::AO_Communication::Communication::ipc_cm_cpu1}-->
+     <attribute name="ipc_cm_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::ipc_cm_cpu2}-->
+     <attribute name="ipc_cm_cpu2" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::cana}-->
+     <attribute name="cana" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::mcan}-->
+     <attribute name="mcan" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::SM}-->
+     <statechart properties="0x00">
+      <!--${CM::AOs::AO_Communication::Communication::SM::initial}-->
+      <initial target="../1">
+       <initial_glyph conn="4,8,5,3,4">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${CM::AOs::AO_Communication::Communication::SM::Waiting_QF}-->
+      <state name="Waiting_QF">
+       <entry>//BSP_BKPT;
+
+QASM_INIT( &amp;(me-&gt;ipc_cm_cpu1.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_cm_cpu2.super) , (void *)0, (void *)0 );
+
+QASM_INIT( &amp;(me-&gt;cana.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;mcan.super) , (void *)0, (void *)0 );
+
+QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
+       <!--${CM::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
+       <tran trig="RUNNING_QF" target="../../2">
+        <tran_glyph conn="8,10,3,0,10,16">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,4,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${CM::AOs::AO_Communication::Communication::SM::Start}-->
+      <state name="Start">
+       <entry>BSP_BKPT;
+
+QASM_DISPATCH( &amp;(me-&gt;ipc_cm_cpu1.super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_cm_cpu2.super) , &amp;im_evt_running_qf, (void *) 0 );
+
+QASM_DISPATCH( &amp;(me-&gt;cana.super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;mcan.super) , &amp;im_evt_running_qf, (void *) 0 );</entry>
+       <!--${CM::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
+       <tran trig="INIT_COMPLETE">
+        <tran_glyph conn="8,32,3,-1,15">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="8,26,20,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <state_diagram size="80,50"/>
+     </statechart>
+    </class>
+    <!--${CM::AOs::AO_Communication::inst_ao_communication}-->
+    <attribute name="inst_ao_communication" type="Communication" visibility="0x01" properties="0x00"/>
+    <!--${CM::AOs::AO_Communication::globals}-->
+    <package name="globals" stereotype="0x00">
+     <!--${CM::AOs::AO_Communication::globals::p_ao_communication}-->
+     <attribute name="p_ao_communication" type="QActive * const" visibility="0x00" properties="0x00">
+      <code>= &amp;inst_ao_communication.super;</code>
+     </attribute>
+     <!--${CM::AOs::AO_Communication::globals::ao_communication_ctor}-->
+     <operation name="ao_communication_ctor" type="void" visibility="0x00" properties="0x00">
+      <!--${CM::AOs::AO_Communication::globals::ao_communication~::pAO}-->
+      <parameter name="pAO" type="const QActive  * const"/>
+      <code>Communication * const me = (Communication *) pAO;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
+
+// Orthogonal Components
+
+OC_IPC_ctor(&amp;me-&gt;ipc_cm_cpu1 ,&amp;me-&gt;super, 1);
+OC_IPC_ctor(&amp;me-&gt;ipc_cm_cpu2 ,&amp;me-&gt;super, 2);
+
+OC_CAN_ctor(&amp;me-&gt;cana ,&amp;me-&gt;super, 1);
+OC_CAN_ctor(&amp;me-&gt;mcan ,&amp;me-&gt;super, 2);</code>
+     </operation>
+    </package>
+   </package>
+  </package>
+  <!--${CM::Signals}-->
+  <package name="Signals" stereotype="0x00">
+   <!--${CM::Signals::private_signals}-->
+   <attribute name="private_signals" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+// Publish Subscribe Signals
+    TIMEOUT_SIG = Q_USER_SIG,
+
+    // - Only PRIVATE
+
+    MAX_PUB_SIG,
+
+    // COMMON Signals
+    RUNNING_QF_SIG,
+    INIT_COMPLETE_SIG,
+
+    // CAN OC Signals
+    CAN_RECEIVE_MSG_SIG,
+    CAN_SEND_MSG_SIG,
+    CAN_PASSIVE_ERROR_SIG,
+    CAN_BUS_OFF_SIG,
+    CAN_ERROR_CLEAR_SIG,
+
+    // IPC OC Signals
+    IPC_RECEIVE_MSG_SIG,
+    IPC_SEND_MSG_SIG,
+    IPC_FULL_BUS_SIG,
+    IPC_RESET_CH_SIG,
+
+    MAX_PRIVATE_SIG,
+};</code>
+   </attribute>
+  </package>
+  <!--${CM::ao_priority}-->
+  <attribute name="ao_priority" type="enum" visibility="0x04" properties="0x00">
+   <code>{
+    // Priority in ascendance order
+    IDLE_TASK=0U,
+    AO_COMMUNICATION_PRIO,
+};</code>
+  </attribute>
+  <!--${CM::Immutable_Events}-->
+  <package name="Immutable_Events" stereotype="0x00">
+   <!--${CM::Immutable_Events::im_evt_running_qf}-->
+   <attribute name="im_evt_running_qf" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(RUNNING_QF_SIG);</code>
+   </attribute>
+   <!--${CM::Immutable_Events::im_evt_init_complete}-->
+   <attribute name="im_evt_init_complete" type="QEvt const" visibility="0x00" properties="0x00">
+    <code>= QEVT_INITIALIZER(INIT_COMPLETE_SIG);</code>
+   </attribute>
+  </package>
+ </package>
+ <!--${Shared}-->
+ <package name="Shared" stereotype="0x00">
+  <!--${Shared::Signals}-->
+  <package name="Signals" stereotype="0x00">
+   <!--${Shared::Signals::shared_signals}-->
+   <attribute name="shared_signals" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+    SHARED_SIGNALS_INIT = 128,
     // - GLOBAL
 
     // - lOCAL
 
-    // - PRIVATE
-
     MAX_SIG
 };</code>
-  </attribute>
- </package>
- <!--${AOs}-->
- <package name="AOs" stereotype="0x02">
-  <!--${AOs::blinky}-->
-  <package name="blinky" stereotype="0x00">
-   <!--${AOs::blinky::blinky}-->
-   <class name="blinky" superclass="qpc::QActive">
-    <!--${AOs::blinky::blinky::time_evt}-->
-    <attribute name="time_evt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
-    <!--${AOs::blinky::blinky::inst}-->
-    <attribute name="inst" type="blinky" visibility="0x00" properties="0x01"/>
-    <!--${AOs::blinky::blinky::SM}-->
-    <statechart properties="0x03">
-     <documentation>Blinky state machine</documentation>
-     <!--${AOs::blinky::blinky::SM::initial}-->
-     <initial target="../1">
-      <action>QTimeEvt_armX(&amp;me-&gt;time_evt,500, 500);</action>
-      <initial_glyph conn="2,3,5,1,20,4,-4">
-       <action box="0,-2,6,2"/>
-      </initial_glyph>
-     </initial>
-     <!--${AOs::blinky::blinky::SM::off}-->
-     <state name="off">
-      <entry>blinky_led_off();</entry>
-      <!--${AOs::blinky::blinky::SM::off::TIMEOUT}-->
-      <tran trig="TIMEOUT" target="../../2">
-       <tran_glyph conn="2,13,3,1,18,6,-2">
-        <action box="0,-2,8,2"/>
-       </tran_glyph>
-      </tran>
-      <state_glyph node="2,5,16,10">
-       <entry box="1,2,12,4"/>
-      </state_glyph>
-     </state>
-     <!--${AOs::blinky::blinky::SM::on}-->
-     <state name="on">
-      <entry>blinky_led_on();</entry>
-      <!--${AOs::blinky::blinky::SM::on::TIMEOUT}-->
-      <tran trig="TIMEOUT" target="../../1">
-       <tran_glyph conn="2,25,3,1,20,-15,-4">
-        <action box="0,-2,8,2"/>
-       </tran_glyph>
-      </tran>
-      <state_glyph node="2,17,16,10">
-       <entry box="1,2,12,4"/>
-      </state_glyph>
-     </state>
-     <state_diagram size="24,29"/>
-    </statechart>
+   </attribute>
+  </package>
+  <!--${Shared::Event_Types}-->
+  <package name="Event_Types" stereotype="0x00">
+   <!--${Shared::Event_Types::OC_Evt}-->
+   <class name="OC_Evt" superclass="qpc::QEvt">
+    <!--${Shared::Event_Types::OC_Evt::ID}-->
+    <attribute name="ID" type="uint16_t" visibility="0x00" properties="0x00"/>
    </class>
-   <!--${AOs::blinky::globals}-->
-   <package name="globals" stereotype="0x00">
-    <!--${AOs::blinky::globals::ao_blinky}-->
-    <attribute name="ao_blinky" type="QActive * const" visibility="0x00" properties="0x00">
-     <code>= &amp;blinky_inst.super;</code>
-    </attribute>
-    <!--${AOs::blinky::globals::blinky_ctor}-->
-    <operation name="blinky_ctor" type="void" visibility="0x00" properties="0x00">
-     <!--${AOs::blinky::globals::blinky_ctor::pAO}-->
-     <parameter name="pAO" type="const QActive  * const"/>
-     <code>blinky * const me = (blinky *) pAO;
-QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;blinky_initial));
-QTimeEvt_ctorX(&amp;me-&gt;time_evt, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
-    </operation>
-   </package>
+   <!--${Shared::Event_Types::OC_TimeEvt}-->
+   <class name="OC_TimeEvt" superclass="qpc::QTimeEvt">
+    <!--${Shared::Event_Types::OC_TimeEvt::ID}-->
+    <attribute name="ID" type="uint16_t" visibility="0x00" properties="0x00"/>
+   </class>
   </package>
  </package>
- <!--${Signals}-->
- <package name="Signals" stereotype="0x00"/>
  <!--${.}-->
  <directory name=".">
   <!--${.::Cores_Project}-->
@@ -125,26 +861,101 @@ QTimeEvt_ctorX(&amp;me-&gt;time_evt, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
    <directory name="CPU1">
     <!--${.::Cores_Project::CPU1::qm_files}-->
     <directory name="qm_files">
-     <!--${.::Cores_Project::CPU1::qm_files::ao_blinky}-->
-     <directory name="ao_blinky">
-      <!--${.::Cores_Project::CPU1::qm_files::ao_blinky::blinky.c}-->
-      <file name="blinky.c">
-       <text>#include &quot;./blinky.h&quot;
-
-$define${AOs::blinky}</text>
-      </file>
-      <!--${.::Cores_Project::CPU1::qm_files::ao_blinky::blinky.h}-->
-      <file name="blinky.h">
-       <text>#ifndef BLINKY_H_
-#define BLINKY_H_
+     <!--${.::Cores_Project::CPU1::qm_files::AOs}-->
+     <directory name="AOs">
+      <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_communication}-->
+      <directory name="ao_communication">
+       <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_communication::communication.h}-->
+       <file name="communication.h">
+        <text>#ifndef AO_COMMUNICATION_H_
+#define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;blinky_app/blinky_app.h&quot;
+#include &quot;communication_app/communication_app.h&quot;
 
-$declare${AOs::blinky}
+// Orthogonal Component
+#include &quot;OCs/oc_ipc/oc_ipc.h&quot;
+#include &quot;OCs/oc_can/oc_can.h&quot;
 
-#endif // BLINKY_H_</text>
-      </file>
+$declare${CPU1::AOs::AO_Communication}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_communication::communication.c}-->
+       <file name="communication.c">
+        <text>#include &quot;./communication.h&quot;
+
+Q_DEFINE_THIS_FILE
+
+$define${CPU1::AOs::AO_Communication}</text>
+       </file>
+      </directory>
+      <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_fsbb_control}-->
+      <directory name="ao_fsbb_control">
+       <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_fsbb_control::fsbb_control.h}-->
+       <file name="fsbb_control.h">
+        <text>#ifndef AO_FSBB_CONTROL_H_
+#define AO_FSBB_CONTROL_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;fsbb_control_app/fsbb_control_app.h&quot;
+
+$declare${CPU1::AOs::AO_FSBB_Control}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_fsbb_control::fsbb_control.c}-->
+       <file name="fsbb_control.c">
+        <text>#include &quot;./fsbb_control.h&quot;
+
+$define${CPU1::AOs::AO_FSBB_Control}</text>
+       </file>
+      </directory>
+     </directory>
+     <!--${.::Cores_Project::CPU1::qm_files::OCs}-->
+     <directory name="OCs">
+      <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_ipc}-->
+      <directory name="oc_ipc">
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_ipc::oc_ipc.h}-->
+       <file name="oc_ipc.h">
+        <text>#ifndef OC_IPC_H_
+#define OC_IPC_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;ipc_app/ipc_app.h&quot;
+
+$declare${OCs::OC_IPC}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_ipc::oc_ipc.c}-->
+       <file name="oc_ipc.c">
+        <text>#include &quot;./oc_ipc.h&quot;
+
+$define${OCs::OC_IPC}</text>
+       </file>
+      </directory>
+      <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_can}-->
+      <directory name="oc_can">
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_can::oc_can.h}-->
+       <file name="oc_can.h">
+        <text>#ifndef OC_CAN_H_
+#define OC_CAN_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;can_app/can_app.h&quot;
+
+$declare${OCs::OC_CAN}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_can::oc_can.c}-->
+       <file name="oc_can.c">
+        <text>#include &quot;./oc_can.h&quot;
+
+$define${OCs::OC_CAN}</text>
+       </file>
+      </directory>
      </directory>
      <!--${.::Cores_Project::CPU1::qm_files::main_qm.h}-->
      <file name="main_qm.h">
@@ -152,12 +963,37 @@ $declare${AOs::blinky}
 #define MAIN_QM_H_
 
 #include &quot;qpc.h&quot;
+#include &quot;bsp_basic.h&quot;
+
+//================================================
+//====================Signals=====================
+//================================================
+
+$declare${CPU1::Signals}
 
 $declare${Shared}
 
-// Declare opaque pointers and constructors
+//================================================
+//===================Priorities===================
+//================================================
 
-$declare${AOs::blinky::globals}
+$declare${CPU1::ao_priority}
+
+//================================================
+//================Immutable-Events================
+//================================================
+
+$declare${CPU1::Immutable_Events}
+
+//================================================
+//=================Active-Objects=================
+//================================================
+
+// AO_FSBB_Control
+$declare${CPU1::AOs::AO_FSBB_Control::globals}
+
+// AO_Communication
+$declare${CPU1::AOs::AO_Communication::globals}
 
 #endif // MAIN_QM_H_</text>
      </file>
@@ -165,7 +1001,9 @@ $declare${AOs::blinky::globals}
      <file name="main_qm.c">
       <text>#include &quot;main_qm.h&quot;
 
-$define${Shared}</text>
+$define${Shared}
+
+$define${CPU1::Immutable_Events}</text>
      </file>
     </directory>
    </directory>
@@ -173,26 +1011,58 @@ $define${Shared}</text>
    <directory name="CPU2">
     <!--${.::Cores_Project::CPU2::qm_files}-->
     <directory name="qm_files">
-     <!--${.::Cores_Project::CPU2::qm_files::ao_blinky}-->
-     <directory name="ao_blinky">
-      <!--${.::Cores_Project::CPU2::qm_files::ao_blinky::blinky.c}-->
-      <file name="blinky.c">
-       <text>#include &quot;./blinky.h&quot;
-
-$define${AOs::blinky}</text>
-      </file>
-      <!--${.::Cores_Project::CPU2::qm_files::ao_blinky::blinky.h}-->
-      <file name="blinky.h">
-       <text>#ifndef BLINKY_H_
-#define BLINKY_H_
+     <!--${.::Cores_Project::CPU2::qm_files::AOs}-->
+     <directory name="AOs">
+      <!--${.::Cores_Project::CPU2::qm_files::AOs::ao_communication}-->
+      <directory name="ao_communication">
+       <!--${.::Cores_Project::CPU2::qm_files::AOs::ao_communication::communication.h}-->
+       <file name="communication.h">
+        <text>#ifndef AO_COMMUNICATION_H_
+#define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;blinky_app/blinky_app.h&quot;
+#include &quot;communication_app/communication_app.h&quot;
 
-$declare${AOs::blinky}
+// Orthogonal Component
+#include &quot;OCs/oc_ipc/oc_ipc.h&quot;
 
-#endif // BLINKY_H_</text>
-      </file>
+$declare${CPU2::AOs::AO_Communication}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU2::qm_files::AOs::ao_communication::communication.c}-->
+       <file name="communication.c">
+        <text>#include &quot;./communication.h&quot;
+
+Q_DEFINE_THIS_FILE
+
+$define${CPU2::AOs::AO_Communication}</text>
+       </file>
+      </directory>
+     </directory>
+     <!--${.::Cores_Project::CPU2::qm_files::OCs}-->
+     <directory name="OCs">
+      <!--${.::Cores_Project::CPU2::qm_files::OCs::oc_ipc}-->
+      <directory name="oc_ipc">
+       <!--${.::Cores_Project::CPU2::qm_files::OCs::oc_ipc::oc_ipc.h}-->
+       <file name="oc_ipc.h">
+        <text>#ifndef OC_IPC_H_
+#define OC_IPC_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;ipc_app/ipc_app.h&quot;
+
+$declare${OCs::OC_IPC}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU2::qm_files::OCs::oc_ipc::oc_ipc.c}-->
+       <file name="oc_ipc.c">
+        <text>#include &quot;./oc_ipc.h&quot;
+
+$define${OCs::OC_IPC}</text>
+       </file>
+      </directory>
      </directory>
      <!--${.::Cores_Project::CPU2::qm_files::main_qm.h}-->
      <file name="main_qm.h">
@@ -200,12 +1070,34 @@ $declare${AOs::blinky}
 #define MAIN_QM_H_
 
 #include &quot;qpc.h&quot;
+#include &quot;bsp_basic.h&quot;
+
+//================================================
+//====================Signals=====================
+//================================================
+
+$declare${CPU2::Signals}
 
 $declare${Shared}
 
-// Declare opaque pointers and constructors
+//================================================
+//===================Priorities===================
+//================================================
 
-$declare${AOs::blinky::globals}
+$declare${CPU2::ao_priority}
+
+//================================================
+//================Immutable-Events================
+//================================================
+
+$declare${CPU2::Immutable_Events}
+
+//================================================
+//=================Active-Objects=================
+//================================================
+
+// AO_Communication
+$declare${CPU2::AOs::AO_Communication::globals}
 
 #endif // MAIN_QM_H_</text>
      </file>
@@ -213,7 +1105,9 @@ $declare${AOs::blinky::globals}
      <file name="main_qm.c">
       <text>#include &quot;main_qm.h&quot;
 
-$define${Shared}</text>
+$define${Shared}
+
+$define${CPU2::Immutable_Events}</text>
      </file>
     </directory>
    </directory>
@@ -221,26 +1115,80 @@ $define${Shared}</text>
    <directory name="CM">
     <!--${.::Cores_Project::CM::qm_files}-->
     <directory name="qm_files">
-     <!--${.::Cores_Project::CM::qm_files::ao_blinky}-->
-     <directory name="ao_blinky">
-      <!--${.::Cores_Project::CM::qm_files::ao_blinky::blinky.c}-->
-      <file name="blinky.c">
-       <text>#include &quot;./blinky.h&quot;
-
-$define${AOs::blinky}</text>
-      </file>
-      <!--${.::Cores_Project::CM::qm_files::ao_blinky::blinky.h}-->
-      <file name="blinky.h">
-       <text>#ifndef BLINKY_H_
-#define BLINKY_H_
+     <!--${.::Cores_Project::CM::qm_files::AOs}-->
+     <directory name="AOs">
+      <!--${.::Cores_Project::CM::qm_files::AOs::ao_communication}-->
+      <directory name="ao_communication">
+       <!--${.::Cores_Project::CM::qm_files::AOs::ao_communication::communication.h}-->
+       <file name="communication.h">
+        <text>#ifndef AO_COMMUNICATION_H_
+#define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;blinky_app/blinky_app.h&quot;
+#include &quot;communication_app/communication_app.h&quot;
 
-$declare${AOs::blinky}
+// Orthogonal Component
+#include &quot;OCs/oc_ipc/oc_ipc.h&quot;
+#include &quot;OCs/oc_can/oc_can.h&quot;
 
-#endif // BLINKY_H_</text>
-      </file>
+$declare${CM::AOs::AO_Communication}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CM::qm_files::AOs::ao_communication::communication.c}-->
+       <file name="communication.c">
+        <text>#include &quot;./communication.h&quot;
+
+Q_DEFINE_THIS_FILE
+
+$define${CM::AOs::AO_Communication}</text>
+       </file>
+      </directory>
+     </directory>
+     <!--${.::Cores_Project::CM::qm_files::OCs}-->
+     <directory name="OCs">
+      <!--${.::Cores_Project::CM::qm_files::OCs::oc_ipc}-->
+      <directory name="oc_ipc">
+       <!--${.::Cores_Project::CM::qm_files::OCs::oc_ipc::oc_ipc.h}-->
+       <file name="oc_ipc.h">
+        <text>#ifndef OC_IPC_H_
+#define OC_IPC_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;ipc_app/ipc_app.h&quot;
+
+$declare${OCs::OC_IPC}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CM::qm_files::OCs::oc_ipc::oc_ipc.c}-->
+       <file name="oc_ipc.c">
+        <text>#include &quot;./oc_ipc.h&quot;
+
+$define${OCs::OC_IPC}</text>
+       </file>
+      </directory>
+      <!--${.::Cores_Project::CM::qm_files::OCs::oc_can}-->
+      <directory name="oc_can">
+       <!--${.::Cores_Project::CM::qm_files::OCs::oc_can::oc_can.h}-->
+       <file name="oc_can.h">
+        <text>#ifndef OC_CAN_H_
+#define OC_CAN_H_
+
+#include &quot;main_qm.h&quot;
+#include &quot;can_app/can_app.h&quot;
+
+$declare${OCs::OC_CAN}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CM::qm_files::OCs::oc_can::oc_can.c}-->
+       <file name="oc_can.c">
+        <text>#include &quot;./oc_can.h&quot;
+
+$define${OCs::OC_CAN}</text>
+       </file>
+      </directory>
      </directory>
      <!--${.::Cores_Project::CM::qm_files::main_qm.h}-->
      <file name="main_qm.h">
@@ -248,12 +1196,34 @@ $declare${AOs::blinky}
 #define MAIN_QM_H_
 
 #include &quot;qpc.h&quot;
+#include &quot;bsp_basic.h&quot;
+
+//================================================
+//====================Signals=====================
+//================================================
+
+$declare${CM::Signals}
 
 $declare${Shared}
 
-// Declare opaque pointers and constructors
+//================================================
+//===================Priorities===================
+//================================================
 
-$declare${AOs::blinky::globals}
+$declare${CM::ao_priority}
+
+//================================================
+//================Immutable-Events================
+//================================================
+
+$declare${CM::Immutable_Events}
+
+//================================================
+//=================Active-Objects=================
+//================================================
+
+// AO_Communication
+$declare${CM::AOs::AO_Communication::globals}
 
 #endif // MAIN_QM_H_</text>
      </file>
@@ -261,7 +1231,9 @@ $declare${AOs::blinky::globals}
      <file name="main_qm.c">
       <text>#include &quot;main_qm.h&quot;
 
-$define${Shared}</text>
+$define${Shared}
+
+$define${CM::Immutable_Events}</text>
      </file>
     </directory>
    </directory>

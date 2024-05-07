@@ -39,3 +39,30 @@
 
 //$define${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 //$enddef${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$define${CPU1::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU1::Immutable_Events::im_evt_running_qf} ...............................
+QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
+
+//${CPU1::Immutable_Events::im_evt_init_complete} ............................
+QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
+
+//${CPU1::Immutable_Events::im_evt_precharge_start} ..........................
+QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
+
+//${CPU1::Immutable_Events::im_evt_precharge_finish} .........................
+QEvt const im_evt_precharge_finish = QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);
+
+//${CPU1::Immutable_Events::im_evt_start_control} ............................
+QEvt const im_evt_start_control = QEVT_INITIALIZER(START_CONTROL_SIG);
+
+//${CPU1::Immutable_Events::im_evt_stop_control} .............................
+QEvt const im_evt_stop_control = QEVT_INITIALIZER(STOP_CONTROL_SIG);
+
+//${CPU1::Immutable_Events::im_evt_il_0} .....................................
+QEvt const im_evt_il_0 = QEVT_INITIALIZER(IL_0_SIG);
+
+//${CPU1::Immutable_Events::im_evt_reset} ....................................
+QEvt const im_evt_reset = QEVT_INITIALIZER(RESET_SIG);
+//$enddef${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

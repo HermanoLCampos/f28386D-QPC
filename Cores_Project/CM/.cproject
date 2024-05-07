@@ -52,11 +52,13 @@
 									<listOptionValue builtIn="false" value="${C2000WARE_ROOT}/kernel/FreeRTOS/Source/portable/CCS/ARM_CM4"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/freertos/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/security/include"/>
+									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/functions/include"/>
 									<listOptionValue builtIn="false" value="${SUBMODULES_LOC}/qpc/include"/>
 									<listOptionValue builtIn="false" value="${SUBMODULES_LOC}/qpc/ports/freertos"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/qpc/freertos_support/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/qpc/qpc_support/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/application/active_objects"/>
+									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/application/orthogonal_components"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/qm_files"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.96957261" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
