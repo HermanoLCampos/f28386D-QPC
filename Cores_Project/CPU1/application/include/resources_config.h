@@ -14,7 +14,7 @@
 
 
 #define USER_ASSERT 0
-#define USER_BOARD_INIT 0
+#define USER_BOARD_INIT 1
 
 #if USER_ASSERT
 extern void user_assert(unsigned int assert_source, unsigned int assert_number);

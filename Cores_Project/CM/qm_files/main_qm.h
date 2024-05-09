@@ -142,4 +142,25 @@ extern QActive * const p_ao_communication;
 void ao_communication_ctor(const QActive  * const pAO);
 //$enddecl${CM::AOs::AO_Communication::globals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+//================================================
+//=============Orthogonal-Components==============
+//================================================
+
+//$declare${CM::OC_enum} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CM::OC_enum::IPC::ipc_named} .............................................
+enum ipc_named {
+    OC_IPC_CM_CPU1_ID,
+    OC_IPC_CM_CPU2_ID,
+    OC_IPC_NUM_OF_INST,
+};
+
+//${CM::OC_enum::CAN::can_named} .............................................
+enum can_named {
+    OC_CAN_CANA_ID,
+    OC_CAN_MCAN_ID,
+    OC_CAN_NUM_OF_INST,
+};
+//$enddecl${CM::OC_enum} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 #endif // MAIN_QM_H_

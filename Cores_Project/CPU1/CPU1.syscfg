@@ -606,8 +606,21 @@ i2c1.i2c.i2c_sclPin.$assign = "GPIO1";
 i2c1.sdaQual.padConfig      = "STD";
 i2c1.sclQual.padConfig      = "STD";
 
-ipc.ipcRegisterFlag = ["IPC_FLAG31"];
-ipc.flagHandler31   = "IPC_SYNC";
+ipc.flagHandler31            = "IPC_SYNC";
+ipc.registerInterrupts       = ["0","1","2","3"];
+ipc.ipcRegisterFlag          = ["IPC_FLAG0","IPC_FLAG1","IPC_FLAG2","IPC_FLAG3","IPC_FLAG31"];
+ipc.enableInterrupt0         = true;
+ipc.enableInterrupt1         = true;
+ipc.enableInterrupt2         = true;
+ipc.enableInterrupt3         = true;
+ipc.ipcInt0.interruptHandler = "IPC_CPU2_ISR0";
+ipc.ipcInt0.enableInterrupt  = true;
+ipc.ipcInt1.enableInterrupt  = true;
+ipc.ipcInt1.interruptHandler = "IPC_CPU2_ISR1";
+ipc.ipcInt2.interruptHandler = "IPC_CPU2_ISR2";
+ipc.ipcInt2.enableInterrupt  = true;
+ipc.ipcInt3.enableInterrupt  = true;
+ipc.ipcInt3.interruptHandler = "IPC_CPU2_ISR0";
 
 memcfg.init_MEMCFG_SECT_MSGCPUTOCPU1 = true;
 memcfg.init_MEMCFG_SECT_MSGCPUTOCM0  = true;

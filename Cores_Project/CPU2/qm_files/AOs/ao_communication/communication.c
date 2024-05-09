@@ -57,8 +57,8 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
         case Q_ENTRY_SIG: {
             //BSP_BKPT;
 
-            QASM_INIT( &(me->ipc_cpu2_cpu1.super) , (void *)0, (void *)0 );
-            QASM_INIT( &(me->ipc_cpu2_cm.super)   , (void *)0, (void *)0 );
+            QASM_INIT( &(me->ipc_inst[OC_IPC_CPU2_CPU1_ID].super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->ipc_inst[OC_IPC_CPU2_CM_ID  ].super) , (void *)0, (void *)0 );
 
             QACTIVE_POST(&me->super,&im_evt_running_qf,(void *)0);
             status_ = Q_HANDLED();
@@ -85,8 +85,8 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             BSP_BKPT;
 
-            QASM_DISPATCH( &(me->ipc_cpu2_cpu1.super),&im_evt_running_qf, (void *) 0 );
-            QASM_DISPATCH( &(me->ipc_cpu2_cm.super)  ,&im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU2_CPU1_ID].super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU2_CM_ID  ].super) , &im_evt_running_qf, (void *) 0 );
             status_ = Q_HANDLED();
             break;
         }
@@ -116,7 +116,7 @@ void ao_communication_ctor(const QActive  * const pAO) {
 
     // Orthogonal Components
 
-    OC_IPC_ctor(&me->ipc_cpu2_cpu1 ,&me->super, 1);
-    OC_IPC_ctor(&me->ipc_cpu2_cm   ,&me->super, 2);
+    OC_IPC_ctor(&me->ipc_inst[OC_IPC_CPU2_CPU1_ID] , &me->super, OC_IPC_CPU2_CPU1_ID);
+    OC_IPC_ctor(&me->ipc_inst[OC_IPC_CPU2_CM_ID  ] , &me->super, OC_IPC_CPU2_CM_ID  );
 }
 //$enddef${CPU2::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

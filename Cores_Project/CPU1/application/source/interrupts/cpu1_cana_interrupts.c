@@ -6,7 +6,7 @@
  */
 
 
-#include "c28x_interrupts.h"
+#include "cpu1_interrupts.h"
 
 //
 // canA_Isr1 - CANA ISR 1

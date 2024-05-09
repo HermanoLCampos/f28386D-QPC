@@ -1,3 +1,6 @@
 [submodule "Submodules/qpc"]
 	path = Submodules/qpc
 	url = https://github.com/QuantumLeaps/qpc
+[submodule "Submodules/bsp_functions"]
+	path = Submodules/bsp_functions
+	url = git@github.com:mon-martins/c2000_bsp_functions.git

@@ -31,6 +31,16 @@
 			<locationURI>PARENT-1-CORES_LOC/main_model.qm</locationURI>
 		</link>
 		<link>
+			<name>bsp/common</name>
+			<type>2</type>
+			<locationURI>COMMON_LOC</locationURI>
+		</link>
+		<link>
+			<name>bsp/functions</name>
+			<type>2</type>
+			<locationURI>BSP_LOC</locationURI>
+		</link>
+		<link>
 			<name>libs/CLAmath</name>
 			<type>2</type>
 			<locationURI>$%7BCLAMATH_ROOT%7D/lib</locationURI>
@@ -48,12 +58,20 @@
 	</linkedResources>
 	<variableList>
 		<variable>
+			<name>BSP_LOC</name>
+			<value>$%7BSUBMODULES_LOC%7D/bsp_functions/CPU2/on_board</value>
+		</variable>
+		<variable>
 			<name>C2000WARE_ROOT</name>
 			<value>$%7BCOM_TI_C2000WARE_INSTALL_DIR%7D</value>
 		</variable>
 		<variable>
 			<name>CLAMATH_ROOT</name>
 			<value>$%7BC2000WARE_ROOT%7D/libraries/math/CLAmath/c28</value>
+		</variable>
+		<variable>
+			<name>COMMON_LOC</name>
+			<value>$%7BPARENT-1-CORES_LOC%7D/Common</value>
 		</variable>
 		<variable>
 			<name>CORES_LOC</name>

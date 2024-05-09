@@ -384,12 +384,10 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));</code>
    <package name="AO_Communication" stereotype="0x00">
     <!--${CPU1::AOs::AO_Communication::Communication}-->
     <class name="Communication" superclass="qpc::QActive">
-     <!--${CPU1::AOs::AO_Communication::Communication::ipc_cpu2_cpu1}-->
-     <attribute name="ipc_cpu2_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
-     <!--${CPU1::AOs::AO_Communication::Communication::ipc_cpu2_cm}-->
-     <attribute name="ipc_cpu2_cm" type="OC_IPC" visibility="0x02" properties="0x00"/>
-     <!--${CPU1::AOs::AO_Communication::Communication::canb}-->
-     <attribute name="canb" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::ipc_inst[OC_IPC_NUM_OF_INST]}-->
+     <attribute name="ipc_inst[OC_IPC_NUM_OF_INST]" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::can_inst[OC_CAN_NUM_OF_INST]}-->
+     <attribute name="can_inst[OC_CAN_NUM_OF_INST]" type="OC_CAN" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_Communication::Communication::SM::initial}-->
@@ -402,9 +400,10 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));</code>
       <state name="Waiting_QF">
        <entry>//BSP_BKPT;
 
-QASM_INIT( &amp;(me-&gt;ipc_cpu2_cpu1.super) , (void *)0, (void *)0 );
-QASM_INIT( &amp;(me-&gt;ipc_cpu2_cm.super)   , (void *)0, (void *)0 );
-QASM_INIT( &amp;(me-&gt;canb.super)   , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ].super) , (void *)0, (void *)0 );
+
+QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super)   , (void *)0, (void *)0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
@@ -421,10 +420,10 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
       <state name="Start">
        <entry>BSP_BKPT;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cpu1.super),&amp;im_evt_running_qf, (void *) 0 );
-QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cm.super)  ,&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_running_qf, (void *) 0 );
 
-QASM_DISPATCH( &amp;(me-&gt;canb.super),&amp;im_evt_running_qf, (void *) 0 );</entry>
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_running_qf, (void *) 0 );</entry>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE">
         <tran_glyph conn="8,32,3,-1,15">
@@ -455,10 +454,10 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 
 // Orthogonal Components
 
-OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cpu1 ,&amp;me-&gt;super, 1);
-OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID] ,&amp;me-&gt;super, OC_IPC_CPU1_CPU2_ID);
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&amp;me-&gt;super, OC_IPC_CPU1_CM_ID  );
 
-OC_CAN_ctor(&amp;me-&gt;canb ,&amp;me-&gt;super, 1);</code>
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB_ID);</code>
      </operation>
     </package>
    </package>
@@ -515,6 +514,30 @@ OC_CAN_ctor(&amp;me-&gt;canb ,&amp;me-&gt;super, 1);</code>
     AO_FSBB_CONTROL_PRIO,
 };</code>
   </attribute>
+  <!--${CPU1::OC_enum}-->
+  <package name="OC_enum" stereotype="0x00">
+   <!--${CPU1::OC_enum::IPC}-->
+   <package name="IPC" stereotype="0x00">
+    <!--${CPU1::OC_enum::IPC::ipc_named}-->
+    <attribute name="ipc_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_IPC_CPU1_CPU2_ID,
+    OC_IPC_CPU1_CM_ID,
+    OC_IPC_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
+   <!--${CPU1::OC_enum::CAN}-->
+   <package name="CAN" stereotype="0x00">
+    <!--${CPU1::OC_enum::CAN::can_named}-->
+    <attribute name="can_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_CAN_CANB_ID,
+    OC_CAN_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
+  </package>
   <!--${CPU1::Immutable_Events}-->
   <package name="Immutable_Events" stereotype="0x00">
    <!--${CPU1::Immutable_Events::im_evt_running_qf}-->
@@ -559,10 +582,8 @@ OC_CAN_ctor(&amp;me-&gt;canb ,&amp;me-&gt;super, 1);</code>
    <package name="AO_Communication" stereotype="0x00">
     <!--${CPU2::AOs::AO_Communication::Communication}-->
     <class name="Communication" superclass="qpc::QActive">
-     <!--${CPU2::AOs::AO_Communication::Communication::ipc_cpu2_cpu1}-->
-     <attribute name="ipc_cpu2_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
-     <!--${CPU2::AOs::AO_Communication::Communication::ipc_cpu2_cm}-->
-     <attribute name="ipc_cpu2_cm" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CPU2::AOs::AO_Communication::Communication::ipc_inst[OC_IPC_NUM_OF_INST]}-->
+     <attribute name="ipc_inst[OC_IPC_NUM_OF_INST]" type="OC_IPC" visibility="0x02" properties="0x00"/>
      <!--${CPU2::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CPU2::AOs::AO_Communication::Communication::SM::initial}-->
@@ -575,8 +596,8 @@ OC_CAN_ctor(&amp;me-&gt;canb ,&amp;me-&gt;super, 1);</code>
       <state name="Waiting_QF">
        <entry>//BSP_BKPT;
 
-QASM_INIT( &amp;(me-&gt;ipc_cpu2_cpu1.super) , (void *)0, (void *)0 );
-QASM_INIT( &amp;(me-&gt;ipc_cpu2_cm.super)   , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU2_CPU1_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ].super) , (void *)0, (void *)0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CPU2::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
@@ -593,8 +614,8 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
       <state name="Start">
        <entry>BSP_BKPT;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cpu1.super),&amp;im_evt_running_qf, (void *) 0 );
-QASM_DISPATCH( &amp;(me-&gt;ipc_cpu2_cm.super)  ,&amp;im_evt_running_qf, (void *) 0 );</entry>
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU2_CPU1_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ].super) , &amp;im_evt_running_qf, (void *) 0 );</entry>
        <!--${CPU2::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE">
         <tran_glyph conn="8,32,3,-1,15">
@@ -625,8 +646,8 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 
 // Orthogonal Components
 
-OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cpu1 ,&amp;me-&gt;super, 1);
-OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);</code>
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CPU1_ID] , &amp;me-&gt;super, OC_IPC_CPU2_CPU1_ID);
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IPC_CPU2_CM_ID  );</code>
      </operation>
     </package>
    </package>
@@ -665,6 +686,20 @@ OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);</code>
     AO_COMMUNICATION_PRIO,
 };</code>
   </attribute>
+  <!--${CPU2::OC_enum}-->
+  <package name="OC_enum" stereotype="0x00">
+   <!--${CPU2::OC_enum::IPC}-->
+   <package name="IPC" stereotype="0x00">
+    <!--${CPU2::OC_enum::IPC::ipc_named}-->
+    <attribute name="ipc_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_IPC_CPU2_CPU1_ID,
+    OC_IPC_CPU2_CM_ID,
+    OC_IPC_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
+  </package>
   <!--${CPU2::Immutable_Events}-->
   <package name="Immutable_Events" stereotype="0x00">
    <!--${CPU2::Immutable_Events::im_evt_running_qf}-->
@@ -685,14 +720,10 @@ OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);</code>
    <package name="AO_Communication" stereotype="0x00">
     <!--${CM::AOs::AO_Communication::Communication}-->
     <class name="Communication" superclass="qpc::QActive">
-     <!--${CM::AOs::AO_Communication::Communication::ipc_cm_cpu1}-->
-     <attribute name="ipc_cm_cpu1" type="OC_IPC" visibility="0x02" properties="0x00"/>
-     <!--${CM::AOs::AO_Communication::Communication::ipc_cm_cpu2}-->
-     <attribute name="ipc_cm_cpu2" type="OC_IPC" visibility="0x02" properties="0x00"/>
-     <!--${CM::AOs::AO_Communication::Communication::cana}-->
-     <attribute name="cana" type="OC_CAN" visibility="0x02" properties="0x00"/>
-     <!--${CM::AOs::AO_Communication::Communication::mcan}-->
-     <attribute name="mcan" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::ipc_inst[OC_IPC_NUM_OF_INST]}-->
+     <attribute name="ipc_inst[OC_IPC_NUM_OF_INST]" type="OC_IPC" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::can_inst[OC_CAN_NUM_OF_INST]}-->
+     <attribute name="can_inst[OC_CAN_NUM_OF_INST]" type="OC_CAN" visibility="0x02" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CM::AOs::AO_Communication::Communication::SM::initial}-->
@@ -705,11 +736,11 @@ OC_IPC_ctor(&amp;me-&gt;ipc_cpu2_cm   ,&amp;me-&gt;super, 2);</code>
       <state name="Waiting_QF">
        <entry>//BSP_BKPT;
 
-QASM_INIT( &amp;(me-&gt;ipc_cm_cpu1.super) , (void *)0, (void *)0 );
-QASM_INIT( &amp;(me-&gt;ipc_cm_cpu2.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
 
-QASM_INIT( &amp;(me-&gt;cana.super) , (void *)0, (void *)0 );
-QASM_INIT( &amp;(me-&gt;mcan.super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CM::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
@@ -726,11 +757,11 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
       <state name="Start">
        <entry>BSP_BKPT;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_cm_cpu1.super) , &amp;im_evt_running_qf, (void *) 0 );
-QASM_DISPATCH( &amp;(me-&gt;ipc_cm_cpu2.super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
 
-QASM_DISPATCH( &amp;(me-&gt;cana.super) , &amp;im_evt_running_qf, (void *) 0 );
-QASM_DISPATCH( &amp;(me-&gt;mcan.super) , &amp;im_evt_running_qf, (void *) 0 );</entry>
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_running_qf, (void *) 0 );</entry>
        <!--${CM::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE">
         <tran_glyph conn="8,32,3,-1,15">
@@ -761,11 +792,11 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 
 // Orthogonal Components
 
-OC_IPC_ctor(&amp;me-&gt;ipc_cm_cpu1 ,&amp;me-&gt;super, 1);
-OC_IPC_ctor(&amp;me-&gt;ipc_cm_cpu2 ,&amp;me-&gt;super, 2);
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID] , &amp;me-&gt;super, OC_IPC_CM_CPU1_ID);
+OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID] , &amp;me-&gt;super, OC_IPC_CM_CPU2_ID);
 
-OC_CAN_ctor(&amp;me-&gt;cana ,&amp;me-&gt;super, 1);
-OC_CAN_ctor(&amp;me-&gt;mcan ,&amp;me-&gt;super, 2);</code>
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA_ID);
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN_ID);</code>
      </operation>
     </package>
    </package>
@@ -811,6 +842,31 @@ OC_CAN_ctor(&amp;me-&gt;mcan ,&amp;me-&gt;super, 2);</code>
     AO_COMMUNICATION_PRIO,
 };</code>
   </attribute>
+  <!--${CM::OC_enum}-->
+  <package name="OC_enum" stereotype="0x00">
+   <!--${CM::OC_enum::IPC}-->
+   <package name="IPC" stereotype="0x00">
+    <!--${CM::OC_enum::IPC::ipc_named}-->
+    <attribute name="ipc_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_IPC_CM_CPU1_ID,
+    OC_IPC_CM_CPU2_ID,
+    OC_IPC_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
+   <!--${CM::OC_enum::CAN}-->
+   <package name="CAN" stereotype="0x00">
+    <!--${CM::OC_enum::CAN::can_named}-->
+    <attribute name="can_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_CAN_CANA_ID,
+    OC_CAN_MCAN_ID,
+    OC_CAN_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
+  </package>
   <!--${CM::Immutable_Events}-->
   <package name="Immutable_Events" stereotype="0x00">
    <!--${CM::Immutable_Events::im_evt_running_qf}-->
@@ -995,6 +1051,12 @@ $declare${CPU1::AOs::AO_FSBB_Control::globals}
 // AO_Communication
 $declare${CPU1::AOs::AO_Communication::globals}
 
+//================================================
+//=============Orthogonal-Components==============
+//================================================
+
+$declare${CPU1::OC_enum}
+
 #endif // MAIN_QM_H_</text>
      </file>
      <!--${.::Cores_Project::CPU1::qm_files::main_qm.c}-->
@@ -1098,6 +1160,12 @@ $declare${CPU2::Immutable_Events}
 
 // AO_Communication
 $declare${CPU2::AOs::AO_Communication::globals}
+
+//================================================
+//=============Orthogonal-Components==============
+//================================================
+
+$declare${CPU2::OC_enum}
 
 #endif // MAIN_QM_H_</text>
      </file>
@@ -1224,6 +1292,12 @@ $declare${CM::Immutable_Events}
 
 // AO_Communication
 $declare${CM::AOs::AO_Communication::globals}
+
+//================================================
+//=============Orthogonal-Components==============
+//================================================
+
+$declare${CM::OC_enum}
 
 #endif // MAIN_QM_H_</text>
      </file>

@@ -799,12 +799,40 @@ extern __interrupt void INT_FO_HB_1_ISR(void);
 #define INT_FO_HB_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP3
 extern __interrupt void INT_FO_HB_2_ISR(void);
 
+// Interrupt Settings for IPC_0
+#define IPC_0 INT_CIPC0
+#define IPC_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
+extern __interrupt void IPC_CPU2_ISR0(void);
+
+// Interrupt Settings for IPC_1
+#define IPC_1 INT_CIPC1
+#define IPC_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
+extern __interrupt void IPC_CPU2_ISR1(void);
+
+// Interrupt Settings for IPC_2
+#define IPC_2 INT_CIPC2
+#define IPC_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
+extern __interrupt void IPC_CPU2_ISR2(void);
+
+// Interrupt Settings for IPC_3
+#define IPC_3 INT_CIPC3
+#define IPC_3_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
+extern __interrupt void IPC_CPU2_ISR0(void);
+
 //*****************************************************************************
 //
 // IPC Configurations
 //
 //*****************************************************************************
+#define CPU1_to_CPU2_IPC_FLAG0 IPC_FLAG0
+#define CPU1_to_CPU2_IPC_FLAG1 IPC_FLAG1
+#define CPU1_to_CPU2_IPC_FLAG2 IPC_FLAG2
+#define CPU1_to_CPU2_IPC_FLAG3 IPC_FLAG3
 #define IPC_SYNC IPC_FLAG31
+#define CPU2_to_CPU1_IPC_FLAG0 IPC_FLAG0
+#define CPU2_to_CPU1_IPC_FLAG1 IPC_FLAG1
+#define CPU2_to_CPU1_IPC_FLAG2 IPC_FLAG2
+#define CPU2_to_CPU1_IPC_FLAG3 IPC_FLAG3
 #define IPC_SYNC IPC_FLAG31
 #define BOOT_MODE_CPU2 BOOTMODE_BOOT_TO_FLASH_SECTOR0
 

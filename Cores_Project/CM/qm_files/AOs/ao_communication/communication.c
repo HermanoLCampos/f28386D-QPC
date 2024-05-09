@@ -57,11 +57,11 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
         case Q_ENTRY_SIG: {
             //BSP_BKPT;
 
-            QASM_INIT( &(me->ipc_cm_cpu1.super) , (void *)0, (void *)0 );
-            QASM_INIT( &(me->ipc_cm_cpu2.super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU1_ID].super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
 
-            QASM_INIT( &(me->cana.super) , (void *)0, (void *)0 );
-            QASM_INIT( &(me->mcan.super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
 
             QACTIVE_POST(&me->super,&im_evt_running_qf,(void *)0);
             status_ = Q_HANDLED();
@@ -88,11 +88,11 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             BSP_BKPT;
 
-            QASM_DISPATCH( &(me->ipc_cm_cpu1.super) , &im_evt_running_qf, (void *) 0 );
-            QASM_DISPATCH( &(me->ipc_cm_cpu2.super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU1_ID].super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_running_qf, (void *) 0 );
 
-            QASM_DISPATCH( &(me->cana.super) , &im_evt_running_qf, (void *) 0 );
-            QASM_DISPATCH( &(me->mcan.super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_running_qf, (void *) 0 );
             status_ = Q_HANDLED();
             break;
         }
@@ -122,10 +122,10 @@ void ao_communication_ctor(const QActive  * const pAO) {
 
     // Orthogonal Components
 
-    OC_IPC_ctor(&me->ipc_cm_cpu1 ,&me->super, 1);
-    OC_IPC_ctor(&me->ipc_cm_cpu2 ,&me->super, 2);
+    OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU1_ID] , &me->super, OC_IPC_CM_CPU1_ID);
+    OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU2_ID] , &me->super, OC_IPC_CM_CPU2_ID);
 
-    OC_CAN_ctor(&me->cana ,&me->super, 1);
-    OC_CAN_ctor(&me->mcan ,&me->super, 2);
+    OC_CAN_ctor(&me->can_inst[OC_CAN_CANA_ID] ,&me->super, OC_CAN_CANA_ID);
+    OC_CAN_ctor(&me->can_inst[OC_CAN_MCAN_ID] ,&me->super, OC_CAN_MCAN_ID);
 }
 //$enddef${CM::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

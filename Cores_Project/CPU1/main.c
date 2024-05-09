@@ -1,7 +1,6 @@
-/**
- * main.c
- */
-
+//
+// Included Files
+//
 
 #include "application.h"
 
@@ -18,5 +17,5 @@ void main(void)
 
     while(1){
         BSP_BKPT;
-    };
+    }
 }

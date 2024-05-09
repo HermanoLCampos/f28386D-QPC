@@ -5,7 +5,7 @@
  *      Author: ramon.martins
  */
 
-#include "c28x_interrupts.h"
+#include "cpu2_interrupts.h"
 
 //
 // cla1Isr1 - CLA1 ISR 1

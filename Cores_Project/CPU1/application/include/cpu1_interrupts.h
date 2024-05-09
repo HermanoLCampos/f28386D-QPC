@@ -35,5 +35,21 @@ __interrupt void INT_myADCB_1_ISR();
 __interrupt void INT_myADCC_1_ISR();
 __interrupt void INT_myADCD_1_ISR();
 
+// IPC interrupts CM
+__interrupt void IPC_CM_ISR0();
+__interrupt void IPC_CM_ISR1();
+__interrupt void IPC_CM_ISR2();
+__interrupt void IPC_CM_ISR3();
+__interrupt void IPC_CM_ISR4();
+__interrupt void IPC_CM_ISR5();
+__interrupt void IPC_CM_ISR6();
+__interrupt void IPC_CM_ISR7();
+
+// IPC interrupts CPU2
+__interrupt void IPC_CPU2_ISR0();
+__interrupt void IPC_CPU2_ISR1();
+__interrupt void IPC_CPU2_ISR2();
+__interrupt void IPC_CPU2_ISR3();
+
 
 #endif /* APPLICATION_INCLUDE_C28X_INTERRUPTS_H_ */

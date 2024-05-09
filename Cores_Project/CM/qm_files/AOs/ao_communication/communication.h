@@ -46,10 +46,8 @@ typedef struct {
     QActive super;
 
 // private:
-    OC_IPC ipc_cm_cpu1;
-    OC_IPC ipc_cm_cpu2;
-    OC_CAN cana;
-    OC_CAN mcan;
+    OC_IPC ipc_inst[OC_IPC_NUM_OF_INST];
+    OC_CAN can_inst[OC_CAN_NUM_OF_INST];
 } Communication;
 
 // protected:

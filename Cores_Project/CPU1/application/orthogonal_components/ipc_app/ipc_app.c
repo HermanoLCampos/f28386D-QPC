@@ -6,4 +6,7 @@
  */
 
 #include "./ipc_app.h"
+#include "bsp_ipc.h"
+
+extern BSP_IPC_MessageQueue_t ipc_message_queue[OC_IPC_NUM_OF_INST];
 
