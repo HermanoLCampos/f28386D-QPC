@@ -78,12 +78,6 @@ QState OC_CAN_Waiting_QF(OC_CAN * const me, QEvt const * const e) {
 QState OC_CAN_Start(OC_CAN * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
-        //${OCs::OC_CAN::OC_CAN::SM::Start}
-        case Q_ENTRY_SIG: {
-            BSP_BKPT;
-            status_ = Q_HANDLED();
-            break;
-        }
         //${OCs::OC_CAN::OC_CAN::SM::Start::INIT_COMPLETE}
         case INIT_COMPLETE_SIG: {
             status_ = Q_TRAN(&OC_CAN_Operation);

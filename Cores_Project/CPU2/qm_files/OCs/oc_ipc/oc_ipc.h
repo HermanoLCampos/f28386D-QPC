@@ -44,6 +44,11 @@ typedef struct {
 // private:
     QActive * owner;
     uint16_t id;
+
+// public:
+    oc_ipc_msg_t msg_buffer[OC_IPC_NUM_OF_INST];
+    uint16_t n_msg_received;
+    uint16_t fault_cont;
 } OC_IPC;
 
 // public:
@@ -58,6 +63,7 @@ QState OC_IPC_Start(OC_IPC * const me, QEvt const * const e);
 QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e);
 QState OC_IPC_Running(OC_IPC * const me, QEvt const * const e);
 QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e);
+QState OC_IPC_In_Reset(OC_IPC * const me, QEvt const * const e);
 //$enddecl${OCs::OC_IPC} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #endif

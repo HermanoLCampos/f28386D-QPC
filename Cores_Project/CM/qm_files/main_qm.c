@@ -42,9 +42,81 @@
 
 //$define${CM::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${CM::Immutable_Events::im_evt_running_qf} .................................
+//${CM::Immutable_Events::General::im_evt_running_qf} ........................
 QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
 
-//${CM::Immutable_Events::im_evt_init_complete} ..............................
+//${CM::Immutable_Events::General::im_evt_init_complete} .....................
 QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~} ..
+OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~} ..
+OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~} ..
+OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~} ..
+OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~} ..
+OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~} ..
+OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
 //$enddef${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

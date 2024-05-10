@@ -11,6 +11,7 @@
 #include "cm.h"
 #include "bsp_basic.h"
 #include "main_qm.h"
+#include "board.h"
 
 // IPC Interrupts
 

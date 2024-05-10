@@ -52,6 +52,7 @@ typedef struct {
 QState Communication_initial(Communication * const me, void const * const par);
 QState Communication_Waiting_QF(Communication * const me, QEvt const * const e);
 QState Communication_Start(Communication * const me, QEvt const * const e);
+QState Communication_Operation(Communication * const me, QEvt const * const e);
 
 //${CPU2::AOs::AO_Communication::inst_ao_communication} ......................
 extern Communication inst_ao_communication;

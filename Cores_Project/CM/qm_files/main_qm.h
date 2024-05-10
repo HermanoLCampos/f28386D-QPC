@@ -31,6 +31,7 @@
 #ifndef MAIN_QM_H_
 #define MAIN_QM_H_
 
+#include "ipc_config.h"
 #include "qpc.h"
 #include "bsp_basic.h"
 
@@ -38,48 +39,18 @@
 //====================Signals=====================
 //================================================
 
-//$declare${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-//${CM::Signals::private_signals} ............................................
-enum private_signals {
-// Publish Subscribe Signals
-    TIMEOUT_SIG = Q_USER_SIG,
-
-    // - Only PRIVATE
-
-    MAX_PUB_SIG,
-
-    // COMMON Signals
-    RUNNING_QF_SIG,
-    INIT_COMPLETE_SIG,
-
-    // CAN OC Signals
-    CAN_RECEIVE_MSG_SIG,
-    CAN_SEND_MSG_SIG,
-    CAN_PASSIVE_ERROR_SIG,
-    CAN_BUS_OFF_SIG,
-    CAN_ERROR_CLEAR_SIG,
-
-    // IPC OC Signals
-    IPC_RECEIVE_MSG_SIG,
-    IPC_SEND_MSG_SIG,
-    IPC_FULL_BUS_SIG,
-    IPC_RESET_CH_SIG,
-
-    MAX_PRIVATE_SIG,
-};
-//$enddecl${CM::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 //$declare${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${Shared::Signals::shared_signals} .........................................
-enum shared_signals {
-    SHARED_SIGNALS_INIT = 128,
-    // - GLOBAL
+//${Shared::Signals::com_signals_ipc} ........................................
+enum com_signals_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CAN_SEND_MSG,
+    COM_SIG_IPC_MAX,
+};
 
-    // - lOCAL
-
-    MAX_SIG
+//${Shared::Signals::com_signals_can} ........................................
+enum com_signals_can {
+    COM_SIG_CAN_MAX,
 };
 
 //${Shared::Event_Types::OC_Evt} .............................................
@@ -99,7 +70,83 @@ typedef struct {
 // public:
     uint16_t ID;
 } OC_TimeEvt;
+
+//${Shared::Event_Types::OC_IPC_types::struct} ...............................
+typedef struct {
+    uint16_t com_ipc_sig;
+    uint16_t payload[BSP_IPC_MAX_PAYLOAD_SIZE-2];
+}oc_ipc_msg_t;
+
+//${Shared::Event_Types::OC_IPC_types::OC_Evt_IPC_Message_t} .................
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    oc_ipc_msg_t msg;
+} OC_Evt_IPC_Message_t;
+
+//${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
+#define OC_IPC_CMD_REMOTE_RESET 0
+
+
+//${Shared::Macros::OC_IPC_CMD_RESET_COMPLETE} ...............................
+#define OC_IPC_CMD_RESET_COMPLETE 1
 //$enddecl${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$declare${OCs::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${OCs::Signals::OC_IPC_SIGNALS} ............................................
+#define OC_IPC_SIGNALS \
+    IPC_RECEIVE_MSG_SIG,\
+    IPC_SEND_MSG_SIG,\
+    IPC_FULL_BUS_SIG,\
+    IPC_RESET_CH_SIG,\
+    IPC_REMOTE_RESET_SIG,\
+    IPC_RESET_COMPLETE_SIG
+
+//${OCs::Signals::OC_CAN_SIGNALS} ............................................
+#define OC_CAN_SIGNALS \
+    CAN_RECEIVE_MSG_SIG,\
+    CAN_SEND_MSG_SIG,\
+    CAN_PASSIVE_ERROR_SIG,\
+    CAN_BUS_OFF_SIG,\
+    CAN_ERROR_CLEAR_SIG
+//$enddecl${OCs::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$declare${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CM::Signals::private_signals} ............................................
+enum private_signals {
+// Publish Subscribe Signals
+    TIMEOUT_SIG = Q_USER_SIG,
+
+    // - Only PRIVATE
+
+    MAX_PUB_SIG,
+
+    // COMMON Signals
+    RUNNING_QF_SIG,
+    INIT_COMPLETE_SIG,
+
+    // CAN OC Signals
+    OC_CAN_SIGNALS,
+
+    // IPC OC Signals
+    OC_IPC_SIGNALS,
+
+    MAX_PRIVATE_SIG,
+};
+
+//${CM::Signals::struct} .....................................................
+typedef struct {
+    uint16_t const sig_id;
+    QActive * const p_ao;
+}com_ipc_tag_t;
+
+//${CM::Signals::com_signals_ipc_table[COM_SIG_IP~} ..........................
+extern QActive * const com_signals_ipc_table[COM_SIG_IPC_MAX];
+//$enddecl${CM::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //================================================
 //===================Priorities===================
@@ -114,19 +161,6 @@ enum ao_priority {
     AO_COMMUNICATION_PRIO,
 };
 //$enddecl${CM::ao_priority} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-//================================================
-//================Immutable-Events================
-//================================================
-
-//$declare${CM::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-//${CM::Immutable_Events::im_evt_running_qf} .................................
-extern QEvt const im_evt_running_qf;
-
-//${CM::Immutable_Events::im_evt_init_complete} ..............................
-extern QEvt const im_evt_init_complete;
-//$enddecl${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //================================================
 //=================Active-Objects=================
@@ -162,5 +196,54 @@ enum can_named {
     OC_CAN_NUM_OF_INST,
 };
 //$enddecl${CM::OC_enum} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//================================================
+//================Immutable-Events================
+//================================================
+
+//$declare${CPU1::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU1::Immutable_Events::General::im_evt_running_qf} ......................
+extern QEvt const im_evt_running_qf;
+
+//${CPU1::Immutable_Events::General::im_evt_init_complete} ...................
+extern QEvt const im_evt_init_complete;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
+extern QEvt const im_evt_precharge_start;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
+extern QEvt const im_evt_precharge_finish;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_start_control} ......................
+extern QEvt const im_evt_start_control;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_stop_control} .......................
+extern QEvt const im_evt_stop_control;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_il_0} ...............................
+extern QEvt const im_evt_il_0;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_reset} ..............................
+extern QEvt const im_evt_reset;
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~}
+extern OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
+extern OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
+extern OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
+extern OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~}
+extern OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~}
+extern OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST];
+//$enddecl${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #endif // MAIN_QM_H_

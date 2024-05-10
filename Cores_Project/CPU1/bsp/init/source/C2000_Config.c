@@ -53,8 +53,8 @@ void C2000_Init(void){
     C2000Ware_libraries_init();
 
     IPC_clearFlagLtoR(IPC_CPU1_L_CPU2_R, IPC_FLAG_ALL);
-    IPC_sync(IPC_CPU1_L_CPU2_R, IPC_SYNC);
+    IPC_sync(IPC_CPU1_L_CPU2_R, IPC_SYNC_FLAG);
 
     IPC_clearFlagLtoR(IPC_CPU1_L_CM_R, IPC_FLAG_ALL);
-    IPC_sync(IPC_CPU1_L_CM_R, IPC_SYNC);
+    IPC_sync(IPC_CPU1_L_CM_R, IPC_SYNC_FLAG);
 }

@@ -80,7 +80,8 @@ QState OC_IPC_Start(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Start}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            me->n_msg_received = 0;
+            me->fault_cont = 0;
             status_ = Q_HANDLED();
             break;
         }
@@ -103,17 +104,45 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
+            FUNCTIONAL_ASSERT(0,me->n_msg_received == 0);
+            for( ; me->n_msg_received<BSP_IPC_BUFFER_SIZE ; me->n_msg_received++){
+                if(! oc_ipc_receive_message((uint16_t *) &me->msg_buffer[ me->n_msg_received] , me->id))
+                    break;
+            }
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}
         case IPC_SEND_MSG_SIG: {
+            if(
+                !oc_ipc_send_message(
+                    (uint16_t *) &(Q_EVT_CAST(OC_Evt_IPC_Message_t)->msg),
+                    me->id
+                )
+            ){
+                QACTIVE_POST(
+                    me->owner,
+                    &im_evt_ipc_full_bus[me->id].super,
+                    (void *)0
+                );
+            }
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}
         case IPC_FULL_BUS_SIG: {
             status_ = Q_TRAN(&OC_IPC_Error);
+            break;
+        }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RESET_CH}
+        case IPC_RESET_CH_SIG: {
+            status_ = Q_TRAN(&OC_IPC_In_Reset);
+            break;
+        }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_REMOTE_RESET}
+        case IPC_REMOTE_RESET_SIG: {
+            oc_ipc_reset_complete(me->id);
+            status_ = Q_TRAN(&OC_IPC_Running);
             break;
         }
         default: {
@@ -128,6 +157,12 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
 QState OC_IPC_Running(OC_IPC * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::Running}
+        case Q_ENTRY_SIG: {
+            BSP_BKPT;
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&OC_IPC_Operation);
             break;
@@ -140,9 +175,50 @@ QState OC_IPC_Running(OC_IPC * const me, QEvt const * const e) {
 QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
-        //${OCs::OC_IPC::OC_IPC::SM::Operation::Error::IPC_RESET_CH}
-        case IPC_RESET_CH_SIG: {
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::Error}
+        case Q_ENTRY_SIG: {
+            me->fault_cont++;
+            QACTIVE_POST(
+                me->owner,
+                &im_evt_ipc_reset_ch[me->id].super,
+                (void *)0
+            );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::Error::IPC_RECEIVE_MSG, IPC_SEND_MSG}
+        case IPC_RECEIVE_MSG_SIG: // intentionally fall through
+        case IPC_SEND_MSG_SIG: {
+            status_ = Q_HANDLED();
+            break;
+        }
+        default: {
+            status_ = Q_SUPER(&OC_IPC_Operation);
+            break;
+        }
+    }
+    return status_;
+}
+
+//${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset} ............................
+QState OC_IPC_In_Reset(OC_IPC * const me, QEvt const * const e) {
+    QState status_;
+    switch (e->sig) {
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset}
+        case Q_ENTRY_SIG: {
+            oc_ipc_reset_ch(me->id);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset::IPC_RESET_COMPLETE}
+        case IPC_RESET_COMPLETE_SIG: {
             status_ = Q_TRAN(&OC_IPC_Running);
+            break;
+        }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset::IPC_RECEIVE_MSG, IPC_SEND_MSG}
+        case IPC_RECEIVE_MSG_SIG: // intentionally fall through
+        case IPC_SEND_MSG_SIG: {
+            status_ = Q_HANDLED();
             break;
         }
         default: {

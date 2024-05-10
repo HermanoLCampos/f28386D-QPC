@@ -10,14 +10,14 @@
 
 #define BSP_MQ_SUPPORT 1
 
-#define BSP_USE_COMMAND_IPC_MQ 1
-#define BSP_USE_POINTER_IPC_MQ 1
+#define BSP_USE_COMMAND_IPC_MQ 0
+#define BSP_USE_POINTER_IPC_MQ 0
 #define BSP_USE_PAYLOAD_IPC_MQ 1
 
 // consider use buffersize + 1. this MQ let a
 // dead space in the buffer because the head tail use
 #define BSP_IPC_BUFFER_SIZE    4
-#define BSP_IPC_MAX_PAYLOAD_SIZE   1
+#define BSP_IPC_MAX_PAYLOAD_SIZE   4
 
 #define BSP_IPC_INTERRUPTS_CPU1_CPU2_USED 1
 #define BSP_IPC_INTERRUPTS_CPU1_CM_USED 1

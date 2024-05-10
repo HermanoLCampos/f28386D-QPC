@@ -6,6 +6,7 @@
  */
 
 #include "cpu2_interrupts.h"
+#include "board.h"
 
 __interrupt void IPC_CPU1_ISR0(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -26,17 +27,7 @@ __interrupt void IPC_CPU1_ISR1(){
 
     BSP_BKPT;
 
-//    BSP_IPC_Message_t Message_received;
-//    bool status;
-//    do{
-//        status = BSP_IPC_readMessageFromQueue(IPC_CPU2_L_CPU1_R, &ipc_message_queue_cpu2_to_cpu1, IPC_ADDR_CORRECTION_DISABLE, &Message_received , IPC_NONBLOCKING_CALL);
-//
-//        if(status){
-//
-//        }else{
-//            // Treat the error here
-//        }
-//    }while(status);
+    QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CPU2_CPU1_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -58,7 +49,19 @@ __interrupt void IPC_CPU1_ISR3(){
     IPC_ackFlagRtoL(IPC_CPU2_L_CPU1_R, IPC_FLAG3);
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 
-    BSP_BKPT;
+    uint32_t command,addr,data;
+    IPC_readCommand( IPC_CPU2_L_CPU1_R , IPC_RESET_FLAG , IPC_ADDR_CORRECTION_DISABLE, &command, &addr, &data);
+
+    switch (command) {
+        case OC_IPC_CMD_REMOTE_RESET:
+            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_remote_reset[OC_IPC_CPU2_CPU1_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
+            break;
+        case OC_IPC_CMD_RESET_COMPLETE:
+            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_reset_complete[OC_IPC_CPU2_CPU1_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
+            break;
+        default:
+            break;
+    }
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

@@ -42,27 +42,99 @@
 
 //$define${CPU1::Immutable_Events} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${CPU1::Immutable_Events::im_evt_running_qf} ...............................
+//${CPU1::Immutable_Events::General::im_evt_running_qf} ......................
 QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
 
-//${CPU1::Immutable_Events::im_evt_init_complete} ............................
+//${CPU1::Immutable_Events::General::im_evt_init_complete} ...................
 QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
 
-//${CPU1::Immutable_Events::im_evt_precharge_start} ..........................
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
 QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
 
-//${CPU1::Immutable_Events::im_evt_precharge_finish} .........................
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
 QEvt const im_evt_precharge_finish = QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);
 
-//${CPU1::Immutable_Events::im_evt_start_control} ............................
+//${CPU1::Immutable_Events::FSBB::im_evt_start_control} ......................
 QEvt const im_evt_start_control = QEVT_INITIALIZER(START_CONTROL_SIG);
 
-//${CPU1::Immutable_Events::im_evt_stop_control} .............................
+//${CPU1::Immutable_Events::FSBB::im_evt_stop_control} .......................
 QEvt const im_evt_stop_control = QEVT_INITIALIZER(STOP_CONTROL_SIG);
 
-//${CPU1::Immutable_Events::im_evt_il_0} .....................................
+//${CPU1::Immutable_Events::FSBB::im_evt_il_0} ...............................
 QEvt const im_evt_il_0 = QEVT_INITIALIZER(IL_0_SIG);
 
-//${CPU1::Immutable_Events::im_evt_reset} ....................................
+//${CPU1::Immutable_Events::FSBB::im_evt_reset} ..............................
 QEvt const im_evt_reset = QEVT_INITIALIZER(RESET_SIG);
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~}
+OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~}
+OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~}
+OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
 //$enddef${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

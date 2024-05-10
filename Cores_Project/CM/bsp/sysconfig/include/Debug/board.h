@@ -827,13 +827,13 @@ extern __interrupt void IPC_CPU2_ISR0(void);
 #define CPU1_to_CPU2_IPC_FLAG0 IPC_FLAG0
 #define CPU1_to_CPU2_IPC_FLAG1 IPC_FLAG1
 #define CPU1_to_CPU2_IPC_FLAG2 IPC_FLAG2
-#define CPU1_to_CPU2_IPC_FLAG3 IPC_FLAG3
-#define IPC_SYNC IPC_FLAG31
+#define IPC_RESET_FLAG IPC_FLAG3
+#define IPC_SYNC_FLAG IPC_FLAG31
 #define CPU2_to_CPU1_IPC_FLAG0 IPC_FLAG0
 #define CPU2_to_CPU1_IPC_FLAG1 IPC_FLAG1
 #define CPU2_to_CPU1_IPC_FLAG2 IPC_FLAG2
-#define CPU2_to_CPU1_IPC_FLAG3 IPC_FLAG3
-#define IPC_SYNC IPC_FLAG31
+#define IPC_RESET_FLAG IPC_FLAG3
+#define IPC_SYNC_FLAG IPC_FLAG31
 #define BOOT_MODE_CPU2 BOOTMODE_BOOT_TO_FLASH_SECTOR0
 
 //*****************************************************************************
