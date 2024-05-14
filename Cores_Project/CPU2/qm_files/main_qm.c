@@ -120,3 +120,14 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
     }
 };
 //$enddef${CPU2::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//$define${CPU2::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+//${CPU2::Signals::com_signals_ipc_cpu1_cpu2[COM_SI~} ........................
+com_ipc_tag_t com_signals_ipc_cpu1_cpu2[COM_SIG_IPC_CPU1_CPU2_MAX] ={
+};
+
+//${CPU2::Signals::com_signals_ipc_cm_cpu2[COM_SIG_~} ........................
+com_ipc_tag_t com_signals_ipc_cm_cpu2[COM_SIG_IPC_CM_CPU2_MAX] ={
+};
+//$enddef${CPU2::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

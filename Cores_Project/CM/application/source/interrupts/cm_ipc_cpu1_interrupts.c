@@ -29,17 +29,17 @@ __interrupt void IPC_CPU1_ISR1(){
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-OC_Evt_IPC_Message_t Evt_Msg_CPU1 = {
-    .super.super  = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
-    .super.ID = OC_IPC_CM_CPU1_ID,
-    .msg    = {
-        .com_ipc_sig = COM_SIG_IPC_CAN_SEND_MSG,
-        .payload     = {
-            [0] = 2,
-            [1] = 3,
-        }
-    }
-};
+//OC_Evt_IPC_Message_t Evt_Msg_CPU1 = {
+//    .super.super  = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+//    .super.ID = OC_IPC_CM_CPU1_ID,
+//    .msg    = {
+//        .com_ipc_sig = COM_SIG_IPC_CAN_SEND_MSG,
+//        .payload     = {
+//            [0] = 2,
+//            [1] = 3,
+//        }
+//    }
+//};
 
 __interrupt void IPC_CPU1_ISR2(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

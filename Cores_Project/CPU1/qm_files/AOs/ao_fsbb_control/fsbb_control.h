@@ -32,7 +32,6 @@
 #define AO_FSBB_CONTROL_H_
 
 #include "main_qm.h"
-#include "fsbb_control_app/fsbb_control_app.h"
 
 //$declare${CPU1::AOs::AO_FSBB_Control} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 

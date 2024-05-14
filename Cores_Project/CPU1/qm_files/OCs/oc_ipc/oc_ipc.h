@@ -32,7 +32,6 @@
 #define OC_IPC_H_
 
 #include "main_qm.h"
-#include "ipc_app/ipc_app.h"
 
 //$declare${OCs::OC_IPC} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -46,7 +45,7 @@ typedef struct {
     uint16_t id;
 
 // public:
-    oc_ipc_msg_t msg_buffer[OC_IPC_NUM_OF_INST];
+    Communication_Message_t msg_buffer[OC_IPC_NUM_OF_INST];
     uint16_t n_msg_received;
     uint16_t fault_cont;
 } OC_IPC;
@@ -55,6 +54,14 @@ typedef struct {
 void OC_IPC_ctor(OC_IPC * const me,
     QActive * const owner,
     uint16_t id);
+void OC_IPC_send_msg(OC_IPC * const me,
+    QEvt const * const e);
+void OC_IPC_receive_msg(OC_IPC * const me,
+    QEvt const * const e);
+void OC_IPC_reset_ch(OC_IPC * const me,
+    QEvt const * const e);
+void OC_IPC_remote_reset(OC_IPC * const me,
+    QEvt const * const e);
 
 // protected:
 QState OC_IPC_initial(OC_IPC * const me, void const * const par);

@@ -5,6 +5,6 @@
  *      Author: ramon.martins
  */
 
-#include "./communication_app.h"
+#include "AOs/ao_communication/communication.h"
 
 

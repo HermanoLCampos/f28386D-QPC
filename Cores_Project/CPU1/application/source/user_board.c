@@ -10,7 +10,33 @@
 BSP_IPC_MessageQueue_t ipc_message_queue[OC_IPC_NUM_OF_INST];
 
 void user_board_init(){
-    Board_init();
+//    Board_init();
+    //Board Init
+
+    // Consider change when activate specifics interrupts
+
+    EALLOW;
+
+    PinMux_init();
+    SYSCTL_init();
+    SYNC_init();
+    ASYSCTL_init();
+    CLA_init();
+    MEMCFG_init();
+    ADC_init();
+//    CAN_init();
+        CAN1_init();
+//        CAN2_init();
+    CPUTIMER_init();
+    EPWM_init();
+    GPIO_init();
+    I2C_init();
+    IPC_SYSCFG_init();
+    SPI_init();
+    INTERRUPT_init();
+
+    EDIS;
+
 
     IPC_registerInterrupt(IPC_CPU1_L_CM_R, IPC_INT0, IPC_CM_ISR0);
     IPC_registerInterrupt(IPC_CPU1_L_CM_R, IPC_INT1, IPC_CM_ISR1);

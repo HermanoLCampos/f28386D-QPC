@@ -32,7 +32,6 @@
 #define AO_COMMUNICATION_H_
 
 #include "main_qm.h"
-#include "communication_app/communication_app.h"
 
 // Orthogonal Component
 #include "OCs/oc_ipc/oc_ipc.h"

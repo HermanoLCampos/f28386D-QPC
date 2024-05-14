@@ -759,16 +759,6 @@ extern __interrupt void INT_myADCC_1_ISR(void);
 #define INT_myADCD_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
 extern __interrupt void INT_myADCD_1_ISR(void);
 
-// Interrupt Settings for INT_CAN1_0
-#define INT_CAN1_0 INT_CANA0
-#define INT_CAN1_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
-extern __interrupt void INT_CAN1_0_ISR(void);
-
-// Interrupt Settings for INT_CAN1_1
-#define INT_CAN1_1 INT_CANA1
-#define INT_CAN1_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
-extern __interrupt void INT_CAN1_1_ISR(void);
-
 // Interrupt Settings for INT_CAN2_0
 #define INT_CAN2_0 INT_CANB0
 #define INT_CAN2_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9

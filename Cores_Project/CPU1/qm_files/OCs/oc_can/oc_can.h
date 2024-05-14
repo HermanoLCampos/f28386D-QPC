@@ -32,7 +32,6 @@
 #define OC_CAN_H_
 
 #include "main_qm.h"
-#include "can_app/can_app.h"
 
 //$declare${OCs::OC_CAN} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 

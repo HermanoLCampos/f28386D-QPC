@@ -104,28 +104,14 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
-            FUNCTIONAL_ASSERT(0,me->n_msg_received == 0);
-            for( ; me->n_msg_received<BSP_IPC_BUFFER_SIZE ; me->n_msg_received++){
-                if(! oc_ipc_receive_message((uint16_t *) &me->msg_buffer[ me->n_msg_received] , me->id))
-                    break;
-            }
+            OC_IPC_receive_msg(me,e);
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}
         case IPC_SEND_MSG_SIG: {
-            if(
-                !oc_ipc_send_message(
-                    (uint16_t *) &(Q_EVT_CAST(OC_Evt_IPC_Message_t)->msg),
-                    me->id
-                )
-            ){
-                QACTIVE_POST(
-                    me->owner,
-                    &im_evt_ipc_full_bus[me->id].super,
-                    (void *)0
-                );
-            }
+            OC_IPC_send_msg(me,e);
+
             status_ = Q_HANDLED();
             break;
         }
@@ -136,12 +122,13 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RESET_CH}
         case IPC_RESET_CH_SIG: {
+            OC_IPC_reset_ch(me,e);
             status_ = Q_TRAN(&OC_IPC_In_Reset);
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_REMOTE_RESET}
         case IPC_REMOTE_RESET_SIG: {
-            oc_ipc_reset_complete(me->id);
+            OC_IPC_remote_reset(me,e);
             status_ = Q_TRAN(&OC_IPC_Running);
             break;
         }
@@ -177,12 +164,12 @@ QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::Error}
         case Q_ENTRY_SIG: {
-            me->fault_cont++;
-            QACTIVE_POST(
-                me->owner,
-                &im_evt_ipc_reset_ch[me->id].super,
-                (void *)0
-            );
+            //me->fault_cont++;
+            //QACTIVE_POST(
+            //    me->owner,
+            //    &im_evt_ipc_reset_ch[me->id].super,
+            //    (void *)0
+            //);
             status_ = Q_HANDLED();
             break;
         }
@@ -206,7 +193,7 @@ QState OC_IPC_In_Reset(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset}
         case Q_ENTRY_SIG: {
-            oc_ipc_reset_ch(me->id);
+            //oc_ipc_reset_ch(me->id);
             status_ = Q_HANDLED();
             break;
         }

@@ -31,8 +31,8 @@
 #ifndef MAIN_QM_H_
 #define MAIN_QM_H_
 
-#include "ipc_config.h"
 #include "qpc.h"
+#include "macros_qm.h"
 #include "bsp_basic.h"
 
 //================================================
@@ -41,17 +41,53 @@
 
 //$declare${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${Shared::Signals::com_signals_ipc} ........................................
-enum com_signals_ipc {
-    //Index Signals Here
-    COM_SIG_IPC_CAN_SEND_MSG,
-    COM_SIG_IPC_MAX,
-};
-
 //${Shared::Signals::com_signals_can} ........................................
 enum com_signals_can {
     COM_SIG_CAN_MAX,
 };
+
+//${Shared::Signals::Communication IP~::com_signals_cpu1_cpu2_ipc} ...........
+enum com_signals_cpu1_cpu2_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CPU1_CPU2_MAX,
+};
+
+//${Shared::Signals::Communication IP~::com_signals_cpu2_cpu1_ipc} ...........
+enum com_signals_cpu2_cpu1_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CPU2_CPU1_MAX,
+};
+
+//${Shared::Signals::Communication IP~::com_signals_cpu1_cm_ipc} .............
+enum com_signals_cpu1_cm_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CPU1_CM_MAX,
+};
+
+//${Shared::Signals::Communication IP~::com_signals_cm_cpu1_ipc} .............
+enum com_signals_cm_cpu1_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CM_CPU1_MAX,
+};
+
+//${Shared::Signals::Communication IP~::com_signals_cpu2_cm_ipc} .............
+enum com_signals_cpu2_cm_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CPU2_CM_MAX,
+};
+
+//${Shared::Signals::Communication IP~::com_signals_cm_cpu2_ipc} .............
+enum com_signals_cm_cpu2_ipc {
+    //Index Signals Here
+    COM_SIG_IPC_CM_CPU2_MAX,
+};
+
+//${Shared::Types::Communication_Message_t} ..................................
+typedef struct {
+// private:
+    uint16_t com_sig;
+    uint16_t payload[MAX_SIG_PAYLOAD];
+} Communication_Message_t;
 
 //${Shared::Event_Types::OC_Evt} .............................................
 typedef struct {
@@ -71,20 +107,14 @@ typedef struct {
     uint16_t ID;
 } OC_TimeEvt;
 
-//${Shared::Event_Types::OC_IPC_types::struct} ...............................
-typedef struct {
-    uint16_t com_ipc_sig;
-    uint16_t payload[BSP_IPC_MAX_PAYLOAD_SIZE-2];
-}oc_ipc_msg_t;
-
-//${Shared::Event_Types::OC_IPC_types::OC_Evt_IPC_Message_t} .................
+//${Shared::Event_Types::OC_Evt_Communication_Message_t} .....................
 typedef struct {
 // protected:
     OC_Evt super;
 
 // public:
-    oc_ipc_msg_t msg;
-} OC_Evt_IPC_Message_t;
+    Communication_Message_t msg;
+} OC_Evt_Communication_Message_t;
 
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
@@ -92,6 +122,9 @@ typedef struct {
 
 //${Shared::Macros::OC_IPC_CMD_RESET_COMPLETE} ...............................
 #define OC_IPC_CMD_RESET_COMPLETE 1
+
+//${Shared::Macros::MAX_SIG_PAYLOAD} .........................................
+#define MAX_SIG_PAYLOAD 5
 //$enddecl${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$declare${OCs::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -141,11 +174,14 @@ enum private_signals {
 //${CM::Signals::struct} .....................................................
 typedef struct {
     uint16_t const sig_id;
-    QActive * const p_ao;
+    QActive * const * const p_ao;
 }com_ipc_tag_t;
 
-//${CM::Signals::com_signals_ipc_table[COM_SIG_IP~} ..........................
-extern QActive * const com_signals_ipc_table[COM_SIG_IPC_MAX];
+//${CM::Signals::com_signals_ipc_cpu1_cm[COM_SIG_~} ..........................
+extern com_ipc_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX];
+
+//${CM::Signals::com_signals_ipc_cpu2_cm[COM_SIG_~} ..........................
+extern com_ipc_tag_t com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX];
 //$enddecl${CM::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //================================================

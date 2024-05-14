@@ -113,33 +113,33 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU2::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
-            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            //uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
 
-            QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            //QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
 
-            for(; me->ipc_inst[ID].n_msg_received > 0 ; me->ipc_inst[ID].n_msg_received--){
-                oc_ipc_msg_t* msg_to_process = & me->ipc_inst[ID].msg_buffer[me->ipc_inst[ID].n_msg_received-1];
-
-                if(msg_to_process->com_ipc_sig<COM_SIG_IPC_MAX){
-
-                    switch(msg_to_process->com_ipc_sig){
-                    case COM_SIG_IPC_CAN_SEND_MSG:{
-                        //uint16_t can_id = msg_to_process->payload[0];
-                        //QASM_DISPATCH( & me->can_inst[can_id].super , event, (void *) 0);
-                        break;
-                    }
-                    default:{
-                        // Mutable Events or Imutable Events
-                        break;
-                    }
-                    }
+            //for(; me->ipc_inst[ID].n_msg_received > 0 ; me->ipc_inst[ID].n_msg_received--){
+            //    oc_ipc_msg_t* msg_to_process = & me->ipc_inst[ID].msg_buffer[me->ipc_inst[ID].n_msg_received-1];
+            //
+            //    if(msg_to_process->com_ipc_sig<COM_SIG_IPC_MAX){
+            //
+            //        switch(msg_to_process->com_ipc_sig){
+            //        case COM_SIG_IPC_CAN_SEND_MSG:{
+            //            //uint16_t can_id = msg_to_process->payload[0];
+            //            //QASM_DISPATCH( & me->can_inst[can_id].super , event, (void *) 0);
+            //            break;
+            //        }
+            //        default:{
+            //            // Mutable Events or Imutable Events
+            //            break;
+            //        }
+            //        }
 
 
                 //
-                }else{
+            //    }else{
                     // Invalid Command
-                }
-            }
+            //    }
+            //}
             status_ = Q_HANDLED();
             break;
         }

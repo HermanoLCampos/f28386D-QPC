@@ -57,8 +57,6 @@
 									<listOptionValue builtIn="false" value="${SUBMODULES_LOC}/qpc/ports/freertos"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/qpc/freertos_support/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/bsp/qpc/qpc_support/include"/>
-									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/application/active_objects"/>
-									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/application/orthogonal_components"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}/qm_files"/>
 									<listOptionValue builtIn="false" value="${COMMON_LOC}/include"/>
 								</option>

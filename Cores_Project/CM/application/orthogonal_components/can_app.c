@@ -5,5 +5,5 @@
  *      Author: ramon.martins
  */
 
-#include "./can_app.h"
+#include "OCs/oc_can/oc_can.h"
 

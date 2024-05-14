@@ -5,5 +5,11 @@
  *      Author: ramon.martins
  */
 
-#include "./can_app.h"
 
+
+void oc_can_send_msg(){
+
+}
+void oc_can_receive_msg(){
+
+}

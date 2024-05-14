@@ -38,7 +38,7 @@ https://www.state-machine.com/qpc/exa.html</documentation>
     <!--${OCs::OC_IPC::OC_IPC::id}-->
     <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::msg_buffer[OC_IPC_NUM_OF_INST]}-->
-    <attribute name="msg_buffer[OC_IPC_NUM_OF_INST]" type="oc_ipc_msg_t" visibility="0x00" properties="0x00"/>
+    <attribute name="msg_buffer[OC_IPC_NUM_OF_INST]" type="Communication_Message_t" visibility="0x00" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::n_msg_received}-->
     <attribute name="n_msg_received" type="uint16_t" visibility="0x00" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::fault_cont}-->
@@ -52,6 +52,26 @@ https://www.state-machine.com/qpc/exa.html</documentation>
      <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_IPC_initial));
 me-&gt;owner = owner;
 me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_IPC::OC_IPC::send_msg}-->
+    <operation name="send_msg" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::send_msg::e}-->
+     <parameter name="e" type="QEvt const * const"/>
+    </operation>
+    <!--${OCs::OC_IPC::OC_IPC::receive_msg}-->
+    <operation name="receive_msg" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::receive_msg::e}-->
+     <parameter name="e" type="QEvt const * const"/>
+    </operation>
+    <!--${OCs::OC_IPC::OC_IPC::reset_ch}-->
+    <operation name="reset_ch" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::reset_ch::e}-->
+     <parameter name="e" type="QEvt const * const"/>
+    </operation>
+    <!--${OCs::OC_IPC::OC_IPC::remote_reset}-->
+    <operation name="remote_reset" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_IPC::OC_IPC::remote_reset::e}-->
+     <parameter name="e" type="QEvt const * const"/>
     </operation>
     <!--${OCs::OC_IPC::OC_IPC::SM}-->
     <statechart properties="0x00">
@@ -89,29 +109,15 @@ me-&gt;fault_cont = 0;</entry>
      <state name="Operation">
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}-->
       <tran trig="IPC_RECEIVE_MSG">
-       <action>FUNCTIONAL_ASSERT(0,me-&gt;n_msg_received == 0);
-for( ; me-&gt;n_msg_received&lt;BSP_IPC_BUFFER_SIZE ; me-&gt;n_msg_received++){
-    if(! oc_ipc_receive_message((uint16_t *) &amp;me-&gt;msg_buffer[ me-&gt;n_msg_received] , me-&gt;id))
-        break;
-}</action>
+       <action>OC_IPC_receive_msg(me,e);</action>
        <tran_glyph conn="36,12,3,-1,16">
         <action box="0,-2,15,2"/>
        </tran_glyph>
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}-->
       <tran trig="IPC_SEND_MSG">
-       <action>if(
-    !oc_ipc_send_message(
-        (uint16_t *) &amp;(Q_EVT_CAST(OC_Evt_IPC_Message_t)-&gt;msg),
-        me-&gt;id
-    )
-){
-    QACTIVE_POST(
-        me-&gt;owner,
-        &amp;im_evt_ipc_full_bus[me-&gt;id].super,
-        (void *)0
-    );
-}</action>
+       <action>OC_IPC_send_msg(me,e);
+</action>
        <tran_glyph conn="36,14,3,-1,16">
         <action box="0,-2,13,2"/>
        </tran_glyph>
@@ -124,13 +130,14 @@ for( ; me-&gt;n_msg_received&lt;BSP_IPC_BUFFER_SIZE ; me-&gt;n_msg_received++){
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RESET_CH}-->
       <tran trig="IPC_RESET_CH" target="../7">
+       <action>OC_IPC_reset_ch(me,e);</action>
        <tran_glyph conn="36,32,3,3,20">
         <action box="0,-2,13,2"/>
        </tran_glyph>
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_REMOTE_RESET}-->
       <tran trig="IPC_REMOTE_RESET" target="../5">
-       <action>oc_ipc_reset_complete(me-&gt;id);</action>
+       <action>OC_IPC_remote_reset(me,e);</action>
        <tran_glyph conn="36,22,3,3,20">
         <action box="0,-2,17,2"/>
        </tran_glyph>
@@ -144,12 +151,12 @@ for( ; me-&gt;n_msg_received&lt;BSP_IPC_BUFFER_SIZE ; me-&gt;n_msg_received++){
       </state>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Error}-->
       <state name="Error">
-       <entry>me-&gt;fault_cont++;
-QACTIVE_POST(
-    me-&gt;owner,
-    &amp;im_evt_ipc_reset_ch[me-&gt;id].super,
-    (void *)0
-);</entry>
+       <entry>//me-&gt;fault_cont++;
+//QACTIVE_POST(
+//    me-&gt;owner,
+//    &amp;im_evt_ipc_reset_ch[me-&gt;id].super,
+//    (void *)0
+//);</entry>
        <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Error::IPC_RECEIVE_MSG, IPC_SEND_MSG}-->
        <tran trig="IPC_RECEIVE_MSG, IPC_SEND_MSG">
         <tran_glyph conn="56,46,3,-1,16">
@@ -162,7 +169,7 @@ QACTIVE_POST(
       </state>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset}-->
       <state name="In_Reset">
-       <entry>oc_ipc_reset_ch(me-&gt;id);</entry>
+       <entry>//oc_ipc_reset_ch(me-&gt;id);</entry>
        <!--${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset::IPC_RESET_COMPLETE}-->
        <tran trig="IPC_RESET_COMPLETE" target="../../5">
         <tran_glyph conn="56,32,3,1,22,-10,-4">
@@ -526,33 +533,33 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_init_com
       <state name="Operation">
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}-->
        <tran trig="IPC_RECEIVE_MSG">
-        <action>uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
+        <action>//uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
+//QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
 
-for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
-    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
+//for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
+//    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
 
-    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
+//    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
 
-        switch(msg_to_process-&gt;com_ipc_sig){
-        case COM_SIG_IPC_CAN_SEND_MSG:{
+//        switch(msg_to_process-&gt;com_ipc_sig){
+//        case COM_SIG_IPC_CAN_SEND_MSG:{
             //uint16_t can_id = msg_to_process-&gt;payload[0];
             //QASM_DISPATCH( &amp; me-&gt;can_inst[can_id].super , event, (void *) 0);
-            break;
-        }
-        default:{
+//            break;
+//        }
+//        default:{
             // Mutable Events or Imutable Events
-            break;
-        }
-        }
+//            break;
+//        }
+//        }
 
 
     //
-    }else{
+//    }else{
         // Invalid Command
-    }
-}</action>
+//    }
+//}</action>
         <tran_glyph conn="36,10,3,-1,16">
          <action box="0,-2,15,2"/>
         </tran_glyph>
@@ -636,17 +643,18 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
    <attribute name="struct" type="typedef" visibility="0x04" properties="0x00">
     <code>{
     uint16_t const sig_id;
-    QActive * const p_ao;
+    QActive * const * const p_ao;
 }com_ipc_tag_t;</code>
    </attribute>
-   <!--${CPU1::Signals::com_signals_ipc_table[COM_SIG_IP~}-->
-   <attribute name="com_signals_ipc_table[COM_SIG_IPC_MAX]" type="QActive * const" visibility="0x00" properties="0x00">
+   <!--${CPU1::Signals::com_signals_ipc_cpu2_cpu1[COM_SI~}-->
+   <attribute name="com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_IPC_CAN_SEND_MSG] ={
-        .sig_id = CAN_SEND_MSG_SIG,
-        .p_ao = p_ao_communication,
-    };
-}</code>
+};</code>
+   </attribute>
+   <!--${CPU1::Signals::com_signals_ipc_cm_cpu1[COM_SIG_~}-->
+   <attribute name="com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
+    <code>={
+};</code>
    </attribute>
   </package>
   <!--${CPU1::ao_priority}-->
@@ -865,33 +873,33 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ].super) , &amp;im_evt_i
       <state name="Operation">
        <!--${CPU2::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}-->
        <tran trig="IPC_RECEIVE_MSG">
-        <action>uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
+        <action>//uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
+//QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
 
-for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
-    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
-
-    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
-
-        switch(msg_to_process-&gt;com_ipc_sig){
-        case COM_SIG_IPC_CAN_SEND_MSG:{
-            //uint16_t can_id = msg_to_process-&gt;payload[0];
-            //QASM_DISPATCH( &amp; me-&gt;can_inst[can_id].super , event, (void *) 0);
-            break;
-        }
-        default:{
-            // Mutable Events or Imutable Events
-            break;
-        }
-        }
+//for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
+//    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
+//
+//    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
+//
+//        switch(msg_to_process-&gt;com_ipc_sig){
+//        case COM_SIG_IPC_CAN_SEND_MSG:{
+//            //uint16_t can_id = msg_to_process-&gt;payload[0];
+//            //QASM_DISPATCH( &amp; me-&gt;can_inst[can_id].super , event, (void *) 0);
+//            break;
+//        }
+//        default:{
+//            // Mutable Events or Imutable Events
+//            break;
+//        }
+//        }
 
 
     //
-    }else{
+//    }else{
         // Invalid Command
-    }
-}</action>
+//    }
+//}</action>
         <tran_glyph conn="36,10,3,-1,16">
          <action box="0,-2,15,2"/>
         </tran_glyph>
@@ -959,17 +967,18 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
    <attribute name="struct" type="typedef" visibility="0x04" properties="0x00">
     <code>{
     uint16_t const sig_id;
-    QActive * const p_ao;
+    QActive * const * const p_ao;
 }com_ipc_tag_t;</code>
    </attribute>
-   <!--${CPU2::Signals::com_signals_ipc_table[COM_SIG_IP~}-->
-   <attribute name="com_signals_ipc_table[COM_SIG_IPC_MAX]" type="QActive * const" visibility="0x00" properties="0x00">
+   <!--${CPU2::Signals::com_signals_ipc_cpu1_cpu2[COM_SI~}-->
+   <attribute name="com_signals_ipc_cpu1_cpu2[COM_SIG_IPC_CPU1_CPU2_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_IPC_CAN_SEND_MSG] ={
-        .sig_id = CAN_SEND_MSG_SIG,
-        .p_ao = p_ao_communication,
-    };
-}</code>
+};</code>
+   </attribute>
+   <!--${CPU2::Signals::com_signals_ipc_cm_cpu2[COM_SIG_~}-->
+   <attribute name="com_signals_ipc_cm_cpu2[COM_SIG_IPC_CM_CPU2_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
+    <code>={
+};</code>
    </attribute>
   </package>
   <!--${CPU2::ao_priority}-->
@@ -1161,42 +1170,42 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_init_c
       <state name="Operation">
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}-->
        <tran trig="IPC_RECEIVE_MSG">
-        <action>uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
+        <action>//uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
+//QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
 
-for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
-    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
+//for(; me-&gt;ipc_inst[ID].n_msg_received &gt; 0 ; me-&gt;ipc_inst[ID].n_msg_received--){
+//    oc_ipc_msg_t* msg_to_process = &amp; me-&gt;ipc_inst[ID].msg_buffer[me-&gt;ipc_inst[ID].n_msg_received-1];
 
-    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
+//    if(msg_to_process-&gt;com_ipc_sig&lt;COM_SIG_IPC_MAX){
 
-        switch(msg_to_process-&gt;com_ipc_sig){
-        case COM_SIG_IPC_CAN_SEND_MSG:{
-            //uint16_t can_id = msg_to_process-&gt;payload[0];
+//        switch(msg_to_process-&gt;com_ipc_sig){
+//        case COM_SIG_IPC_CAN_SEND_MSG:{
+//            //uint16_t can_id = msg_to_process-&gt;payload[0];
             //QASM_DISPATCH( &amp; me-&gt;can_inst[can_id].super , event, (void *) 0);
-            break;
-        }
-        default:{
+//            break;
+//        }
+//        default:{
             // Mutable Events or Imutable Events
-            break;
-        }
-        }
+//            break;
+//        }
+//        }
 
 
     //
-    }else{
+//    }else{
         // Invalid Command
-    }
-}</action>
+//    }
+//}</action>
         <tran_glyph conn="36,10,3,-1,16">
          <action box="0,-2,15,2"/>
         </tran_glyph>
        </tran>
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::IPC_FULL_BUS, IPC_RESET_CH, IPC_~}-->
        <tran trig="IPC_FULL_BUS, IPC_RESET_CH, IPC_REMOTE_RESET, IPC_RESET_COMPLETE, IPC_SEND_MSG">
-        <action>uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
+        <action>//uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 
-QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );</action>
+//QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );</action>
         <tran_glyph conn="36,12,3,-1,16">
          <action box="0,-2,19,9"/>
         </tran_glyph>
@@ -1261,17 +1270,18 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN
    <attribute name="struct" type="typedef" visibility="0x04" properties="0x00">
     <code>{
     uint16_t const sig_id;
-    QActive * const p_ao;
+    QActive * const * const p_ao;
 }com_ipc_tag_t;</code>
    </attribute>
-   <!--${CM::Signals::com_signals_ipc_table[COM_SIG_IP~}-->
-   <attribute name="com_signals_ipc_table[COM_SIG_IPC_MAX]" type="QActive * const" visibility="0x00" properties="0x00">
+   <!--${CM::Signals::com_signals_ipc_cpu1_cm[COM_SIG_~}-->
+   <attribute name="com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_IPC_CAN_SEND_MSG] ={
-        .sig_id = CAN_SEND_MSG_SIG,
-        .p_ao = p_ao_communication,
-    };
-}</code>
+};</code>
+   </attribute>
+   <!--${CM::Signals::com_signals_ipc_cpu2_cm[COM_SIG_~}-->
+   <attribute name="com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX]" type="com_ipc_tag_t" visibility="0x00" properties="0x00">
+    <code>={
+};</code>
    </attribute>
   </package>
   <!--${CM::ao_priority}-->
@@ -1409,20 +1419,67 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN
  <package name="Shared" stereotype="0x00">
   <!--${Shared::Signals}-->
   <package name="Signals" stereotype="0x00">
-   <!--${Shared::Signals::com_signals_ipc}-->
-   <attribute name="com_signals_ipc" type="enum" visibility="0x04" properties="0x00">
-    <code>{
-    //Index Signals Here
-    COM_SIG_IPC_CAN_SEND_MSG,
-    COM_SIG_IPC_MAX,
-};</code>
-   </attribute>
    <!--${Shared::Signals::com_signals_can}-->
    <attribute name="com_signals_can" type="enum" visibility="0x04" properties="0x00">
     <code>{
     COM_SIG_CAN_MAX,
 };</code>
    </attribute>
+   <!--${Shared::Signals::Communication IPC}-->
+   <package name="Communication IPC" stereotype="0x00">
+    <!--${Shared::Signals::Communication IP~::com_signals_cpu1_cpu2_ipc}-->
+    <attribute name="com_signals_cpu1_cpu2_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CPU1_CPU2_MAX,
+};</code>
+    </attribute>
+    <!--${Shared::Signals::Communication IP~::com_signals_cpu2_cpu1_ipc}-->
+    <attribute name="com_signals_cpu2_cpu1_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CPU2_CPU1_MAX,
+};</code>
+    </attribute>
+    <!--${Shared::Signals::Communication IP~::com_signals_cpu1_cm_ipc}-->
+    <attribute name="com_signals_cpu1_cm_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CPU1_CM_MAX,
+};</code>
+    </attribute>
+    <!--${Shared::Signals::Communication IP~::com_signals_cm_cpu1_ipc}-->
+    <attribute name="com_signals_cm_cpu1_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CM_CPU1_MAX,
+};</code>
+    </attribute>
+    <!--${Shared::Signals::Communication IP~::com_signals_cpu2_cm_ipc}-->
+    <attribute name="com_signals_cpu2_cm_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CPU2_CM_MAX,
+};</code>
+    </attribute>
+    <!--${Shared::Signals::Communication IP~::com_signals_cm_cpu2_ipc}-->
+    <attribute name="com_signals_cm_cpu2_ipc" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    //Index Signals Here
+    COM_SIG_IPC_CM_CPU2_MAX,
+};</code>
+    </attribute>
+   </package>
+  </package>
+  <!--${Shared::Types}-->
+  <package name="Types" stereotype="0x00">
+   <!--${Shared::Types::Communication_Message_t}-->
+   <class name="Communication_Message_t">
+    <!--${Shared::Types::Communication_Me~::com_sig}-->
+    <attribute name="com_sig" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Communication_Me~::payload[MAX_SIG_PAYLOAD]}-->
+    <attribute name="payload[MAX_SIG_PAYLOAD]" type="uint16_t" visibility="0x02" properties="0x00"/>
+   </class>
   </package>
   <!--${Shared::Event_Types}-->
   <package name="Event_Types" stereotype="0x00">
@@ -1436,21 +1493,11 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN
     <!--${Shared::Event_Types::OC_TimeEvt::ID}-->
     <attribute name="ID" type="uint16_t" visibility="0x00" properties="0x00"/>
    </class>
-   <!--${Shared::Event_Types::OC_IPC_types}-->
-   <package name="OC_IPC_types" stereotype="0x00">
-    <!--${Shared::Event_Types::OC_IPC_types::struct}-->
-    <attribute name="struct" type="typedef" visibility="0x04" properties="0x00">
-     <code>{
-    uint16_t com_ipc_sig;
-    uint16_t payload[BSP_IPC_MAX_PAYLOAD_SIZE-2];
-}oc_ipc_msg_t;</code>
-    </attribute>
-    <!--${Shared::Event_Types::OC_IPC_types::OC_Evt_IPC_Message_t}-->
-    <class name="OC_Evt_IPC_Message_t" superclass="Shared::Event_Types::OC_Evt">
-     <!--${Shared::Event_Types::OC_IPC_types::OC_Evt_IPC_Messa~::msg}-->
-     <attribute name="msg" type="oc_ipc_msg_t" visibility="0x00" properties="0x00"/>
-    </class>
-   </package>
+   <!--${Shared::Event_Types::OC_Evt_Communication_Message_t}-->
+   <class name="OC_Evt_Communication_Message_t" superclass="Shared::Event_Types::OC_Evt">
+    <!--${Shared::Event_Types::OC_Evt_Communica~::msg}-->
+    <attribute name="msg" type="Communication_Message_t" visibility="0x00" properties="0x00"/>
+   </class>
   </package>
   <!--${Shared::Macros}-->
   <package name="Macros" stereotype="0x00">
@@ -1462,6 +1509,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN
    <!--${Shared::Macros::OC_IPC_CMD_RESET_COMPLETE}-->
    <attribute name="OC_IPC_CMD_RESET_COMPLETE" type="" visibility="0x03" properties="0x00">
     <code>1</code>
+   </attribute>
+   <!--${Shared::Macros::MAX_SIG_PAYLOAD}-->
+   <attribute name="MAX_SIG_PAYLOAD" type="" visibility="0x03" properties="0x00">
+    <documentation>size of payload of the mensage in  uint16_t
+in payload the message</documentation>
+    <code>5</code>
    </attribute>
   </package>
  </package>
@@ -1483,7 +1536,6 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN
 #define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;communication_app/communication_app.h&quot;
 
 // Orthogonal Component
 #include &quot;OCs/oc_ipc/oc_ipc.h&quot;
@@ -1512,7 +1564,6 @@ $define${CPU1::AOs::AO_Communication}
 #define AO_FSBB_CONTROL_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;fsbb_control_app/fsbb_control_app.h&quot;
 
 $declare${CPU1::AOs::AO_FSBB_Control}
 
@@ -1536,7 +1587,6 @@ $define${CPU1::AOs::AO_FSBB_Control}</text>
 #define OC_IPC_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;ipc_app/ipc_app.h&quot;
 
 $declare${OCs::OC_IPC}
 
@@ -1557,7 +1607,6 @@ $define${OCs::OC_IPC}</text>
 #define OC_CAN_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;can_app/can_app.h&quot;
 
 $declare${OCs::OC_CAN}
 
@@ -1576,8 +1625,8 @@ $define${OCs::OC_CAN}</text>
       <text>#ifndef MAIN_QM_H_
 #define MAIN_QM_H_
 
-#include &quot;ipc_config.h&quot;
 #include &quot;qpc.h&quot;
+#include &quot;macros_qm.h&quot;
 #include &quot;bsp_basic.h&quot;
 
 //================================================
@@ -1626,7 +1675,13 @@ $declare${CPU1::Immutable_Events}
 
 $define${Shared}
 
-$define${CPU1::Immutable_Events}</text>
+$define${CPU1::Immutable_Events}
+
+$define${CPU1::Signals}</text>
+     </file>
+     <!--${.::Cores_Project::CPU1::qm_files::macros_qm.h}-->
+     <file name="macros_qm.h">
+      <text>$declare${Shared::Macros}</text>
      </file>
     </directory>
    </directory>
@@ -1644,7 +1699,6 @@ $define${CPU1::Immutable_Events}</text>
 #define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;communication_app/communication_app.h&quot;
 
 // Orthogonal Component
 #include &quot;OCs/oc_ipc/oc_ipc.h&quot;
@@ -1675,7 +1729,6 @@ $define${CPU2::AOs::AO_Communication}
 #define OC_IPC_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;ipc_app/ipc_app.h&quot;
 
 $declare${OCs::OC_IPC}
 
@@ -1694,8 +1747,8 @@ $define${OCs::OC_IPC}</text>
       <text>#ifndef MAIN_QM_H_
 #define MAIN_QM_H_
 
-#include &quot;ipc_config.h&quot;
 #include &quot;qpc.h&quot;
+#include &quot;macros_qm.h&quot;
 #include &quot;bsp_basic.h&quot;
 
 //================================================
@@ -1741,7 +1794,13 @@ $declare${CPU1::Immutable_Events}
 
 $define${Shared}
 
-$define${CPU2::Immutable_Events}</text>
+$define${CPU2::Immutable_Events}
+
+$define${CPU2::Signals}</text>
+     </file>
+     <!--${.::Cores_Project::CPU2::qm_files::macros_qm.h}-->
+     <file name="macros_qm.h">
+      <text>$declare${Shared::Macros}</text>
      </file>
     </directory>
    </directory>
@@ -1759,7 +1818,6 @@ $define${CPU2::Immutable_Events}</text>
 #define AO_COMMUNICATION_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;communication_app/communication_app.h&quot;
 
 // Orthogonal Component
 #include &quot;OCs/oc_ipc/oc_ipc.h&quot;
@@ -1791,7 +1849,6 @@ $define${CM::AOs::AO_Communication}
 #define OC_IPC_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;ipc_app/ipc_app.h&quot;
 
 $declare${OCs::OC_IPC}
 
@@ -1812,7 +1869,6 @@ $define${OCs::OC_IPC}</text>
 #define OC_CAN_H_
 
 #include &quot;main_qm.h&quot;
-#include &quot;can_app/can_app.h&quot;
 
 $declare${OCs::OC_CAN}
 
@@ -1831,8 +1887,8 @@ $define${OCs::OC_CAN}</text>
       <text>#ifndef MAIN_QM_H_
 #define MAIN_QM_H_
 
-#include &quot;ipc_config.h&quot;
 #include &quot;qpc.h&quot;
+#include &quot;macros_qm.h&quot;
 #include &quot;bsp_basic.h&quot;
 
 //================================================
@@ -1878,7 +1934,13 @@ $declare${CPU1::Immutable_Events}
 
 $define${Shared}
 
-$define${CM::Immutable_Events}</text>
+$define${CM::Immutable_Events}
+
+$define${CM::Signals}</text>
+     </file>
+     <!--${.::Cores_Project::CM::qm_files::macros_qm.h}-->
+     <file name="macros_qm.h">
+      <text>$declare${Shared::Macros}</text>
      </file>
     </directory>
    </directory>
