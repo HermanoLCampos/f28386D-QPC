@@ -49,6 +49,12 @@ typedef struct {
     OC_CAN can_inst[OC_CAN_NUM_OF_INST];
 } Communication;
 
+// public:
+void Communication_ipc_process_msg(Communication * const me,
+    QEvt const * const e);
+void Communication_can_process_msg(Communication * const me,
+    QEvt const * const e);
+
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);
 QState Communication_Waiting_QF(Communication * const me, QEvt const * const e);

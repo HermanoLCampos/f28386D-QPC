@@ -60,49 +60,19 @@ QEvt const im_evt_start_control = QEVT_INITIALIZER(START_CONTROL_SIG);
 //${CPU1::Immutable_Events::FSBB::im_evt_stop_control} .......................
 QEvt const im_evt_stop_control = QEVT_INITIALIZER(STOP_CONTROL_SIG);
 
-//${CPU1::Immutable_Events::FSBB::im_evt_il_0} ...............................
-QEvt const im_evt_il_0 = QEVT_INITIALIZER(IL_0_SIG);
+//${CPU1::Immutable_Events::FSBB::im_evt_update_params} ......................
+QEvt const im_evt_update_params = QEVT_INITIALIZER(UPDATE_PARAMS_SIG);
 
 //${CPU1::Immutable_Events::FSBB::im_evt_reset} ..............................
 QEvt const im_evt_reset = QEVT_INITIALIZER(RESET_SIG);
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~}
-OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CPU1_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
-        .ID = OC_IPC_CPU1_CPU2_ID,
-    },
-    [OC_IPC_CPU1_CM_ID] = {
-        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
-        .ID = OC_IPC_CPU1_CM_ID,
-    }
-};
+//${CPU1::Immutable_Events::FSBB::im_evt_clear_fault} ........................
+QEvt const im_evt_clear_fault = QEVT_INITIALIZER(CLEAR_FAULT_SIG);
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
-OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CPU1_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
-        .ID = OC_IPC_CPU1_CPU2_ID,
-    },
-    [OC_IPC_CPU1_CM_ID] = {
-        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
-        .ID = OC_IPC_CPU1_CM_ID,
-    }
-};
+//${CPU1::Immutable_Events::FSBB::im_evt_change_setpoint} ....................
+QEvt const im_evt_change_setpoint = QEVT_INITIALIZER(CHANGE_SETPOINT_SIG);
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
-OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CPU1_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
-        .ID = OC_IPC_CPU1_CPU2_ID,
-    },
-    [OC_IPC_CPU1_CM_ID] = {
-        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
-        .ID = OC_IPC_CPU1_CM_ID,
-    }
-};
-
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
@@ -114,7 +84,7 @@ OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
     }
 };
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}
 OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
@@ -126,7 +96,19 @@ OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
     }
 };
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}
 OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
@@ -137,15 +119,79 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
         .ID = OC_IPC_CPU1_CM_ID,
     }
 };
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}
+OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CPU1_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CPU1_CPU2_ID,
+    },
+    [OC_IPC_CPU1_CM_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CPU1_CM_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}
+OC_Evt const im_evt_can_send_msg[OC_CAN_NUM_OF_INST] ={
+    [OC_CAN_CANB_ID] = {
+        .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
+        .ID = OC_CAN_CANB_ID,
+    },
+};
 //$enddef${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$define${CPU1::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //${CPU1::Signals::com_signals_ipc_cpu2_cpu1[COM_SI~} ........................
-com_ipc_tag_t com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX] ={
+com_tag_t com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX] ={
 };
 
 //${CPU1::Signals::com_signals_ipc_cm_cpu1[COM_SIG_~} ........................
-com_ipc_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX] ={
+com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX] ={
+    [COM_SIG_IPC_CM_CPU1_CONTROL_START] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_start_control,
+    },
+    [COM_SIG_IPC_CM_CPU1_CONTROL_STOP] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_stop_control,
+    },
+    [COM_SIG_IPC_CM_CPU1_EMERGENCY_SHUTDOWN] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_start_control,
+    },
+    [COM_SIG_IPC_CM_CPU1_PRECHARGE_START] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_precharge_start,
+    },
+    [COM_SIG_IPC_CM_CPU1_RESET] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_reset,
+    },
+    [COM_SIG_IPC_CM_CPU1_CLEAR_FAULT] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_clear_fault,
+    },
+    [COM_SIG_IPC_CM_CPU1_CHANGE_SETPOINT] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_change_setpoint,
+    },
+};
+
+//${CPU1::Signals::com_signals_canb[COM_SIG_CANB_MA~} ........................
+const com_tag_t com_signals_canb[COM_SIG_CANB_MAX] ={
 };
 //$enddef${CPU1::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

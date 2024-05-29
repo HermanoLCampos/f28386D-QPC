@@ -33,4 +33,9 @@ __interrupt void IPC_CPU2_ISR5();
 __interrupt void IPC_CPU2_ISR6();
 __interrupt void IPC_CPU2_ISR7();
 
+// CAN Interrupts
+
+__interrupt void CAN_1_ISR0();
+__interrupt void CAN_1_ISR1();
+
 #endif /* APPLICATION_INCLUDE_CM_INTERRUPTS_H_ */

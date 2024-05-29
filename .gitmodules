@@ -4,3 +4,6 @@
 [submodule "Submodules/bsp_functions"]
 	path = Submodules/bsp_functions
 	url = git@github.com:mon-martins/c2000_bsp_functions.git
+[submodule "Submodules/dbc2h_converter"]
+	path = Submodules/dbc2h_converter
+	url = git@github.com:mon-martins/dbc2h_converter.git

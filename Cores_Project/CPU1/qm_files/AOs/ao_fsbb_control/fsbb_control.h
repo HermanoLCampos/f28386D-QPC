@@ -39,7 +39,17 @@
 typedef struct {
 // protected:
     QActive super;
+
+// private:
+    float setpoints[NUM_OF_SETPOINTS];
+    QTimeEvt time_evt_update_params;
 } FSBB_Control;
+
+// public:
+void FSBB_Control_Start_Precharge(FSBB_Control * const me,
+    QEvt const * const e);
+void FSBB_Control_Finish_Precharge(FSBB_Control * const me,
+    QEvt const * const e);
 
 // protected:
 QState FSBB_Control_initial(FSBB_Control * const me, void const * const par);
@@ -47,7 +57,7 @@ QState FSBB_Control_Waiting_QF(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e);
-QState FSBB_Control_PRECHARGE(FSBB_Control * const me, QEvt const * const e);
+QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Idle(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Running(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e);

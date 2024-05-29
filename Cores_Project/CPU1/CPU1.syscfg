@@ -536,21 +536,25 @@ gpio22.$name           = "STOP2";
 gpio22.direction       = "GPIO_DIR_MODE_OUT";
 gpio22.gpioPin.$assign = "GPIO133";
 
-gpio23.$name           = "HSD1";
-gpio23.direction       = "GPIO_DIR_MODE_OUT";
-gpio23.gpioPin.$assign = "GPIO53";
+gpio23.$name             = "HSD1";
+gpio23.direction         = "GPIO_DIR_MODE_OUT";
+gpio23.writeInitialValue = true;
+gpio23.gpioPin.$assign   = "GPIO53";
 
-gpio24.$name           = "HSD2";
-gpio24.direction       = "GPIO_DIR_MODE_OUT";
-gpio24.gpioPin.$assign = "GPIO52";
+gpio24.$name             = "HSD2";
+gpio24.direction         = "GPIO_DIR_MODE_OUT";
+gpio24.writeInitialValue = true;
+gpio24.gpioPin.$assign   = "GPIO52";
 
-gpio25.$name           = "HSD3";
-gpio25.direction       = "GPIO_DIR_MODE_OUT";
-gpio25.gpioPin.$assign = "GPIO51";
+gpio25.$name             = "HSD3";
+gpio25.direction         = "GPIO_DIR_MODE_OUT";
+gpio25.writeInitialValue = true;
+gpio25.gpioPin.$assign   = "GPIO51";
 
-gpio26.$name           = "HSD4";
-gpio26.direction       = "GPIO_DIR_MODE_OUT";
-gpio26.gpioPin.$assign = "GPIO49";
+gpio26.$name             = "HSD4";
+gpio26.direction         = "GPIO_DIR_MODE_OUT";
+gpio26.writeInitialValue = true;
+gpio26.gpioPin.$assign   = "GPIO49";
 
 gpio27.$name           = "HSD_ST_1_2";
 gpio27.gpioPin.$assign = "GPIO54";
@@ -561,17 +565,22 @@ gpio28.gpioPin.$assign = "GPIO50";
 gpio29.$name           = "CARD_DETECT";
 gpio29.gpioPin.$assign = "GPIO74";
 
-gpio30.$name           = "S_CAN1";
-gpio30.direction       = "GPIO_DIR_MODE_OUT";
-gpio30.gpioPin.$assign = "GPIO45";
+gpio30.$name             = "S_CAN1";
+gpio30.direction         = "GPIO_DIR_MODE_OUT";
+gpio30.controllerCore    = "GPIO_CORE_CM";
+gpio30.writeInitialValue = true;
+gpio30.gpioPin.$assign   = "GPIO45";
 
 gpio31.$name           = "S_CAN2";
 gpio31.direction       = "GPIO_DIR_MODE_OUT";
 gpio31.gpioPin.$assign = "GPIO44";
 
-gpio32.$name           = "S_CAN3";
-gpio32.direction       = "GPIO_DIR_MODE_OUT";
-gpio32.gpioPin.$assign = "GPIO66";
+gpio32.$name             = "S_CAN3";
+gpio32.direction         = "GPIO_DIR_MODE_OUT";
+gpio32.controllerCore    = "GPIO_CORE_CM";
+gpio32.writeInitialValue = true;
+gpio32.initialValue      = 1;
+gpio32.gpioPin.$assign   = "GPIO66";
 
 gpio33.$name           = "RTC_INT";
 gpio33.gpioPin.$assign = "GPIO2";
@@ -661,8 +670,8 @@ spi3.spi.spi_clkPin.$assign  = "GPIO71";
 
 sync.syncOutSource = "SYSCTL_SYNC_OUT_SRC_EPWM4SYNCOUT";
 
-sysctl.sharedPeripheralAllocate_SYSCTL_PALLOCATE_CAN_B  = true;
 sysctl.sharedPeripheralAllocate_SYSCTL_PALLOCATE_MCAN_A = true;
+sysctl.sharedPeripheralAllocate_SYSCTL_PALLOCATE_CAN_A  = true;
 
 FREERTOS1.$name                    = "myFREERTOS0";
 FREERTOS1.CPU_CLOCK_HZ             = 200000000;

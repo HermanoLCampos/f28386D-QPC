@@ -33,6 +33,8 @@
 
 #include "main_qm.h"
 
+#include "ipc_config.h"
+
 //$declare${OCs::OC_IPC} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //${OCs::OC_IPC::OC_IPC} .....................................................
@@ -45,7 +47,7 @@ typedef struct {
     uint16_t id;
 
 // public:
-    Communication_Message_t msg_buffer[OC_IPC_NUM_OF_INST];
+    Communication_Message_t msg_buffer[BSP_IPC_BUFFER_SIZE];
     uint16_t n_msg_received;
     uint16_t fault_cont;
 } OC_IPC;

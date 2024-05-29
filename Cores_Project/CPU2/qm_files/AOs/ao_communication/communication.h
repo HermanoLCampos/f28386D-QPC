@@ -47,6 +47,10 @@ typedef struct {
     OC_IPC ipc_inst[OC_IPC_NUM_OF_INST];
 } Communication;
 
+// public:
+void Communication_ipc_process_msg(Communication * const me,
+    QEvt const * const e);
+
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);
 QState Communication_Waiting_QF(Communication * const me, QEvt const * const e);
@@ -61,6 +65,9 @@ extern QActive * const p_ao_communication;
 
 //${CPU2::AOs::AO_Communication::globals::ao_communication_ctor} .............
 void ao_communication_ctor(const QActive  * const pAO);
+
+//${CPU2::AOs::AO_Communication::ipc_process_msg} ............................
+void ipc_process_msg(QEvt const * const e);
 //$enddecl${CPU2::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #endif

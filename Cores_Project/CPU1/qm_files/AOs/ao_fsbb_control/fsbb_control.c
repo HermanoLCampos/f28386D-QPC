@@ -76,7 +76,9 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
+
+            QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
             status_ = Q_HANDLED();
             break;
         }
@@ -102,9 +104,22 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
-        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}
-        case SET_FAULT_SIG: {
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT, EMERGENCY_SHUTDOWN}
+        case SET_FAULT_SIG: // intentionally fall through
+        case EMERGENCY_SHUTDOWN_SIG: {
             status_ = Q_TRAN(&FSBB_Control_Fault);
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::CHANGE_SETPOINT}
+        case CHANGE_SETPOINT_SIG: {
+            BSP_BKPT;
+
+            AO_Evt_Change_Setpoint_t const * Evt_Change_Setpoint =  Q_EVT_CAST(AO_Evt_Change_Setpoint_t);
+
+            if(Evt_Change_Setpoint->data.setpoint_id<NUM_OF_SETPOINTS){
+                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value*((float)0.01);
+            }
+            status_ = Q_HANDLED();
             break;
         }
         default: {
@@ -119,9 +134,17 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
 QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}
+        case Q_ENTRY_SIG: {
+            BSP_BKPT;
+            status_ = Q_HANDLED();
+            break;
+        }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}
         case PRECHARGE_START_SIG: {
-            status_ = Q_TRAN(&FSBB_Control_PRECHARGE);
+            FSBB_Control_Start_Precharge(me,e);
+            //BSP_BKPT;
+            status_ = Q_TRAN(&FSBB_Control_Precharge);
             break;
         }
         default: {
@@ -132,12 +155,13 @@ QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e) {
     return status_;
 }
 
-//${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::PRECHARGE} ......
-QState FSBB_Control_PRECHARGE(FSBB_Control * const me, QEvt const * const e) {
+//${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge} ......
+QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
-        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::PRECHARGE::PRECHARGE_FINISH}
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}
         case PRECHARGE_FINISH_SIG: {
+            FSBB_Control_Finish_Precharge(me,e);
             status_ = Q_TRAN(&FSBB_Control_Idle);
             break;
         }
@@ -204,14 +228,15 @@ QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e) {
 QState FSBB_Control_To_Idle(FSBB_Control * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
-        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::IL_0}
-        case IL_0_SIG: {
-            status_ = Q_TRAN(&FSBB_Control_Idle);
-            break;
-        }
-        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::START_CONTROL}
-        case START_CONTROL_SIG: {
-            status_ = Q_TRAN(&FSBB_Control_Running);
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::UPDATE_PARAMS}
+        case UPDATE_PARAMS_SIG: {
+            //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::UPDATE_PARAMS::[10<IL_MIN_OPEN]}
+            if (10 < IL_MIN_OPEN) {
+                status_ = Q_TRAN(&FSBB_Control_Idle);
+            }
+            else {
+                status_ = Q_UNHANDLED();
+            }
             break;
         }
         default: {
@@ -232,5 +257,6 @@ QActive * const p_ao_fsbb_control = &inst_ao_fsbb_control.super;
 void ao_fsbb_control_ctor(const QActive  * const pAO) {
     FSBB_Control * const me = (FSBB_Control *) pAO;
     QActive_ctor(&me->super, Q_STATE_CAST(&FSBB_Control_initial));
+    QTimeEvt_ctorX(&me->time_evt_update_params, &me->super, UPDATE_PARAMS_SIG, 0U);
 }
 //$enddef${CPU1::AOs::AO_FSBB_Control} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

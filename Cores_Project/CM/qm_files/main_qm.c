@@ -48,43 +48,7 @@ QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
 //${CM::Immutable_Events::General::im_evt_init_complete} .....................
 QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
 
-//${CM::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~} ..
-OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CM_CPU1_ID] = {
-        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
-        .ID = OC_IPC_CM_CPU1_ID,
-    },
-    [OC_IPC_CM_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
-        .ID = OC_IPC_CM_CPU2_ID,
-    }
-};
-
-//${CM::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~} ..
-OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CM_CPU1_ID] = {
-        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
-        .ID = OC_IPC_CM_CPU1_ID,
-    },
-    [OC_IPC_CM_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
-        .ID = OC_IPC_CM_CPU2_ID,
-    }
-};
-
-//${CM::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~} ..
-OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
-    [OC_IPC_CM_CPU1_ID] = {
-        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
-        .ID = OC_IPC_CM_CPU1_ID,
-    },
-    [OC_IPC_CM_CPU2_ID] = {
-        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
-        .ID = OC_IPC_CM_CPU2_ID,
-    }
-};
-
-//${CM::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~} ..
+//${CM::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CM_CPU1_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
@@ -96,7 +60,7 @@ OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
     }
 };
 
-//${CM::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~} ..
+//${CM::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}
 OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CM_CPU1_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
@@ -108,7 +72,31 @@ OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
     }
 };
 
-//${CM::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~} ..
+//${CM::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}
+OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
+OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
+    [OC_IPC_CM_CPU1_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    [OC_IPC_CM_CPU2_ID] = {
+        .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
+        .ID = OC_IPC_CM_CPU2_ID,
+    }
+};
+
+//${CM::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}
 OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
     [OC_IPC_CM_CPU1_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
@@ -119,15 +107,170 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
         .ID = OC_IPC_CM_CPU2_ID,
     }
 };
+
+//${CM::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}
+OC_Evt const im_evt_can_send_msg[OC_CAN_NUM_OF_INST] ={
+    [OC_CAN_CANA_ID] = {
+        .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
+        .ID = OC_CAN_CANA_ID,
+    },
+    [OC_CAN_MCAN_ID] = {
+        .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
+        .ID = OC_CAN_MCAN_ID,
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_start_control} .....................
+OC_Evt_Communication_Message_t const im_evt_start_control = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_CONTROL_START,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_stop_control} ......................
+OC_Evt_Communication_Message_t const im_evt_stop_control = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_CONTROL_STOP,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_emergency_shutdown} ................
+OC_Evt_Communication_Message_t const im_evt_emergency_shutdown = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_EMERGENCY_SHUTDOWN,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_precharge_start} ...................
+OC_Evt_Communication_Message_t const im_evt_precharge_start = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_PRECHARGE_START,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_clear_fault} .......................
+OC_Evt_Communication_Message_t const im_evt_clear_fault = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_CLEAR_FAULT,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_reset} .............................
+OC_Evt_Communication_Message_t const im_evt_reset = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_RESET,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_change_setpoint} ...................
+OC_Evt_Communication_Message_t const im_evt_change_setpoint = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_CHANGE_SETPOINT,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
 //$enddef${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$define${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //${CM::Signals::com_signals_ipc_cpu1_cm[COM_SIG_~} ..........................
-com_ipc_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
+const com_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
+    [COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+    },
+    [COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_MCAN_ID].super,
+    }
 };
 
 //${CM::Signals::com_signals_ipc_cpu2_cm[COM_SIG_~} ..........................
-com_ipc_tag_t com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX] ={
+const com_tag_t com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX] ={
+    [COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+    },
+    [COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_MCAN_ID].super,
+    }
+};
+
+//${CM::Signals::com_signals_cana[COM_SIG_CANA_MA~} ..........................
+const com_tag_t com_signals_cana[COM_SIG_CANA_MAX] ={
+    [COM_SIG_CANA_CONTROL_START] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_start_control.super.super,
+    },
+    [COM_SIG_CANA_CONTROL_STOP] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_stop_control.super.super,
+    },
+    [COM_SIG_CANA_EMERGENCY_SHUTDOWN] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_emergency_shutdown.super.super,
+    },
+    [COM_SIG_CANA_PRECHARGE_START] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_precharge_start.super.super,
+    },
+    [COM_SIG_CANA_RESET] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_reset.super.super,
+    },
+    [COM_SIG_CANA_CLEAR_FAULT] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_clear_fault.super.super,
+    },
+    [COM_SIG_CANA_CHANGE_SETPOINT] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_change_setpoint.super.super,
+    },
+};
+
+//${CM::Signals::com_signals_mcan[COM_SIG_MCAN_MA~} ..........................
+const com_tag_t com_signals_mcan[COM_SIG_MCAN_MAX] ={
 };
 //$enddef${CM::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

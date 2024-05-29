@@ -12,5 +12,6 @@
 #include "cm_interrupts.h"
 
 void user_board_init();
+void user_CAN_Init();
 
 #endif /* APPLICATION_INCLUDE_USER_BOARD_H_ */

@@ -38,5 +38,11 @@
 #define OC_IPC_CMD_RESET_COMPLETE 1
 
 //${Shared::Macros::MAX_SIG_PAYLOAD} .........................................
-#define MAX_SIG_PAYLOAD 5
+#define MAX_SIG_PAYLOAD 16
+
+//${Shared::Macros::OC_CAN_MSG_BUFFER_SIZE} ..................................
+#define OC_CAN_MSG_BUFFER_SIZE 512
+
+//${Shared::Macros::IL_MIN_OPEN} .............................................
+#define IL_MIN_OPEN 100
 //$enddecl${Shared::Macros} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

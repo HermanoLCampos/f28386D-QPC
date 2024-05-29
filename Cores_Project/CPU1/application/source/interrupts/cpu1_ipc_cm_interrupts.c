@@ -26,15 +26,30 @@ __interrupt void IPC_CM_ISR1(){
     IPC_ackFlagRtoL(IPC_CPU1_L_CM_R, IPC_FLAG1);
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
 
-//    BSP_BKPT;
+    BSP_BKPT;
 
     QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CPU1_CM_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+OC_Evt_Communication_Message_t test_msg_evt = {
+    .super.super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+};
+
+
+
 __interrupt void IPC_CM_ISR2(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+//    Communication_Message_t test_msg;
+//    test_msg.com_sig = COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG;
+//    test_msg.message_size = 0;
+
+//    test_msg_evt.msg = test_msg;
+//    test_msg_evt.super.ID = OC_IPC_CPU1_CM_ID;
+//
+//    QACTIVE_POST_FROM_ISR( p_ao_communication , &test_msg_evt.super.super , &xHigherPriorityTaskWoken , (void *) 0 );
 
     IPC_ackFlagRtoL(IPC_CPU1_L_CM_R, IPC_FLAG2);
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

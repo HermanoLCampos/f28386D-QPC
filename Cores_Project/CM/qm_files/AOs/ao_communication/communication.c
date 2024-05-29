@@ -61,7 +61,7 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
             QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
 
             QASM_INIT( &(me->can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
-            QASM_INIT( &(me->can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
+            //QASM_INIT( &(me->can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
 
             QACTIVE_POST(&me->super,&im_evt_running_qf,(void *)0);
             status_ = Q_HANDLED();
@@ -90,7 +90,7 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_running_qf, (void *) 0 );
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_running_qf, (void *) 0 );
-            QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_running_qf, (void *) 0 );
+            //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_running_qf, (void *) 0 );
 
             QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
             status_ = Q_HANDLED();
@@ -102,7 +102,7 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_init_complete, (void *) 0 );
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_init_complete, (void *) 0 );
-            QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_init_complete, (void *) 0 );
+            //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_init_complete, (void *) 0 );
             status_ = Q_TRAN(&Communication_Operation);
             break;
         }
@@ -120,33 +120,12 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CM::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
-            //uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            BSP_BKPT;
 
-            //QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
 
-            //for(; me->ipc_inst[ID].n_msg_received > 0 ; me->ipc_inst[ID].n_msg_received--){
-            //    oc_ipc_msg_t* msg_to_process = & me->ipc_inst[ID].msg_buffer[me->ipc_inst[ID].n_msg_received-1];
-
-            //    if(msg_to_process->com_ipc_sig<COM_SIG_IPC_MAX){
-
-            //        switch(msg_to_process->com_ipc_sig){
-            //        case COM_SIG_IPC_CAN_SEND_MSG:{
-            //            //uint16_t can_id = msg_to_process->payload[0];
-                        //QASM_DISPATCH( & me->can_inst[can_id].super , event, (void *) 0);
-            //            break;
-            //        }
-            //        default:{
-                        // Mutable Events or Imutable Events
-            //            break;
-            //        }
-            //        }
-
-
-                //
-            //    }else{
-                    // Invalid Command
-            //    }
-            //}
+            Communication_ipc_process_msg(me,e);
             status_ = Q_HANDLED();
             break;
         }
@@ -156,9 +135,29 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         case IPC_REMOTE_RESET_SIG: // intentionally fall through
         case IPC_RESET_COMPLETE_SIG: // intentionally fall through
         case IPC_SEND_MSG_SIG: {
-            //uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}
+        case CAN_RECEIVE_MSG_SIG: {
+            BSP_BKPT;
 
-            //QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            QASM_DISPATCH( &(me->can_inst[ID].super) ,e, (void *) 0 );
+
+            Communication_can_process_msg(me,e);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_SEND_MSG, CAN_BUS_OFF, CAN_P~}
+        case CAN_SEND_MSG_SIG: // intentionally fall through
+        case CAN_BUS_OFF_SIG: // intentionally fall through
+        case CAN_PASSIVE_ERROR_SIG: // intentionally fall through
+        case CAN_ERROR_CLEAR_SIG: {
+            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
+            QASM_DISPATCH( &(me->can_inst[ID].super) ,e, (void *) 0 );
             status_ = Q_HANDLED();
             break;
         }
@@ -187,7 +186,7 @@ void ao_communication_ctor(const QActive  * const pAO) {
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU2_ID] , &me->super, OC_IPC_CM_CPU2_ID);
 
     OC_CAN_ctor(&me->can_inst[OC_CAN_CANA_ID] ,&me->super, OC_CAN_CANA_ID);
-    OC_CAN_ctor(&me->can_inst[OC_CAN_MCAN_ID] ,&me->super, OC_CAN_MCAN_ID);
+    //OC_CAN_ctor(&me->can_inst[OC_CAN_MCAN_ID] ,&me->super, OC_CAN_MCAN_ID);
 }
 //$enddef${CM::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

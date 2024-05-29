@@ -43,12 +43,19 @@ typedef struct {
 // private:
     QActive * owner;
     uint16_t id;
+
+// public:
+    uint16_t msg_buffer[OC_CAN_MSG_BUFFER_SIZE];
 } OC_CAN;
 
 // public:
 void OC_CAN_ctor(OC_CAN * const me,
     QActive * const owner,
     uint16_t id);
+void OC_CAN_send_msg(OC_CAN * const me,
+    QEvt const * const e);
+void OC_CAN_receive_msg(OC_CAN * const me,
+    QEvt const * const e);
 
 // protected:
 QState OC_CAN_initial(OC_CAN * const me, void const * const par);

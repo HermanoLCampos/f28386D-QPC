@@ -102,11 +102,17 @@ QState OC_CAN_Operation(OC_CAN * const me, QEvt const * const e) {
         }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
+            BSP_BKPT;
+            OC_CAN_receive_msg(me,e);
+            BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_SEND_MSG}
         case CAN_SEND_MSG_SIG: {
+            BSP_BKPT;
+            OC_CAN_send_msg(me,e);
+            BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }
@@ -161,14 +167,17 @@ QState OC_CAN_Error_Active(OC_CAN * const me, QEvt const * const e) {
 QState OC_CAN_Bus_Off(OC_CAN * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
-        //${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_RECEIVE_MSG}
-        case CAN_RECEIVE_MSG_SIG: {
-            status_ = Q_TRAN(&OC_CAN_Operation);
-            break;
-        }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_SEND_MSG}
         case CAN_SEND_MSG_SIG: {
             status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_RECEIVE_MSG}
+        case CAN_RECEIVE_MSG_SIG: {
+            BSP_BKPT;
+            OC_CAN_receive_msg(me,e);
+            BSP_BKPT;
+            status_ = Q_TRAN(&OC_CAN_Operation);
             break;
         }
         default: {

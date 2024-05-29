@@ -41,55 +41,121 @@
 
 //$declare${Shared} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${Shared::Signals::com_signals_can} ........................................
-enum com_signals_can {
-    COM_SIG_CAN_MAX,
+//${Shared::Signals::com_tag_t} ..............................................
+typedef struct {
+// private:
+    QActive * const * const p_ao;
+    const QEvt * const im_evt;
+} com_tag_t;
+
+//${Shared::Signals::Communication_CA~::com_signals_cana} ....................
+enum com_signals_cana {
+    COM_SIG_CANA_CONTROL_START,
+    COM_SIG_CANA_CONTROL_STOP,
+    COM_SIG_CANA_EMERGENCY_SHUTDOWN,
+    COM_SIG_CANA_PRECHARGE_START,
+    COM_SIG_CANA_CHANGE_SETPOINT,
+    COM_SIG_CANA_RESET,
+    COM_SIG_CANA_CLEAR_FAULT,
+    COM_SIG_CANA_MAX,
+    COM_SIG_CANA_NOTHING = COM_SIG_CANA_MAX,
+};
+
+//${Shared::Signals::Communication_CA~::com_signals_mcan} ....................
+enum com_signals_mcan {
+    COM_SIG_MCAN_MAX,
+    COM_SIG_MCAN_NOTHING = COM_SIG_MCAN_MAX,
+};
+
+//${Shared::Signals::Communication_CA~::com_signals_canb} ....................
+enum com_signals_canb {
+    COM_SIG_CANB_MAX,
+    COM_SIG_CANB_NOTHING = COM_SIG_CANB_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cpu1_cpu2_ipc} ...........
 enum com_signals_cpu1_cpu2_ipc {
     //Index Signals Here
     COM_SIG_IPC_CPU1_CPU2_MAX,
+    COM_SIG_IPC_CPU1_CPU2_NOTHING = COM_SIG_IPC_CPU1_CPU2_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cpu2_cpu1_ipc} ...........
 enum com_signals_cpu2_cpu1_ipc {
     //Index Signals Here
     COM_SIG_IPC_CPU2_CPU1_MAX,
+    COM_SIG_IPC_CPU2_CPU1_NOTHING = COM_SIG_IPC_CPU2_CPU1_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cpu1_cm_ipc} .............
 enum com_signals_cpu1_cm_ipc {
     //Index Signals Here
+    COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU1_CM_MAX,
+    COM_SIG_IPC_CPU1_CM_NOTHING = COM_SIG_IPC_CPU1_CM_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cm_cpu1_ipc} .............
 enum com_signals_cm_cpu1_ipc {
     //Index Signals Here
+    COM_SIG_IPC_CM_CPU1_CONTROL_START,
+    COM_SIG_IPC_CM_CPU1_CONTROL_STOP,
+    COM_SIG_IPC_CM_CPU1_EMERGENCY_SHUTDOWN,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_START,
+    COM_SIG_IPC_CM_CPU1_CHANGE_SETPOINT,
+    COM_SIG_IPC_CM_CPU1_CLEAR_FAULT,
+    COM_SIG_IPC_CM_CPU1_RESET,
     COM_SIG_IPC_CM_CPU1_MAX,
+    COM_SIG_IPC_CM_CPU1_NOTHING = COM_SIG_IPC_CM_CPU1_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cpu2_cm_ipc} .............
 enum com_signals_cpu2_cm_ipc {
     //Index Signals Here
+    COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU2_CM_MAX,
+    COM_SIG_IPC_CPU2_CM_NOTHING = COM_SIG_IPC_CPU2_CM_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cm_cpu2_ipc} .............
 enum com_signals_cm_cpu2_ipc {
     //Index Signals Here
     COM_SIG_IPC_CM_CPU2_MAX,
+    COM_SIG_IPC_CM_CPU2_NOTHING = COM_SIG_IPC_CM_CPU2_MAX,
 };
+
+//${Shared::Signals::setpoint_list} ..........................................
+enum setpoint_list {
+    IL_CURRENT_SETPOINT,
+    IO_CURRENT_SETPOINT,
+    POWER_SETPOINT,
+    NUM_OF_SETPOINTS,
+};
+
+//${Shared::Types::com_payload} ..............................................
+typedef struct {
+// public:
+    uint16_t data[MAX_SIG_PAYLOAD];
+} com_payload;
 
 //${Shared::Types::Communication_Message_t} ..................................
 typedef struct {
 // private:
     uint16_t com_sig;
-    uint16_t payload[MAX_SIG_PAYLOAD];
+    uint16_t message_size;
+    com_payload payload;
 } Communication_Message_t;
 
-//${Shared::Event_Types::OC_Evt} .............................................
+//${Shared::Types::Setpoint_Data_t} ..........................................
+typedef struct {
+// private:
+    uint16_t setpoint_id;
+    uint16_t setpoint_value;
+} Setpoint_Data_t;
+
+//${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {
 // protected:
     QEvt super;
@@ -98,7 +164,7 @@ typedef struct {
     uint16_t ID;
 } OC_Evt;
 
-//${Shared::Event_Types::OC_TimeEvt} .........................................
+//${Shared::Event_Types::OC::OC_TimeEvt} .....................................
 typedef struct {
 // protected:
     QTimeEvt super;
@@ -107,7 +173,27 @@ typedef struct {
     uint16_t ID;
 } OC_TimeEvt;
 
-//${Shared::Event_Types::OC_Evt_Communication_Message_t} .....................
+//${Shared::Event_Types::OC::OC_Evt_CAN_Message_Received_t} ..................
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    uint32_t Message_ID;
+    uint8_t Data[8];
+} OC_Evt_CAN_Message_Received_t;
+
+//${Shared::Event_Types::OC::OC_Evt_CAN_Send_Message_t} ......................
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    uint8_t Message_Box_ID;
+    uint8_t Data[8];
+} OC_Evt_CAN_Send_Message_t;
+
+//${Shared::Event_Types::OC::OC_Evt_Communication_Message_t} .................
 typedef struct {
 // protected:
     OC_Evt super;
@@ -115,6 +201,15 @@ typedef struct {
 // public:
     Communication_Message_t msg;
 } OC_Evt_Communication_Message_t;
+
+//${Shared::Event_Types::AO::AO_Evt_Change_Setpoint_t} .......................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    Setpoint_Data_t data;
+} AO_Evt_Change_Setpoint_t;
 
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
@@ -124,7 +219,89 @@ typedef struct {
 #define OC_IPC_CMD_RESET_COMPLETE 1
 
 //${Shared::Macros::MAX_SIG_PAYLOAD} .........................................
-#define MAX_SIG_PAYLOAD 5
+#define MAX_SIG_PAYLOAD 16
+
+//${Shared::Macros::OC_CAN_MSG_BUFFER_SIZE} ..................................
+#define OC_CAN_MSG_BUFFER_SIZE 512
+
+//${Shared::Macros::IL_MIN_OPEN} .............................................
+#define IL_MIN_OPEN 100
+
+//${Shared::Event Pools::EVT_POOL_1_SIZE} ....................................
+#define EVT_POOL_1_SIZE 8
+
+
+//${Shared::Event Pools::EVT_POOL_2_SIZE} ....................................
+#define EVT_POOL_2_SIZE 8
+
+
+//${Shared::Event Pools::EVT_POOL_3_SIZE} ....................................
+#define EVT_POOL_3_SIZE 8
+
+
+//${Shared::Event Pools::EVT_POOL_4_SIZE} ....................................
+#define EVT_POOL_4_SIZE 8
+
+
+//${Shared::Event Pools::evt_pool_payload_1_t} ...............................
+typedef struct {
+// public:
+    uint16_t data[1];
+} evt_pool_payload_1_t;
+
+//${Shared::Event Pools::evt_pool_payload_2_t} ...............................
+typedef struct {
+// public:
+    uint16_t data[4];
+} evt_pool_payload_2_t;
+
+//${Shared::Event Pools::evt_pool_payload_3_t} ...............................
+typedef struct {
+// public:
+    uint16_t data[8];
+} evt_pool_payload_3_t;
+
+//${Shared::Event Pools::evt_pool_payload_4_t} ...............................
+typedef struct {
+// public:
+    uint16_t data[16];
+} evt_pool_payload_4_t;
+
+//${Shared::Event Pools::EvtPool1_t} .........................................
+typedef struct {
+// protected:
+    QEvt super;
+
+// private:
+    evt_pool_payload_1_t payload;
+} EvtPool1_t;
+
+//${Shared::Event Pools::EvtPool2_t} .........................................
+typedef struct {
+// protected:
+    QEvt super;
+
+// private:
+    evt_pool_payload_2_t payload;
+} EvtPool2_t;
+
+//${Shared::Event Pools::EvtPool3_t} .........................................
+typedef struct {
+// protected:
+    QEvt super;
+
+// private:
+    evt_pool_payload_3_t payload;
+} EvtPool3_t;
+
+//${Shared::Event Pools::EvtPool4_t} .........................................
+typedef struct {
+// protected:
+    QEvt super;
+
+// private:
+    evt_pool_payload_4_t payload;
+} EvtPool4_t;
 //$enddecl${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$declare${OCs::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -167,10 +344,12 @@ enum private_signals {
     PRECHARGE_FINISH_SIG,
     START_CONTROL_SIG,
     STOP_CONTROL_SIG,
-    IL_0_SIG,
+    EMERGENCY_SHUTDOWN_SIG,
     RESET_SIG,
     SET_FAULT_SIG,
     CLEAR_FAULT_SIG,
+    CHANGE_SETPOINT_SIG,
+    UPDATE_PARAMS_SIG,
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -182,17 +361,14 @@ enum private_signals {
     MAX_PRIVATE_SIG,
 };
 
-//${CPU1::Signals::struct} ...................................................
-typedef struct {
-    uint16_t const sig_id;
-    QActive * const * const p_ao;
-}com_ipc_tag_t;
-
 //${CPU1::Signals::com_signals_ipc_cpu2_cpu1[COM_SI~} ........................
-extern com_ipc_tag_t com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX];
+extern com_tag_t com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX];
 
 //${CPU1::Signals::com_signals_ipc_cm_cpu1[COM_SIG_~} ........................
-extern com_ipc_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX];
+extern com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX];
+
+//${CPU1::Signals::com_signals_canb[COM_SIG_CANB_MA~} ........................
+extern const com_tag_t com_signals_canb[COM_SIG_CANB_MAX];
 //$enddecl${CPU1::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //================================================
@@ -278,29 +454,38 @@ extern QEvt const im_evt_start_control;
 //${CPU1::Immutable_Events::FSBB::im_evt_stop_control} .......................
 extern QEvt const im_evt_stop_control;
 
-//${CPU1::Immutable_Events::FSBB::im_evt_il_0} ...............................
-extern QEvt const im_evt_il_0;
+//${CPU1::Immutable_Events::FSBB::im_evt_update_params} ......................
+extern QEvt const im_evt_update_params;
 
 //${CPU1::Immutable_Events::FSBB::im_evt_reset} ..............................
 extern QEvt const im_evt_reset;
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_receive_msg[OC_IPC_NU~}
-extern OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST];
+//${CPU1::Immutable_Events::FSBB::im_evt_clear_fault} ........................
+extern QEvt const im_evt_clear_fault;
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
-extern OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST];
+//${CPU1::Immutable_Events::FSBB::im_evt_change_setpoint} ....................
+extern QEvt const im_evt_change_setpoint;
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
-extern OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST];
-
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 extern OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST];
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_reset_complete[OC_IPC~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}
 extern OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST];
 
-//${CPU1::Immutable_Events::Communication::im_evt_ipc_remote_reset[OC_IPC_N~}
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
+extern OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}
 extern OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
+extern OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}
+extern OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST];
+
+//${CPU1::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}
+extern OC_Evt const im_evt_can_send_msg[OC_CAN_NUM_OF_INST];
 //$enddecl${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #endif // MAIN_QM_H_

@@ -1,28 +1,26 @@
 /*
- * c28x_canb_interrupts.c
+ * cm_can_1_interrupts.c
  *
- *  Created on: 2 de mai de 2024
+ *  Created on: 15 de mai de 2024
  *      Author: ramon.martins
  */
 
-
-#include "cpu1_interrupts.h"
+#include "cm_interrupts.h"
 #include "modulink.h"
 
-//
-// canB_Isr1 - CANB ISR 1
-//
-__interrupt void INT_CAN2_0_ISR(){
+__interrupt void CAN_1_ISR0(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     uint32_t status;
-//    CAN_MsgFrameType frameType;
+    CAN_MsgFrameType frameType;
 
-    status = CAN_getInterruptCause(CANB_BASE);
+    status = CAN_getInterruptCause(CANA_BASE);
+
+    BSP_BKPT;
 
     switch(status){
 
     case CAN_INT_INT0ID_STATUS:
-        status = CAN_getStatus(CANB_BASE);
+        status = CAN_getStatus(CANA_BASE);
 
         if(status & CAN_STATUS_RXOK || status & CAN_STATUS_TXOK){
             // Bus Off state
@@ -83,50 +81,40 @@ __interrupt void INT_CAN2_0_ISR(){
             }
         }
         break;
-//    case CAN_MSG_IN_1_INDEX:
-//    case CAN_MSG_IN_2_INDEX:{
-//
-//        OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
-//        CAN_Received->super.ID = OC_CAN_CANB_ID;
-//        CAN_readMessageWithID(CANB_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
-//        CAN_clearInterruptStatus(CANB_BASE, status );
-//
-//        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
-//
-//        /* Parser Data */
-//
+    case MODULINK_CAN_MSG_IN_1_INDEX:
+    case MODULINK_CAN_MSG_IN_2_INDEX:{
+
+
+        OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
+        CAN_Received->super.ID = OC_CAN_CANA_ID;
+        CAN_readMessageWithID(CANA_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
+        CAN_clearInterruptStatus(CANA_BASE, status );
+
+        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
+
+        /* Parser Data */
+
 //         Message Received Evt
-//
-//        break;
-//    }
+
+        break;
+    }
     default:
         break;
     }
 
 //    BSP_BKPT;
 
-    // Clear Interrupt Flag
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+    CAN_clearGlobalInterruptStatus(CANA_BASE, CAN_GLOBAL_INT_CANINT0);
 
-    CAN_clearGlobalInterruptStatus(CANB_BASE, CAN_GLOBAL_INT_CANINT0);
-
-    // FreeRTOS: End of the ISR
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
-//
-// canB_Isr2 - CANB ISR 2
-//
-
-__interrupt void INT_CAN2_1_ISR(){
+__interrupt void CAN_1_ISR1(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    //BreakPoint, this function shoudn't be called
-    BSP_BKPT;
+//    BSP_BKPT;
 
-    // Clear Interrupt Flag
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+    CAN_clearGlobalInterruptStatus(CANA_BASE, CAN_GLOBAL_INT_CANINT1);
 
-    // FreeRTOS: End of the ISR
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }

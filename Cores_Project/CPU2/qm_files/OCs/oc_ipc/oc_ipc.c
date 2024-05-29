@@ -104,12 +104,14 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
+            BSP_BKPT;
             OC_IPC_receive_msg(me,e);
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}
         case IPC_SEND_MSG_SIG: {
+            BSP_BKPT;
             OC_IPC_send_msg(me,e);
 
             status_ = Q_HANDLED();
@@ -150,6 +152,12 @@ QState OC_IPC_Running(OC_IPC * const me, QEvt const * const e) {
             status_ = Q_HANDLED();
             break;
         }
+        //${OCs::OC_IPC::OC_IPC::SM::Operation::Running}
+        case Q_EXIT_SIG: {
+            BSP_BKPT;
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&OC_IPC_Operation);
             break;
@@ -164,6 +172,7 @@ QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::Error}
         case Q_ENTRY_SIG: {
+            BSP_BKPT;
             //me->fault_cont++;
             //QACTIVE_POST(
             //    me->owner,
@@ -193,6 +202,7 @@ QState OC_IPC_In_Reset(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset}
         case Q_ENTRY_SIG: {
+            BSP_BKPT;
             //oc_ipc_reset_ch(me->id);
             status_ = Q_HANDLED();
             break;

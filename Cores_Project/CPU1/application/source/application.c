@@ -19,10 +19,10 @@ static StackType_t communication_stack[(unsigned int)(configMINIMAL_STACK_SIZE)]
 #pragma DATA_SECTION(communication_stack, ".freertosStaticStack")
 #pragma DATA_ALIGN ( communication_stack , portBYTE_ALIGNMENT)
 
-//static Evt2Bytes Evt2Bytes_EvtPool[8];
-//static Evt8Bytes Evt8Bytes_EvtPool[8];
-//static Evt16Bytes Evt16Bytes_EvtPool[8];
-//static Evt32Bytes Evt32Bytes_EvtPool[8];
+static EvtPool1_t EvtPool1_inst[EVT_POOL_1_SIZE];
+static EvtPool2_t EvtPool2_inst[EVT_POOL_2_SIZE];
+static EvtPool3_t EvtPool3_inst[EVT_POOL_3_SIZE];
+static EvtPool4_t EvtPool4_inst[EVT_POOL_4_SIZE];
 
 static QSubscrList subscr_sto[MAX_PUB_SIG];
 
@@ -30,13 +30,12 @@ void active_objects_init(void){
 
     QF_init();
 
-// Init your Event Pool
+    // Init your Event Pool
 
-//    QF_poolInit(    Evt2Bytes_EvtPool   ,   sizeof( Evt2Bytes_EvtPool)  ,   sizeof( Evt2Bytes_EvtPool[0])   );
-//    QF_poolInit(    Evt8Bytes_EvtPool   ,   sizeof( Evt8Bytes_EvtPool)  ,   sizeof( Evt8Bytes_EvtPool[0])   );
-//    QF_poolInit(    Evt16Bytes_EvtPool  ,   sizeof(Evt16Bytes_EvtPool)  ,   sizeof(Evt16Bytes_EvtPool[0])   );
-//    QF_poolInit(    Evt32Bytes_EvtPool  ,   sizeof(Evt32Bytes_EvtPool)  ,   sizeof(Evt32Bytes_EvtPool[0])   );
-
+    QF_poolInit( EvtPool1_inst , sizeof(EvtPool1_inst)  , sizeof(EvtPool1_inst[0]) );
+    QF_poolInit( EvtPool2_inst , sizeof(EvtPool2_inst)  , sizeof(EvtPool2_inst[0]) );
+    QF_poolInit( EvtPool3_inst , sizeof(EvtPool3_inst)  , sizeof(EvtPool3_inst[0]) );
+//    QF_poolInit( EvtPool4_inst , sizeof(EvtPool4_inst)  , sizeof(EvtPool4_inst[0]) );
 
     // Init your PS List
 

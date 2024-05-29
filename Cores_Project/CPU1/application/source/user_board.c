@@ -25,8 +25,8 @@ void user_board_init(){
     MEMCFG_init();
     ADC_init();
 //    CAN_init();
-        CAN1_init();
-//        CAN2_init();
+//        CAN1_init();
+        CAN2_init();
     CPUTIMER_init();
     EPWM_init();
     GPIO_init();
