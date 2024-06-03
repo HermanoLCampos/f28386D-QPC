@@ -25,6 +25,7 @@ const epwm1          = epwm.addInstance();
 const epwm2          = epwm.addInstance();
 const epwm3          = epwm.addInstance();
 const epwm4          = epwm.addInstance();
+const epwm5          = epwm.addInstance();
 const gpio           = scripting.addModule("/driverlib/gpio.js", {}, false);
 const gpio1          = gpio.addInstance();
 const gpio2          = gpio.addInstance();
@@ -297,11 +298,20 @@ can2.msgObj16.msgLen       = 8;
 
 cla1.$name = "myCLA0";
 
+const divider6       = system.clockTree["ECATDIV"];
+divider6.divideValue = 4;
+
+const divider8       = system.clockTree["EPWMCLKDIV"];
+divider8.divideValue = 1;
+
 const multiplier1         = system.clockTree["AUX_IMULT"];
 multiplier1.multiplyValue = 50;
 
 const multiplier2         = system.clockTree["PLL_IMULT"];
 multiplier2.multiplyValue = 40;
+
+const mux11       = system.clockTree["DIVSRCSEL"];
+mux11.inputSelect = "PLLSYSCLK";
 
 const mux18       = system.clockTree["XTAL_OR_X1"];
 mux18.inputSelect = "XTAL";
@@ -317,7 +327,6 @@ epwm1.epwmTimebase_counterMode                                   = "EPWM_COUNTER
 epwm1.epwmTimebase_syncInPulseSource                             = "EPWM_SYNC_IN_PULSE_SRC_DISABLE";
 epwm1.epwmTimebase_syncOutPulseMode                              = ["EPWM_SYNC_OUT_PULSE_ON_SOFTWARE"];
 epwm1.epwmCounterCompare_cmpA                                    = 1000;
-epwm1.epwmCounterCompare_cmpB                                    = 1000;
 epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_shadowMode            = true;
 epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_UP_CMPA   = "EPWM_AQ_OUTPUT_HIGH";
 epwm1.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_DOWN_CMPB = "EPWM_AQ_OUTPUT_LOW";
@@ -343,6 +352,7 @@ epwm1.epwmTripZone_EPWM_TZ_ACTION_EVENT_TZB                      = "EPWM_TZ_ACTI
 epwm1.epwmTripZone_oneShotSource                                 = ["EPWM_TZ_SIGNAL_OSHT1"];
 epwm1.epwmTripZone_tzInterruptSource                             = ["EPWM_TZ_INTERRUPT_OST"];
 epwm1.epwmTripZone_EPWM_TZ_ACTION_EVENT_TZA                      = "EPWM_TZ_ACTION_HIGH";
+epwm1.epwmCounterCompare_cmpB                                    = 1000;
 epwm1.epwm.$assign                                               = "EPWM4";
 epwm1.epwm.epwm_aPin.$assign                                     = "GPIO6";
 epwm1.epwm.epwm_bPin.$assign                                     = "GPIO7";
@@ -354,8 +364,6 @@ epwm2.epwmTimebase_counterMode                                   = "EPWM_COUNTER
 epwm2.epwmTimebase_syncInPulseSource                             = "EPWM_SYNC_IN_PULSE_SRC_SYNCOUT_EPWM4";
 epwm2.epwmTimebase_syncOutPulseMode                              = ["EPWM_SYNC_OUT_PULSE_ON_SOFTWARE"];
 epwm2.epwmCounterCompare_cmpA                                    = 1000;
-epwm2.epwmCounterCompare_cmpB                                    = 1000;
-epwm2.epwmTimebase_period                                        = 2500;
 epwm2.epwmDeadband_enableRED                                     = true;
 epwm2.epwmDeadband_delayRED                                      = 560;
 epwm2.epwmDeadband_delayFED                                      = 520;
@@ -372,6 +380,8 @@ epwm2.epwmActionQualifier_EPWM_AQ_OUTPUT_B_ON_TIMEBASE_DOWN_CMPB = "EPWM_AQ_OUTP
 epwm2.epwmTripZone_EPWM_TZ_ACTION_EVENT_TZA                      = "EPWM_TZ_ACTION_LOW";
 epwm2.epwmTripZone_oneShotSource                                 = ["EPWM_TZ_SIGNAL_OSHT1"];
 epwm2.epwmTripZone_EPWM_TZ_ACTION_EVENT_TZB                      = "EPWM_TZ_ACTION_HIGH";
+epwm2.epwmCounterCompare_cmpB                                    = 6000;
+epwm2.epwmTimebase_period                                        = 25000;
 epwm2.epwm.$assign                                               = "EPWM3";
 epwm2.epwm.epwm_aPin.$assign                                     = "GPIO4";
 epwm2.epwm.epwm_bPin.$assign                                     = "GPIO5";
@@ -436,6 +446,15 @@ epwm4.epwmEventTrigger_EPWM_SOC_B_triggerEventPrescalar          = "1";
 epwm4.useCase                                                    = "CUSTOM";
 epwm4.epwmInt.enableInterrupt                                    = true;
 epwm4.epwm.$assign                                               = "EPWM8";
+
+epwm5.$name                                             = "Sample_Timer";
+epwm5.epwmTimebase_hsClockDiv                           = "EPWM_HSCLOCK_DIVIDER_1";
+epwm5.epwmTimebase_period                               = 25000;
+epwm5.epwmTimebase_counterMode                          = "EPWM_COUNTER_MODE_UP_DOWN";
+epwm5.useCase                                           = "CUSTOM";
+epwm5.epwmEventTrigger_EPWM_SOC_A_triggerEnable         = true;
+epwm5.epwmEventTrigger_EPWM_SOC_A_triggerSource         = "EPWM_SOC_TBCTR_PERIOD";
+epwm5.epwmEventTrigger_EPWM_SOC_A_triggerEventPrescalar = "1";
 
 gpio1.$name             = "LED1";
 gpio1.direction         = "GPIO_DIR_MODE_OUT";
@@ -504,11 +523,14 @@ gpio12.gpioPin.$assign = "GPIO41";
 gpio13.$name             = "GD_EN1";
 gpio13.direction         = "GPIO_DIR_MODE_OUT";
 gpio13.writeInitialValue = true;
+gpio13.initialValue      = 1;
 gpio13.gpioPin.$assign   = "GPIO89";
 
-gpio14.$name           = "GD_EN2";
-gpio14.direction       = "GPIO_DIR_MODE_OUT";
-gpio14.gpioPin.$assign = "GPIO88";
+gpio14.$name             = "GD_EN2";
+gpio14.direction         = "GPIO_DIR_MODE_OUT";
+gpio14.writeInitialValue = true;
+gpio14.initialValue      = 1;
+gpio14.gpioPin.$assign   = "GPIO88";
 
 gpio15.$name           = "ERROR_OUT1";
 gpio15.gpioPin.$assign = "GPIO17";
@@ -741,3 +763,10 @@ CMD1.userSection[2].$name                  = "freertos_heap_mem";
 CMD1.userSection[2].sectionName            = ".freertosHeap";
 CMD1.userSection[2].sectionMemory          = ["RAMLS0_4"];
 scripting.suppress("Memcfg module must be enabled for complete error checking\\.", CMD1, "sectionMemory_cpuToCla1MsgRAM");
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+epwm5.epwm.$suggestSolution = "EPWM1";

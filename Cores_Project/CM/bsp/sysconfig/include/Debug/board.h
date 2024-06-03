@@ -129,6 +129,10 @@ extern "C"
 //
 // EPWM8 -> FO_HB_2 Pinmux
 //
+
+//
+// EPWM1 -> Sample_Timer Pinmux
+//
 //
 // GPIO9 - GPIO Settings
 //
@@ -554,11 +558,11 @@ void myCLA0_init();
 #define GD_HB_1_TZ_INTERRUPT_SOURCES EPWM_TZ_INTERRUPT_OST
 #define GD_HB_1_INTERRUPT_SOURCE EPWM_INT_TBCTR_PERIOD
 #define GD_HB_2_BASE EPWM3_BASE
-#define GD_HB_2_TBPRD 2500
+#define GD_HB_2_TBPRD 25000
 #define GD_HB_2_COUNTER_MODE EPWM_COUNTER_MODE_UP_DOWN
 #define GD_HB_2_TBPHS 0
 #define GD_HB_2_CMPA 1000
-#define GD_HB_2_CMPB 1000
+#define GD_HB_2_CMPB 6000
 #define GD_HB_2_CMPC 0
 #define GD_HB_2_CMPD 0
 #define GD_HB_2_DBRED 560
@@ -594,6 +598,19 @@ void myCLA0_init();
 #define FO_HB_2_TZB_ACTION EPWM_TZ_ACTION_HIGH
 #define FO_HB_2_OSHT_SOURCES EPWM_TZ_SIGNAL_OSHT1
 #define FO_HB_2_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
+#define Sample_Timer_BASE EPWM1_BASE
+#define Sample_Timer_TBPRD 25000
+#define Sample_Timer_COUNTER_MODE EPWM_COUNTER_MODE_UP_DOWN
+#define Sample_Timer_TBPHS 0
+#define Sample_Timer_CMPA 0
+#define Sample_Timer_CMPB 0
+#define Sample_Timer_CMPC 0
+#define Sample_Timer_CMPD 0
+#define Sample_Timer_DBRED 0
+#define Sample_Timer_DBFED 0
+#define Sample_Timer_TZA_ACTION EPWM_TZ_ACTION_HIGH_Z
+#define Sample_Timer_TZB_ACTION EPWM_TZ_ACTION_HIGH_Z
+#define Sample_Timer_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
 
 //*****************************************************************************
 //
