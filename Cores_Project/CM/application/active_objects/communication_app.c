@@ -32,7 +32,9 @@ void Communication_ipc_process_msg(Communication * const me,
                 // Invalid Signal
             }
         }
-    }else if(ID == OC_IPC_CM_CPU2_ID){
+    }else
+#ifdef DUALCORE
+    if(ID == OC_IPC_CM_CPU2_ID){
         for(; me->ipc_inst[ID].n_msg_received > 0 ; me->ipc_inst[ID].n_msg_received--){
             msg_to_process = & me->ipc_inst[ID].msg_buffer[me->ipc_inst[ID].n_msg_received-1];
             if(msg_to_process->com_sig<=COM_SIG_IPC_CPU2_CM_MAX){
@@ -49,7 +51,9 @@ void Communication_ipc_process_msg(Communication * const me,
                 // Invalid Signal
             }
         }
-    }else{
+    }else
+#endif
+    {
         //Invalid ID
     }
 }
@@ -58,7 +62,7 @@ void Communication_can_process_msg(Communication * const me,
     QEvt const * const e){
     uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
     Communication_Message_t * msg_received = (Communication_Message_t *) me->can_inst[ID].msg_buffer;
-    BSP_BKPT;
+//    BSP_BKPT;
     for(uint16_t buffer_index = 0 ; buffer_index < OC_CAN_MSG_BUFFER_SIZE ; buffer_index = buffer_index + msg_received->message_size+2){
         msg_received = (Communication_Message_t *) ( ( (uint16_t *) me->can_inst[ID].msg_buffer ) + buffer_index);
         if(ID == OC_CAN_CANA_ID){

@@ -7,6 +7,7 @@
 
 #include "cpu1_interrupts.h"
 #include "board.h"
+#include "common_macros.h"
 
 __interrupt void IPC_CPU2_ISR0(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -26,9 +27,11 @@ __interrupt void IPC_CPU2_ISR1(){
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 
 //    BSP_BKPT;
-
+#ifdef DUALCORE
     QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CPU1_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
-
+else
+    BSP_BKPT;
+#endif
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -50,7 +53,7 @@ __interrupt void IPC_CPU2_ISR3(){
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 
 //    BSP_BKPT;
-
+#ifdef DUALCORE
     uint32_t command,addr,data;
     IPC_readCommand( IPC_CPU1_L_CPU2_R , IPC_RESET_FLAG , IPC_ADDR_CORRECTION_DISABLE, &command, &addr, &data);
 
@@ -64,6 +67,8 @@ __interrupt void IPC_CPU2_ISR3(){
         default:
             break;
     }
-
+#else
+    BSP_BKPT;
+#endif
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

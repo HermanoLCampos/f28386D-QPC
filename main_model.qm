@@ -84,7 +84,7 @@ me-&gt;fault_cont = 0;</entry>
      <state name="Operation">
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}-->
       <tran trig="IPC_RECEIVE_MSG">
-       <action>BSP_BKPT;
+       <action>//BSP_BKPT;
 OC_IPC_receive_msg(me,e);</action>
        <tran_glyph conn="36,12,3,-1,16">
         <action box="0,-2,15,2"/>
@@ -92,7 +92,7 @@ OC_IPC_receive_msg(me,e);</action>
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}-->
       <tran trig="IPC_SEND_MSG">
-       <action>BSP_BKPT;
+       <action>//BSP_BKPT;
 OC_IPC_send_msg(me,e);
 </action>
        <tran_glyph conn="36,14,3,-1,16">
@@ -121,8 +121,8 @@ OC_IPC_send_msg(me,e);
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Running}-->
       <state name="Running">
-       <entry>BSP_BKPT;</entry>
-       <exit>BSP_BKPT;</exit>
+       <entry>//BSP_BKPT;</entry>
+       <exit>//BSP_BKPT;</exit>
        <state_glyph node="56,16,18,8">
         <entry box="1,2,6,2"/>
         <exit box="1,4,6,2"/>
@@ -241,9 +241,9 @@ me-&gt;id = id;</code>
       </initial>
       <!--${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_RECEIVE_MSG}-->
       <tran trig="CAN_RECEIVE_MSG">
-       <action>BSP_BKPT;
+       <action>//BSP_BKPT;
 OC_CAN_receive_msg(me,e);
-BSP_BKPT;</action>
+//BSP_BKPT;</action>
        <tran_glyph conn="36,10,3,-1,16">
         <action box="0,-2,16,2"/>
        </tran_glyph>
@@ -293,9 +293,9 @@ BSP_BKPT;</action>
        </tran>
        <!--${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_RECEIVE_MSG}-->
        <tran trig="CAN_RECEIVE_MSG" target="../..">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 OC_CAN_receive_msg(me,e);
-BSP_BKPT;</action>
+//BSP_BKPT;</action>
         <tran_glyph conn="58,54,3,1,26">
          <action box="0,-2,16,2"/>
         </tran_glyph>
@@ -339,10 +339,28 @@ BSP_BKPT;</action>
    <package name="AO_FSBB_Control" stereotype="0x00">
     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control}-->
     <class name="FSBB_Control" superclass="qpc::QActive">
+     <documentation>Peripherals of this AO:
+ - CLA1
+ - EPWM3_Per: 
+ - EPWM4
+ - GPIOs:
+  -  PTD</documentation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::setpoints[NUM_OF_SETPOINTS]}-->
      <attribute name="setpoints[NUM_OF_SETPOINTS]" type="float" visibility="0x02" properties="0x00"/>
-     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_update_params}-->
-     <attribute name="time_evt_update_params" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_check_params}-->
+     <attribute name="time_evt_check_params" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_cla_watchdog}-->
+     <attribute name="time_evt_cla_watchdog" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_settle}-->
+     <attribute name="time_evt_settle" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_report_status}-->
+     <attribute name="time_evt_report_status" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::aux1}-->
+     <attribute name="aux1" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::aux2}-->
+     <attribute name="aux2" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::faults[(FSBB_NUM_OF_FAULTS-1)/16~}-->
+     <attribute name="faults[(FSBB_NUM_OF_FAULTS-1)/16 + 1]" type="uint16_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
      <operation name="Start_Precharge" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
@@ -351,6 +369,16 @@ BSP_BKPT;</action>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Finish_Precharge}-->
      <operation name="Finish_Precharge" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Finish_Precharge::e}-->
+      <parameter name="e" type="QEvt const * const"/>
+     </operation>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Change_Control_State}-->
+     <operation name="Change_Control_State" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Change_Control_S~::control_state}-->
+      <parameter name="control_state" type="uint16_t"/>
+     </operation>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Open_Contactors}-->
+     <operation name="Open_Contactors" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Open_Contactors::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM}-->
@@ -363,6 +391,8 @@ BSP_BKPT;</action>
       </initial>
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF}-->
       <state name="Waiting_QF">
+       <documentation>Waiting for QF start states,
+temporary state to waiting the kernel.</documentation>
        <entry>QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF::RUNNING_QF}-->
        <tran trig="RUNNING_QF" target="../../2">
@@ -376,11 +406,26 @@ BSP_BKPT;</action>
       </state>
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start}-->
       <state name="Start">
+       <documentation>state which sets peripheral and variables.</documentation>
        <entry>//BSP_BKPT;
+FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+
+CPU2CLA_Message.task_1_watchdog_request = 0;
+CPU2CLA_Message.task_2_watchdog_request = 0;
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
-       <tran trig="INIT_COMPLETE" target="../../3/3">
+       <tran trig="INIT_COMPLETE" target="../../3/5">
+        <action>QTimeEvt_armX(&amp;me-&gt;time_evt_cla_watchdog,
+(uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_report_status,
+(uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+</action>
         <tran_glyph conn="8,30,3,3,24,-16,22">
          <action box="0,-2,10,2"/>
         </tran_glyph>
@@ -392,13 +437,20 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
       <state name="Operation">
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
-       <tran trig="RESET" target="../3">
+       <tran trig="RESET" target="../5">
+        <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</action>
         <tran_glyph conn="36,18,3,3,18">
          <action box="0,-2,10,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT, EMERGENCY_SHUTDOWN}-->
-       <tran trig="SET_FAULT, EMERGENCY_SHUTDOWN" target="../7">
+       <tran trig="SET_FAULT, EMERGENCY_SHUTDOWN" target="../9">
+        <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
+if(e-&gt;sig == EMERGENCY_SHUTDOWN_SIG){
+    me-&gt;faults |= 1 &lt;&lt; FSBB_FAULT_EMERGENCY_SHUTDOWN;
+}else{
+    me-&gt;faults |= 1 &lt;&lt; Evt_Set_Fault-&gt;data;
+}</action>
         <tran_glyph conn="36,34,3,3,18">
          <action box="0,-2,12,4"/>
         </tran_glyph>
@@ -409,20 +461,53 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
 
 AO_Evt_Change_Setpoint_t const * Evt_Change_Setpoint =  Q_EVT_CAST(AO_Evt_Change_Setpoint_t);
 
-if(Evt_Change_Setpoint-&gt;data.setpoint_id&lt;NUM_OF_SETPOINTS){
-    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*((float)0.01);
+switch(Evt_Change_Setpoint-&gt;data.setpoint_id){
+case IL_CURRENT_SETPOINT:
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    CPU2CLA_Message.FSBB_IL_Setpoint = me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id];
+    break;
+case IO_CURRENT_SETPOINT:
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    break;
+case POWER_SETPOINT:
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    break;
+default:
+    
+    break;
 }</action>
-        <tran_glyph conn="36,25,3,-1,16">
-         <action box="0,-2,16,2"/>
+        <tran_glyph conn="36,46,3,-1,22">
+         <action box="0,-2,18,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::CHECK_CLA_WATCHDOG}-->
+       <tran trig="CHECK_CLA_WATCHDOG">
+        <action>if(CLA2CPU_Message.task_1_watchdog_response != CPU2CLA_Message.task_1_watchdog_request){
+    // CLA Task1 WatchDog Error
+}
+if(CLA2CPU_Message.task_2_watchdog_response != CPU2CLA_Message.task_2_watchdog_request){
+    // CLA Task2 WatchDog Error
+}
+CPU2CLA_Message.task_1_watchdog_request++;
+CPU2CLA_Message.task_2_watchdog_request++;
+</action>
+        <tran_glyph conn="36,48,3,-1,22">
+         <action box="0,-2,21,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::REPORT_STATUS}-->
+       <tran trig="REPORT_STATUS">
+        <tran_glyph conn="36,50,3,-1,22">
+         <action box="0,-2,15,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
        <state name="Uncharged">
-        <entry>BSP_BKPT;</entry>
+        <documentation>this state waits the command to charge the  capacitors.</documentation>
+        <entry>//BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
-        <tran trig="PRECHARGE_START" target="../../4">
-         <action>FSBB_Control_Start_Precharge(me,e);
-//BSP_BKPT;</action>
+        <tran trig="PRECHARGE_START" target="../../6">
+         <action>//BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
          </tran_glyph>
@@ -433,19 +518,49 @@ if(Evt_Change_Setpoint-&gt;data.setpoint_id&lt;NUM_OF_SETPOINTS){
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge}-->
        <state name="Precharge">
-        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
-        <tran trig="PRECHARGE_FINISH" target="../../5">
-         <action>FSBB_Control_Finish_Precharge(me,e);</action>
-         <tran_glyph conn="84,14,3,1,22,20,-2">
-          <action box="0,-2,17,2"/>
+        <documentation>waiting the capacitors charge.</documentation>
+        <entry>FSBB_Control_Start_Precharge(me,e);
+me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
+me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;
+
+// Execute precharge
+QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
+(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);</entry>
+        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::CHECK_PARAMS}-->
+        <tran trig="CHECK_PARAMS">
+         <action>if(
+    ((me-&gt;aux1-CLA2CPU_Message.skiip1_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH) &amp;&amp;
+    ((me-&gt;aux2-CLA2CPU_Message.skiip2_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH)
+){
+    QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_precharge_finish,(void *)0);
+}
+
+me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
+me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
+         <tran_glyph conn="84,18,3,-1,16">
+          <action box="0,-2,13,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="84,10,20,12"/>
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
+        <tran trig="PRECHARGE_FINISH" target="../../7">
+         <action>FSBB_Control_Finish_Precharge(me,e);</action>
+         <tran_glyph conn="84,20,3,1,22,14,-2">
+          <action box="0,-2,16,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="84,10,20,12">
+         <entry box="1,2,6,2"/>
+         <exit box="1,4,6,2"/>
+        </state_glyph>
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}-->
        <state name="Idle">
+        <documentation>waiting the command to start the control</documentation>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
-        <tran trig="START_CONTROL" target="../../6">
+        <tran trig="START_CONTROL" target="../../8">
          <tran_glyph conn="84,38,3,3,32">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -454,42 +569,118 @@ if(Evt_Change_Setpoint-&gt;data.setpoint_id&lt;NUM_OF_SETPOINTS){
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}-->
        <state name="Running">
+        <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
-        <tran trig="STOP_CONTROL" target="../../8">
-         <tran_glyph conn="116,34,3,1,22,24,-18">
+        <tran trig="STOP_CONTROL" target="../../11">
+         <tran_glyph conn="116,36,3,1,22,18,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="116,30,20,12"/>
+        <state_glyph node="116,30,20,12">
+         <entry box="1,2,6,2"/>
+        </state_glyph>
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault}-->
        <state name="Fault">
+        <documentation>set faults,</documentation>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_ERROR);
+
+FSBB_Control_Open_Contactors(me,e);
+
+BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
-        <tran trig="CLEAR_FAULT" target="../../3">
+        <tran trig="CLEAR_FAULT" target="../../5">
+         <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+
+for(uint16_t faults_index = 0; faults_index &lt; sizeof(me-&gt;faults)/sizeof(uint16_t);faults_index++){
+    ( (uint16_t *) (&amp;me-&gt;faults) )[faults_index] = 0;
+}</action>
          <tran_glyph conn="54,36,3,2,18,-14">
           <action box="0,-2,11,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="54,30,20,12"/>
+        <state_glyph node="54,30,20,12">
+         <entry box="1,2,6,2"/>
+        </state_glyph>
        </state>
-       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle}-->
-       <state name="To_Idle">
-        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::UPDATE_PARAMS}-->
-        <tran trig="UPDATE_PARAMS">
-         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle::UPDATE_PARAMS::[10<IL_MIN_OPEN]}-->
-         <choice target="../../../5">
-          <guard>10 &lt; IL_MIN_OPEN</guard>
-          <choice_glyph conn="105,56,5,2,-11,-14">
-           <action box="-4,1,7,2"/>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2}-->
+       <state name="To_Idle_2">
+        <documentation>Deactivate the control and waints the current reach zero.</documentation>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
+(uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+// Time Limit to this state
+// if this limit is exceeded, a error is triggered
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_settle,
+(uint16_t) ((MAX_SETTLE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+0
+);</entry>
+        <exit>// Deactivate the time events of this State
+QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
+QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS}-->
+        <tran trig="CHECK_PARAMS">
+         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
+         <choice target="../../../7">
+          <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_OPEN</guard>
+          <choice_glyph conn="89,54,5,3,-7,-14,2">
+           <action box="-5,0,4,2"/>
           </choice_glyph>
          </choice>
-         <tran_glyph conn="120,56,1,-1,-15">
+         <tran_glyph conn="104,54,1,-1,-15">
           <action box="-14,-2,14,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="100,50,20,12"/>
+        <state_glyph node="84,50,20,12">
+         <entry box="1,2,6,2"/>
+         <exit box="1,4,6,2"/>
+        </state_glyph>
        </state>
-       <state_glyph node="36,4,108,62"/>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1}-->
+       <state name="To_Idle_1">
+        <documentation>Controlling the Current to Zero.</documentation>
+        <entry>
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
+(uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+// Time Limit to this state
+// if this limit is exceeded, a error is triggered
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_settle,
+(uint16_t) ((MAX_SETTLE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+0
+);</entry>
+        <exit>// Deactivate the time events of this State
+QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
+QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
+        <tran trig="CHECK_PARAMS">
+         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
+         <choice target="../../../10">
+          <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
+          <choice_glyph conn="120,56,5,1,-16">
+           <action box="-4,0,4,2"/>
+          </choice_glyph>
+         </choice>
+         <tran_glyph conn="136,56,1,-1,-16">
+          <action box="-14,-2,14,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="116,50,20,12">
+         <entry box="1,2,6,2"/>
+         <exit box="1,4,6,2"/>
+        </state_glyph>
+       </state>
+       <state_glyph node="36,4,108,72"/>
       </state>
       <state_diagram size="156,124"/>
      </statechart>
@@ -508,7 +699,11 @@ if(Evt_Change_Setpoint-&gt;data.setpoint_id&lt;NUM_OF_SETPOINTS){
       <parameter name="pAO" type="const QActive  * const"/>
       <code>FSBB_Control * const me = (FSBB_Control *) pAO;
 QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_params, &amp;me-&gt;super, UPDATE_PARAMS_SIG, 0U);</code>
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params , &amp;me-&gt;super, CHECK_PARAMS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog , &amp;me-&gt;super, CHECK_CLA_WATCHDOG_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle       , &amp;me-&gt;super, SET_FAULT_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status, &amp;me-&gt;super, REPORT_STATUS_SIG, 0U);
+</code>
      </operation>
     </package>
    </package>
@@ -540,7 +735,10 @@ QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_params, &amp;me-&gt;super, UPDATE_PAR
       </initial>
       <!--${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF}-->
       <state name="Waiting_QF">
-       <entry>QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) , (void *)0, (void *)0 );
+       <entry>#ifdef DUALCORE
+QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) , (void *)0, (void *)0 );
+#endif
+
 QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ].super) , (void *)0, (void *)0 );
 
 QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super)   , (void *)0, (void *)0 );
@@ -558,7 +756,10 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
       </state>
       <!--${CPU1::AOs::AO_Communication::Communication::SM::Start}-->
       <state name="Start">
-       <entry>QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );
+       <entry>#ifdef DUALCORE
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );
+#endif
+
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_running_qf, (void *) 0 );
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_running_qf, (void *) 0 );
@@ -566,7 +767,9 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_running_
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE" target="../../3">
-        <action>QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
+        <action>#ifdef DUALCORE
+QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
+#endif
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_init_complete, (void *) 0 );
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_init_complete, (void *) 0 );</action>
@@ -640,7 +843,9 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 
 // Orthogonal Components
 
+#ifdef DUALCORE
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID] ,&amp;me-&gt;super, OC_IPC_CPU1_CPU2_ID);
+#endif
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&amp;me-&gt;super, OC_IPC_CPU1_CM_ID  );
 
 OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB_ID);</code>
@@ -663,6 +868,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
     // COMMON Signals
     RUNNING_QF_SIG,
     INIT_COMPLETE_SIG,
+    REPORT_STATUS_SIG,
 
     //FSBB Signals
     PRECHARGE_START_SIG,
@@ -675,6 +881,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
     CLEAR_FAULT_SIG,
     CHANGE_SETPOINT_SIG,
     UPDATE_PARAMS_SIG,
+    CHECK_WATCHDOG_SIG,
+    CHECK_PARAMS_SIG,
+    CHECK_CLA_WATCHDOG_SIG,
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -746,7 +955,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
     <!--${CPU1::OC_enum::IPC::ipc_named}-->
     <attribute name="ipc_named" type="enum" visibility="0x04" properties="0x00">
      <code>{
+#ifdef DUALCORE
     OC_IPC_CPU1_CPU2_ID,
+#endif
     OC_IPC_CPU1_CM_ID,
     OC_IPC_NUM_OF_INST,
 };</code>
@@ -818,10 +1029,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}-->
      <attribute name="im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -831,10 +1044,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}-->
      <attribute name="im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -844,10 +1059,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}-->
      <attribute name="im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -857,10 +1074,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}-->
      <attribute name="im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -870,10 +1089,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_send_msg[OC_IPC_NUM_O~}-->
      <attribute name="im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -883,10 +1104,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}-->
      <attribute name="im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -1213,7 +1436,10 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
        <entry>//BSP_BKPT;
 
 QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , (void *)0, (void *)0 );
+
+#ifdef DUALCORE
 QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
+#endif
 
 QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
 //QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
@@ -1232,7 +1458,10 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
       <!--${CM::AOs::AO_Communication::Communication::SM::Start}-->
       <state name="Start">
        <entry>QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+
+#ifdef DUALCORE
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+#endif
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
 //QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
@@ -1241,7 +1470,10 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CM::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE" target="../../3">
         <action>QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
+
+#ifdef DUALCORE
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
+#endif
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
 //QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_init_complete, (void *) 0 );</action>
@@ -1257,7 +1489,7 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_init_c
       <state name="Operation">
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}-->
        <tran trig="IPC_RECEIVE_MSG">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );
@@ -1277,7 +1509,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[ID].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}-->
        <tran trig="CAN_RECEIVE_MSG">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 uint16_t ID = Q_EVT_CAST(OC_Evt)-&gt;ID;
 QASM_DISPATCH( &amp;(me-&gt;can_inst[ID].super) ,e, (void *) 0 );
@@ -1295,9 +1527,9 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[ID].super) ,e, (void *) 0 );</action>
          <action box="0,-2,17,7"/>
         </tran_glyph>
        </tran>
-       <state_glyph node="36,4,38,46"/>
+       <state_glyph node="36,4,38,50"/>
       </state>
-      <state_diagram size="82,58"/>
+      <state_diagram size="96,70"/>
      </statechart>
     </class>
     <!--${CM::AOs::AO_Communication::inst_ao_communication}-->
@@ -1318,8 +1550,9 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 // Orthogonal Components
 
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID] , &amp;me-&gt;super, OC_IPC_CM_CPU1_ID);
+#ifdef DUALCORE
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID] , &amp;me-&gt;super, OC_IPC_CM_CPU2_ID);
-
+#endif
 OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA_ID);
 //OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN_ID);</code>
      </operation>
@@ -1432,7 +1665,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     <attribute name="ipc_named" type="enum" visibility="0x04" properties="0x00">
      <code>{
     OC_IPC_CM_CPU1_ID,
+#ifdef DUALCORE
     OC_IPC_CM_CPU2_ID,
+#endif
     OC_IPC_NUM_OF_INST,
 };</code>
     </attribute>
@@ -1473,10 +1708,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };</code>
      </attribute>
      <!--${CM::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}-->
@@ -1486,10 +1723,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };</code>
      </attribute>
      <!--${CM::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}-->
@@ -1499,10 +1738,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };</code>
      </attribute>
      <!--${CM::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}-->
@@ -1512,10 +1753,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };</code>
      </attribute>
      <!--${CM::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}-->
@@ -1525,10 +1768,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };</code>
      </attribute>
     </package>
@@ -1718,6 +1963,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     //Index Signals Here
     COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
+    COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
     COM_SIG_IPC_CPU1_CM_MAX,
     COM_SIG_IPC_CPU1_CM_NOTHING = COM_SIG_IPC_CPU1_CM_MAX,
 };</code>
@@ -1763,6 +2009,29 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     IO_CURRENT_SETPOINT,
     POWER_SETPOINT,
     NUM_OF_SETPOINTS,
+};</code>
+   </attribute>
+   <!--${Shared::Signals::fsbb_faults_list}-->
+   <attribute name="fsbb_faults_list" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+    FSBB_FAULT_SKIIP1_OVERVOLTAGE = 0,
+    FSBB_FAULT_SKIIP1_OVERCURRENT,
+    FSBB_FAULT_SKIIP1_OVERHEAT,
+    FSBB_FAULT_SKIIP1_HALT,
+    FSBB_FAULT_SKIIP2_OVERVOLTAGE,
+    FSBB_FAULT_SKIIP2_OVERCURRENT,
+    FSBB_FAULT_SKIIP2_OVERHEAT,
+    FSBB_FAULT_SKIIP2_HALT,
+    FSBB_FAULT_INDUCTOR_OVERHEAT,
+    FSBB_FAULT_CAPACITOR_OVERHEAT,
+    FSBB_FAULT_ERROR_OUT_1,
+    FSBB_FAULT_ERROR_OUT_2,
+    FSBB_FAULT_SETTLE_TIMEOUT,
+    FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT,
+    FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT,
+    FSBB_FAULT_EMERGENCY_SHUTDOWN,
+
+    FSBB_NUM_OF_FAULTS,
 };</code>
    </attribute>
   </package>
@@ -1831,10 +2100,23 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
      <!--${Shared::Event_Types::AO::AO_Evt_Change_Se~::data}-->
      <attribute name="data" type="Setpoint_Data_t" visibility="0x00" properties="0x00"/>
     </class>
+    <!--${Shared::Event_Types::AO::AO_Evt_Set_Fault_t}-->
+    <class name="AO_Evt_Set_Fault_t" superclass="qpc::QEvt">
+     <!--${Shared::Event_Types::AO::AO_Evt_Set_Fault~::data}-->
+     <attribute name="data" type="uint16_t" visibility="0x00" properties="0x00"/>
+    </class>
    </package>
   </package>
   <!--${Shared::Macros}-->
   <package name="Macros" stereotype="0x00">
+   <!--${Shared::Macros::RTOS_TICK_FREQUENCY_HZ}-->
+   <attribute name="RTOS_TICK_FREQUENCY_HZ" type="" visibility="0x03" properties="0x00">
+    <code>(1000.0f)</code>
+   </attribute>
+   <!--${Shared::Macros::RTOS_TICK_PERIOD_MS}-->
+   <attribute name="RTOS_TICK_PERIOD_MS" type="" visibility="0x03" properties="0x00">
+    <code>(1000.f/RTOS_TICK_FREQUENCY_HZ)</code>
+   </attribute>
    <!--${Shared::Macros::OC_IPC_CMD_REMOTE_RESET}-->
    <attribute name="OC_IPC_CMD_REMOTE_RESET" type="" visibility="0x03" properties="0x00">
     <code>0
@@ -1854,10 +2136,67 @@ in payload the message</documentation>
    <attribute name="OC_CAN_MSG_BUFFER_SIZE" type="" visibility="0x03" properties="0x00">
     <code>512</code>
    </attribute>
-   <!--${Shared::Macros::IL_MIN_OPEN}-->
-   <attribute name="IL_MIN_OPEN" type="" visibility="0x03" properties="0x00">
-    <code>100</code>
-   </attribute>
+   <!--${Shared::Macros::CRITICAL_LIMITS}-->
+   <package name="CRITICAL_LIMITS" stereotype="0x00">
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT}-->
+    <attribute name="CRITICAL_LIMIT_SKIIP_CURRENT" type="" visibility="0x03" properties="0x00">
+     <code>1500</code>
+    </attribute>
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE}-->
+    <attribute name="CRITICAL_LIMIT_SKIIP_VOLTAGE" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE}-->
+    <attribute name="CRITICAL_LIMIT_SKIIP_TEMPERATURE" type="" visibility="0x03" properties="0x00">
+     <code>200</code>
+    </attribute>
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_CAPACITOR_TEMPERA~}-->
+    <attribute name="CRITICAL_LIMIT_CAPACITOR_TEMPERATURE" type="" visibility="0x03" properties="0x00">
+     <code>200</code>
+    </attribute>
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_INDUCTOR_TEMPERAT~}-->
+    <attribute name="CRITICAL_LIMIT_INDUCTOR_TEMPERATURE" type="" visibility="0x03" properties="0x00">
+     <code>200</code>
+    </attribute>
+   </package>
+   <!--${Shared::Macros::TIME_MACROS}-->
+   <package name="TIME_MACROS" stereotype="0x00">
+    <!--${Shared::Macros::TIME_MACROS::CHECK_PARAMS_PRECHARGE_TIME_MS}-->
+    <attribute name="CHECK_PARAMS_PRECHARGE_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>100</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::CHECK_CLA_WATCHDOG_TIME_MS}-->
+    <attribute name="CHECK_CLA_WATCHDOG_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::CHECK_PARAMS_IL_TIME_MS}-->
+    <attribute name="CHECK_PARAMS_IL_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>10</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::MAX_SETTLE_TIME_MS}-->
+    <attribute name="MAX_SETTLE_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>100</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS}-->
+    <attribute name="REPORT_STATUS_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+   </package>
+   <!--${Shared::Macros::CONDITIONAL_LIMITS}-->
+   <package name="CONDITIONAL_LIMITS" stereotype="0x00">
+    <!--${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN}-->
+    <attribute name="IL_MIN_OPEN" type="" visibility="0x03" properties="0x00">
+     <code>20</code>
+    </attribute>
+    <!--${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_STOP}-->
+    <attribute name="IL_MIN_STOP" type="" visibility="0x03" properties="0x00">
+     <code>100</code>
+    </attribute>
+    <!--${Shared::Macros::CONDITIONAL_LIMI~::MIN_DELTA_V_PRECHARGE_FINISH}-->
+    <attribute name="MIN_DELTA_V_PRECHARGE_FINISH" type="" visibility="0x03" properties="0x00">
+     <code>20</code>
+    </attribute>
+   </package>
   </package>
   <!--${Shared::Event Pools}-->
   <package name="Event Pools" stereotype="0x00">
@@ -2035,6 +2374,7 @@ $define${OCs::OC_CAN}</text>
 #include &quot;qpc.h&quot;
 #include &quot;macros_qm.h&quot;
 #include &quot;bsp_basic.h&quot;
+#include &quot;cla1_config.h&quot;
 
 //================================================
 //====================Signals=====================

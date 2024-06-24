@@ -7,6 +7,7 @@
 
 #include "OCs/oc_ipc/oc_ipc.h"
 #include "bsp_ipc.h"
+#include "common_macros.h"
 
 extern BSP_IPC_MessageQueue_t ipc_message_queue[OC_IPC_NUM_OF_INST];
 

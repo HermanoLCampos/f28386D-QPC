@@ -6,6 +6,12 @@
  */
 
 #include "cpu1_interrupts.h"
+#include "board.h"
+
+#include "cla1_config.h"
+int16_t measure[1000] = {0};
+uint16_t measure_count = 0;
+uint16_t bkpt_counter = 0;
 
 //
 // cla1Isr1 - CLA1 ISR 1
@@ -15,8 +21,18 @@ __interrupt void cla1Isr1()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    BSP_BKPT;
+//    BSP_BKPT;
+//    bkpt_counter = (bkpt_counter+1)%1000;
+//    measure_count = (measure_count+1)%1000;
+//    measure[measure_count] = CLA2CPU_Message.hall2_current;
+//    measure[measure_count] = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE);
 
+//    if(bkpt_counter == 0){
+//        measure_count = 0;
+//    }
+
+//    EPWM_AQ_OUTPUT_A
+//    EPWM_forceActionQualifierSWAction(GD_HB_1_BASE, epwmOutput)
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
 
@@ -32,7 +48,8 @@ __interrupt void cla1Isr2()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    BSP_BKPT;
+//    BSP_BKPT;
+
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
@@ -134,7 +151,7 @@ __interrupt void cla1Isr8()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-    BSP_BKPT;
+//    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

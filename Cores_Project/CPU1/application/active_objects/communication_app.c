@@ -32,7 +32,9 @@ void Communication_ipc_process_msg(Communication * const me,
                 // Invalid Signal
             }
         }
-    }else if(ID == OC_IPC_CPU1_CPU2_ID){
+    }else
+#ifdef DUALCORE
+        if(ID == OC_IPC_CPU1_CPU2_ID){
         for(; me->ipc_inst[ID].n_msg_received > 0 ; me->ipc_inst[ID].n_msg_received--){
             msg_to_process = & me->ipc_inst[ID].msg_buffer[me->ipc_inst[ID].n_msg_received-1];
             if(msg_to_process->com_sig<=COM_SIG_IPC_CPU2_CPU1_MAX){
@@ -49,7 +51,9 @@ void Communication_ipc_process_msg(Communication * const me,
                 // Invalid Signal
             }
         }
-    }else{
+    }else
+#endif
+    {
         //Invalid ID
     }
 

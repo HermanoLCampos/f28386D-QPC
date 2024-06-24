@@ -102,9 +102,9 @@ QState OC_CAN_Operation(OC_CAN * const me, QEvt const * const e) {
         }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             OC_CAN_receive_msg(me,e);
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }
@@ -174,9 +174,9 @@ QState OC_CAN_Bus_Off(OC_CAN * const me, QEvt const * const e) {
         }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::Bus_Off::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             OC_CAN_receive_msg(me,e);
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_TRAN(&OC_CAN_Operation);
             break;
         }

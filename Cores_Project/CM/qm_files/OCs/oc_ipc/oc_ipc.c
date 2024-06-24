@@ -104,14 +104,14 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             OC_IPC_receive_msg(me,e);
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_SEND_MSG}
         case IPC_SEND_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             OC_IPC_send_msg(me,e);
 
             status_ = Q_HANDLED();
@@ -148,13 +148,13 @@ QState OC_IPC_Running(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::Running}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::Running}
         case Q_EXIT_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }

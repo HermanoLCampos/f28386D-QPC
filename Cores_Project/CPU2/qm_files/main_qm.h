@@ -92,6 +92,7 @@ enum com_signals_cpu1_cm_ipc {
     //Index Signals Here
     COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
+    COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
     COM_SIG_IPC_CPU1_CM_MAX,
     COM_SIG_IPC_CPU1_CM_NOTHING = COM_SIG_IPC_CPU1_CM_MAX,
 };
@@ -132,6 +133,28 @@ enum setpoint_list {
     IO_CURRENT_SETPOINT,
     POWER_SETPOINT,
     NUM_OF_SETPOINTS,
+};
+
+//${Shared::Signals::fsbb_faults_list} .......................................
+enum fsbb_faults_list {
+    FSBB_FAULT_SKIIP1_OVERVOLTAGE = 0,
+    FSBB_FAULT_SKIIP1_OVERCURRENT,
+    FSBB_FAULT_SKIIP1_OVERHEAT,
+    FSBB_FAULT_SKIIP1_HALT,
+    FSBB_FAULT_SKIIP2_OVERVOLTAGE,
+    FSBB_FAULT_SKIIP2_OVERCURRENT,
+    FSBB_FAULT_SKIIP2_OVERHEAT,
+    FSBB_FAULT_SKIIP2_HALT,
+    FSBB_FAULT_INDUCTOR_OVERHEAT,
+    FSBB_FAULT_CAPACITOR_OVERHEAT,
+    FSBB_FAULT_ERROR_OUT_1,
+    FSBB_FAULT_ERROR_OUT_2,
+    FSBB_FAULT_SETTLE_TIMEOUT,
+    FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT,
+    FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT,
+    FSBB_FAULT_EMERGENCY_SHUTDOWN,
+
+    FSBB_NUM_OF_FAULTS,
 };
 
 //${Shared::Types::com_payload} ..............................................
@@ -211,6 +234,21 @@ typedef struct {
     Setpoint_Data_t data;
 } AO_Evt_Change_Setpoint_t;
 
+//${Shared::Event_Types::AO::AO_Evt_Set_Fault_t} .............................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    uint16_t data;
+} AO_Evt_Set_Fault_t;
+
+//${Shared::Macros::RTOS_TICK_FREQUENCY_HZ} ..................................
+#define RTOS_TICK_FREQUENCY_HZ (1000.0f)
+
+//${Shared::Macros::RTOS_TICK_PERIOD_MS} .....................................
+#define RTOS_TICK_PERIOD_MS (1000.f/RTOS_TICK_FREQUENCY_HZ)
+
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
 
@@ -224,8 +262,44 @@ typedef struct {
 //${Shared::Macros::OC_CAN_MSG_BUFFER_SIZE} ..................................
 #define OC_CAN_MSG_BUFFER_SIZE 512
 
-//${Shared::Macros::IL_MIN_OPEN} .............................................
-#define IL_MIN_OPEN 100
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT} ...........
+#define CRITICAL_LIMIT_SKIIP_CURRENT 1500
+
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE} ...........
+#define CRITICAL_LIMIT_SKIIP_VOLTAGE 1000
+
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE} .......
+#define CRITICAL_LIMIT_SKIIP_TEMPERATURE 200
+
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_CAPACITOR_TEMPERA~} ......
+#define CRITICAL_LIMIT_CAPACITOR_TEMPERATURE 200
+
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_INDUCTOR_TEMPERAT~} ......
+#define CRITICAL_LIMIT_INDUCTOR_TEMPERATURE 200
+
+//${Shared::Macros::TIME_MACROS::CHECK_PARAMS_PRECHARGE_TIME_MS} .............
+#define CHECK_PARAMS_PRECHARGE_TIME_MS 100
+
+//${Shared::Macros::TIME_MACROS::CHECK_CLA_WATCHDOG_TIME_MS} .................
+#define CHECK_CLA_WATCHDOG_TIME_MS 1000
+
+//${Shared::Macros::TIME_MACROS::CHECK_PARAMS_IL_TIME_MS} ....................
+#define CHECK_PARAMS_IL_TIME_MS 10
+
+//${Shared::Macros::TIME_MACROS::MAX_SETTLE_TIME_MS} .........................
+#define MAX_SETTLE_TIME_MS 100
+
+//${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS} ...............
+#define REPORT_STATUS_PERIOD_TIME_MS 1000
+
+//${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
+#define IL_MIN_OPEN 20
+
+//${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_STOP} ..........................
+#define IL_MIN_STOP 100
+
+//${Shared::Macros::CONDITIONAL_LIMI~::MIN_DELTA_V_PRECHARGE_FINISH} .........
+#define MIN_DELTA_V_PRECHARGE_FINISH 20
 
 //${Shared::Event Pools::EVT_POOL_1_SIZE} ....................................
 #define EVT_POOL_1_SIZE 8

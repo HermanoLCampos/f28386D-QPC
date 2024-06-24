@@ -42,13 +42,23 @@ typedef struct {
 
 // private:
     float setpoints[NUM_OF_SETPOINTS];
-    QTimeEvt time_evt_update_params;
+    QTimeEvt time_evt_check_params;
+    QTimeEvt time_evt_cla_watchdog;
+    QTimeEvt time_evt_settle;
+    QTimeEvt time_evt_report_status;
+    uint16_t aux1;
+    uint16_t aux2;
+    uint16_t faults[(FSBB_NUM_OF_FAULTS-1)/16 + 1];
 } FSBB_Control;
 
 // public:
 void FSBB_Control_Start_Precharge(FSBB_Control * const me,
     QEvt const * const e);
 void FSBB_Control_Finish_Precharge(FSBB_Control * const me,
+    QEvt const * const e);
+void FSBB_Control_Change_Control_State(FSBB_Control * const me,
+    uint16_t control_state);
+void FSBB_Control_Open_Contactors(FSBB_Control * const me,
     QEvt const * const e);
 
 // protected:
@@ -61,7 +71,8 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Idle(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Running(FSBB_Control * const me, QEvt const * const e);
 QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e);
-QState FSBB_Control_To_Idle(FSBB_Control * const me, QEvt const * const e);
+QState FSBB_Control_To_Idle_2(FSBB_Control * const me, QEvt const * const e);
+QState FSBB_Control_To_Idle_1(FSBB_Control * const me, QEvt const * const e);
 
 //${CPU1::AOs::AO_FSBB_Control::inst_ao_fsbb_control} ........................
 extern FSBB_Control inst_ao_fsbb_control;

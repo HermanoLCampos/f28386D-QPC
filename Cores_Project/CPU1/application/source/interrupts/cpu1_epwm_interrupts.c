@@ -46,7 +46,7 @@ __interrupt void INT_GD_HB_1_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-//    ESTOP0;
+    BSP_BKPT;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP3);

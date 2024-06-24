@@ -55,7 +55,10 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
     switch (e->sig) {
         //${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF}
         case Q_ENTRY_SIG: {
+            #ifdef DUALCORE
             QASM_INIT( &(me->ipc_inst[OC_IPC_CPU1_CPU2_ID].super) , (void *)0, (void *)0 );
+            #endif
+
             QASM_INIT( &(me->ipc_inst[OC_IPC_CPU1_CM_ID  ].super) , (void *)0, (void *)0 );
 
             QASM_INIT( &(me->can_inst[OC_CAN_CANB_ID].super)   , (void *)0, (void *)0 );
@@ -83,7 +86,10 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_Communication::Communication::SM::Start}
         case Q_ENTRY_SIG: {
+            #ifdef DUALCORE
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&im_evt_running_qf, (void *) 0 );
+            #endif
+
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&im_evt_running_qf, (void *) 0 );
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANB_ID].super),&im_evt_running_qf, (void *) 0 );
@@ -94,7 +100,9 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}
         case INIT_COMPLETE_SIG: {
+            #ifdef DUALCORE
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&im_evt_init_complete, (void *) 0 );
+            #endif
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&im_evt_init_complete, (void *) 0 );
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANB_ID].super),&im_evt_init_complete, (void *) 0 );
@@ -175,7 +183,9 @@ void ao_communication_ctor(const QActive  * const pAO) {
 
     // Orthogonal Components
 
+    #ifdef DUALCORE
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CPU1_CPU2_ID] ,&me->super, OC_IPC_CPU1_CPU2_ID);
+    #endif
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&me->super, OC_IPC_CPU1_CM_ID  );
 
     OC_CAN_ctor(&me->can_inst[OC_CAN_CANB_ID] ,&me->super, OC_CAN_CANB_ID);

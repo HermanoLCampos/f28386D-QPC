@@ -54,10 +54,12 @@ OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };
 
 //${CM::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}
@@ -66,10 +68,12 @@ OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };
 
 //${CM::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}
@@ -78,10 +82,12 @@ OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };
 
 //${CM::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
@@ -90,10 +96,12 @@ OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };
 
 //${CM::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}
@@ -102,10 +110,12 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CM_CPU1_ID,
     },
+#ifdef DUALCORE
     [OC_IPC_CM_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CM_CPU2_ID,
-    }
+    },
+#endif
 };
 
 //${CM::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}

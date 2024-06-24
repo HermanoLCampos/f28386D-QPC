@@ -6,6 +6,7 @@
  */
 
 #include "CM_Config.h"
+#include "common_macros.h"
 
 void CortexM_Init(void){
 
@@ -19,7 +20,9 @@ void CortexM_Init(void){
     IPC_clearFlagLtoR(IPC_CM_L_CPU1_R, IPC_FLAG_ALL);
     IPC_sync(IPC_CM_L_CPU1_R, IPC_SYNC_FLAG);
 
+#ifdef DUALCORE
     IPC_clearFlagLtoR(IPC_CM_L_CPU2_R, IPC_FLAG_ALL);
     IPC_sync(IPC_CM_L_CPU2_R, IPC_SYNC_FLAG);
+#endif
 
 }

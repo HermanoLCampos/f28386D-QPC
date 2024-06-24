@@ -1,7 +1,7 @@
 /************************************************************/
 // Automatically generated C source file from CAN DBC file
 // Source file name: modulink.dbc
-// Date created: 2024-05-29
+// Date created: 2024-06-24
 /************************************************************/
 
 

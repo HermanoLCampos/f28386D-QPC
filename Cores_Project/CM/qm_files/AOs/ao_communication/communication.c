@@ -58,7 +58,10 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
             //BSP_BKPT;
 
             QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU1_ID].super) , (void *)0, (void *)0 );
+
+            #ifdef DUALCORE
             QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
+            #endif
 
             QASM_INIT( &(me->can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
             //QASM_INIT( &(me->can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
@@ -87,7 +90,10 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
         //${CM::AOs::AO_Communication::Communication::SM::Start}
         case Q_ENTRY_SIG: {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU1_ID].super) , &im_evt_running_qf, (void *) 0 );
+
+            #ifdef DUALCORE
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_running_qf, (void *) 0 );
+            #endif
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_running_qf, (void *) 0 );
             //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_running_qf, (void *) 0 );
@@ -99,7 +105,10 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
         //${CM::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}
         case INIT_COMPLETE_SIG: {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU1_ID].super) , &im_evt_init_complete, (void *) 0 );
+
+            #ifdef DUALCORE
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_init_complete, (void *) 0 );
+            #endif
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_init_complete, (void *) 0 );
             //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_init_complete, (void *) 0 );
@@ -120,7 +129,7 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CM::AOs::AO_Communication::Communication::SM::Operation::IPC_RECEIVE_MSG}
         case IPC_RECEIVE_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
             QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
@@ -142,7 +151,7 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
             QASM_DISPATCH( &(me->can_inst[ID].super) ,e, (void *) 0 );
@@ -183,8 +192,9 @@ void ao_communication_ctor(const QActive  * const pAO) {
     // Orthogonal Components
 
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU1_ID] , &me->super, OC_IPC_CM_CPU1_ID);
+    #ifdef DUALCORE
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU2_ID] , &me->super, OC_IPC_CM_CPU2_ID);
-
+    #endif
     OC_CAN_ctor(&me->can_inst[OC_CAN_CANA_ID] ,&me->super, OC_CAN_CANA_ID);
     //OC_CAN_ctor(&me->can_inst[OC_CAN_MCAN_ID] ,&me->super, OC_CAN_MCAN_ID);
 }

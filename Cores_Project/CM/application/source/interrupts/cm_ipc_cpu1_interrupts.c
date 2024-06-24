@@ -6,6 +6,7 @@
  */
 
 #include "cm_interrupts.h"
+#include "common_macros.h"
 
 __interrupt void IPC_CPU1_ISR0(){ //On Reset This is Called for some reason
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

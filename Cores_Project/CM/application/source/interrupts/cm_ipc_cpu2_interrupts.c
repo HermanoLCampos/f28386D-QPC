@@ -23,9 +23,12 @@ __interrupt void IPC_CPU2_ISR1(){
     IPC_ackFlagRtoL(IPC_CM_L_CPU2_R, IPC_FLAG1);
 
 //    BSP_BKPT;
-
+#ifdef DUALCORE
     QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
 
+#else
+    BSP_BKPT;
+#endif
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -59,6 +62,7 @@ __interrupt void IPC_CPU2_ISR3(){
 
 //    BSP_BKPT;
 
+#ifdef DUALCORE
     uint32_t command,addr,data;
     IPC_readCommand( IPC_CM_L_CPU2_R , IPC_RESET_FLAG , IPC_ADDR_CORRECTION_DISABLE, &command, &addr, &data);
 
@@ -72,6 +76,9 @@ __interrupt void IPC_CPU2_ISR3(){
         default:
             break;
     }
+#else
+    BSP_BKPT;
+#endif
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

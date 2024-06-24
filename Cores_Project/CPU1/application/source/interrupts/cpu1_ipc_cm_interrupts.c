@@ -8,6 +8,7 @@
 
 #include "cpu1_interrupts.h"
 #include "board.h"
+#include "common_macros.h"
 
 __interrupt void IPC_CM_ISR0(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -26,7 +27,7 @@ __interrupt void IPC_CM_ISR1(){
     IPC_ackFlagRtoL(IPC_CPU1_L_CM_R, IPC_FLAG1);
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);
 
-    BSP_BKPT;
+//    BSP_BKPT;
 
     QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CPU1_CM_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
 

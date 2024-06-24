@@ -71,8 +71,10 @@ void active_objects_init(void){
 void application_init(void){
     // Initialize your code here
 
-    //    CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_1);
+    CLA_forceTasks(myCLA0_BASE, CLA_TASKFLAG_8);
 
     // Starting AOs
     active_objects_init();
+
+    SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC);
 }

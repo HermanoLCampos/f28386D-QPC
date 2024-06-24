@@ -18,8 +18,11 @@ void C2000_Init(void){
     // Boot CPU2 core
     //
 
+#ifdef DUALCORE
+
     Device_bootCPU2(BOOT_MODE_CPU2);
 
+#endif
     //
     // Boot CM
     //
@@ -52,8 +55,12 @@ void C2000_Init(void){
 
     C2000Ware_libraries_init();
 
+#ifdef DUALCORE
+
     IPC_clearFlagLtoR(IPC_CPU1_L_CPU2_R, IPC_FLAG_ALL);
     IPC_sync(IPC_CPU1_L_CPU2_R, IPC_SYNC_FLAG);
+
+#endif
 
     IPC_clearFlagLtoR(IPC_CPU1_L_CM_R, IPC_FLAG_ALL);
     IPC_sync(IPC_CPU1_L_CM_R, IPC_SYNC_FLAG);

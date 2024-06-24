@@ -15,7 +15,7 @@ __interrupt void CAN_1_ISR0(){
 
     status = CAN_getInterruptCause(CANA_BASE);
 
-    BSP_BKPT;
+//    BSP_BKPT;
 
     switch(status){
 

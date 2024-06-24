@@ -74,10 +74,12 @@ QEvt const im_evt_change_setpoint = QEVT_INITIALIZER(CHANGE_SETPOINT_SIG);
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_CH_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -86,10 +88,12 @@ OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_complete[OC_IPC~}
 OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RESET_COMPLETE_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -98,10 +102,12 @@ OC_Evt const im_evt_ipc_reset_complete[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_full_bus[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_FULL_BUS_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -110,10 +116,12 @@ OC_Evt const im_evt_ipc_full_bus[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_remote_reset[OC_IPC_N~}
 OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_REMOTE_RESET_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -122,10 +130,12 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_send_msg[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
         .ID = OC_IPC_CPU1_CM_ID,
@@ -134,10 +144,12 @@ OC_Evt const im_evt_ipc_send_msg[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_receive_msg[OC_IPC_NU~}
 OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
+#ifdef DUALCORE
     [OC_IPC_CPU1_CPU2_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CPU1_CPU2_ID,
     },
+#endif
     [OC_IPC_CPU1_CM_ID] = {
         .super = QEVT_INITIALIZER(IPC_RECEIVE_MSG_SIG),
         .ID = OC_IPC_CPU1_CM_ID,

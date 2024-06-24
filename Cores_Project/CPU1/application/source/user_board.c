@@ -31,7 +31,9 @@ void user_board_init(){
     EPWM_init();
     GPIO_init();
     I2C_init();
+#ifdef DUALCORE
     IPC_SYSCFG_init();
+#endif
     SPI_init();
     INTERRUPT_init();
 
@@ -48,5 +50,9 @@ void user_board_init(){
     IPC_registerInterrupt(IPC_CPU1_L_CM_R, IPC_INT7, IPC_CM_ISR7);
 
     BSP_IPC_initMessageQueue(IPC_CPU1_L_CM_R   , &ipc_message_queue[OC_IPC_CPU1_CM_ID  ] , IPC_INT1 , IPC_INT1);
+
+#ifdef DUALCORE
     BSP_IPC_initMessageQueue(IPC_CPU1_L_CPU2_R , &ipc_message_queue[OC_IPC_CPU1_CPU2_ID] , IPC_INT1 , IPC_INT1);
+#endif
+
 }

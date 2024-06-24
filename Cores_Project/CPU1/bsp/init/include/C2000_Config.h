@@ -11,6 +11,7 @@
 #include "c2000ware_libraries.h"
 #include "resources_config.h"
 #include "main_qm.h"
+#include "common_macros.h"
 
 void C2000_Init(void);
 
