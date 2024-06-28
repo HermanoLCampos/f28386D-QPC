@@ -110,9 +110,9 @@ QState OC_CAN_Operation(OC_CAN * const me, QEvt const * const e) {
         }
         //${OCs::OC_CAN::OC_CAN::SM::Operation::CAN_SEND_MSG}
         case CAN_SEND_MSG_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             OC_CAN_send_msg(me,e);
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }

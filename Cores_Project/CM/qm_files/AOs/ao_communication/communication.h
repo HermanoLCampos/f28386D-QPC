@@ -47,6 +47,7 @@ typedef struct {
 // private:
     OC_IPC ipc_inst[OC_IPC_NUM_OF_INST];
     OC_CAN can_inst[OC_CAN_NUM_OF_INST];
+    System_Public_Data_t sys_data;
 } Communication;
 
 // public:

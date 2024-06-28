@@ -119,21 +119,64 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
-        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT, EMERGENCY_SHUTDOWN}
-        case SET_FAULT_SIG: // intentionally fall through
-        case EMERGENCY_SHUTDOWN_SIG: {
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}
+        case SET_FAULT_SIG: {
             AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
-            if(e->sig == EMERGENCY_SHUTDOWN_SIG){
-                me->faults |= 1 << FSBB_FAULT_EMERGENCY_SHUTDOWN;
-            }else{
-                me->faults |= 1 << Evt_Set_Fault->data;
+            switch(Evt_Set_Fault->fault_id){
+            case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
+                me->faults.skiip1_overvoltage = 1;
+                break;
+            case FSBB_FAULT_SKIIP1_OVERCURRENT:
+                me->faults.skiip1_overcurrent = 1;
+                break;
+            case FSBB_FAULT_SKIIP1_OVERHEAT:
+                me->faults.skiip1_overheat = 1;
+                break;
+            case FSBB_FAULT_SKIIP1_HALT:
+                me->faults.skiip1_halt = 1;
+                break;
+            case FSBB_FAULT_SKIIP2_OVERVOLTAGE:
+                me->faults.skiip2_overvoltage = 1;
+                break;
+            case FSBB_FAULT_SKIIP2_OVERCURRENT:
+                me->faults.skiip2_overcurrent = 1;
+                break;
+            case FSBB_FAULT_SKIIP2_OVERHEAT:
+                me->faults.skiip2_overheat = 1;
+                break;
+            case FSBB_FAULT_SKIIP2_HALT:
+                me->faults.skiip2_halt = 1;
+            break;
+            case FSBB_FAULT_INDUCTOR_OVERHEAT:
+                me->faults.inductor_overheat = 1;
+                break;
+            case FSBB_FAULT_CAPACITOR_OVERHEAT:
+                me->faults.capacitor_overheat = 1;
+                break;
+            case FSBB_FAULT_ERROR_OUT_1:
+                me->faults.error_out_1 = 1;
+                break;
+            case FSBB_FAULT_ERROR_OUT_2:
+                me->faults.error_out_2 = 1;
+                break;
+            case FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT:
+                me->faults.cla_t1_watchdog_timeout = 1;
+                break;
+            case FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT:
+                me->faults.cla_t2_watchdog_timeout = 1;
+                break;
+            case FSBB_FAULT_EMERGENCY_SHUTDOWN:
+                me->faults.emergency_shutdown = 1;
+                break;
+            default:
+                system_assert("AO_FSBB_Control",0);
             }
             status_ = Q_TRAN(&FSBB_Control_Fault);
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::CHANGE_SETPOINT}
         case CHANGE_SETPOINT_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             AO_Evt_Change_Setpoint_t const * Evt_Change_Setpoint =  Q_EVT_CAST(AO_Evt_Change_Setpoint_t);
 
@@ -159,9 +202,15 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         case CHECK_CLA_WATCHDOG_SIG: {
             if(CLA2CPU_Message.task_1_watchdog_response != CPU2CLA_Message.task_1_watchdog_request){
                 // CLA Task1 WatchDog Error
+                AO_Evt_Set_Fault_t * set_fault_evt = Q_NEW(AO_Evt_Set_Fault_t,SET_FAULT_SIG);
+                set_fault_evt->fault_id = FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT;
+                QACTIVE_POST(&me->super,&set_fault_evt->super, (void *) 0);
             }
             if(CLA2CPU_Message.task_2_watchdog_response != CPU2CLA_Message.task_2_watchdog_request){
                 // CLA Task2 WatchDog Error
+                AO_Evt_Set_Fault_t * set_fault_evt = Q_NEW(AO_Evt_Set_Fault_t,SET_FAULT_SIG);
+                set_fault_evt->fault_id = FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT;
+                QACTIVE_POST(&me->super,&set_fault_evt->super, (void *) 0);
             }
             CPU2CLA_Message.task_1_watchdog_request++;
             CPU2CLA_Message.task_2_watchdog_request++;
@@ -171,7 +220,48 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::REPORT_STATUS}
         case REPORT_STATUS_SIG: {
+            OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t * report_message = Q_NEW( OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t , IPC_SEND_MSG_SIG );
+            report_message->super.ID = OC_IPC_CPU1_CM_ID;
+            report_message->msg.com_sig = COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT;
+            report_message->msg.message_size = sizeof(FSBB_Control_Public_Data_t);
+            report_message->msg.payload.faults = me->faults;
+            QACTIVE_POST( p_ao_communication , &report_message->super.super , (void *) 0);
+
             status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}
+        case EMERGENCY_SHUTDOWN_SIG: // intentionally fall through
+        case SETTLE_TIMEOUT_SIG: {
+            switch(e->sig){
+            case EMERGENCY_SHUTDOWN_SIG:
+                me->faults.emergency_shutdown = 1;
+                break;
+            case SETTLE_TIMEOUT_SIG:
+                me->faults.settle_timeout = 1;
+            }
+            status_ = Q_TRAN(&FSBB_Control_Fault);
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}
+        case SET_MULTIPLE_FAULTS_SIG: {
+            AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
+
+            typedef union{
+                FSBB_Control_faults_t faults;
+                uint16_t data[sizeof(FSBB_Control_faults_t)];
+            }FSBB_Control_faults_aux_t;
+
+            FSBB_Control_faults_aux_t * p_aux1 = (FSBB_Control_faults_aux_t *) &me->faults;
+            FSBB_Control_faults_aux_t * p_aux2 = (FSBB_Control_faults_aux_t *) &mult_fault->faults;
+
+            for(uint16_t faults_index = 0;
+                faults_index < sizeof(FSBB_Control_faults_t);
+                faults_index++){
+                p_aux1->data[faults_index] |= p_aux2->data[faults_index];
+            }
+
+            status_ = Q_TRAN(&FSBB_Control_Fault);
             break;
         }
         default: {
@@ -308,17 +398,15 @@ QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e) {
 
             FSBB_Control_Open_Contactors(me,e);
 
-            BSP_BKPT;
+            //BSP_BKPT;
             status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}
         case CLEAR_FAULT_SIG: {
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
-
-            for(uint16_t faults_index = 0; faults_index < sizeof(me->faults)/sizeof(uint16_t);faults_index++){
-                ( (uint16_t *) (&me->faults) )[faults_index] = 0;
-            }
+            AO_Evt_Set_Multiple_Faults_t aux = {0};
+            me->faults = aux.faults;
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -442,7 +530,7 @@ void ao_fsbb_control_ctor(const QActive  * const pAO) {
     QActive_ctor(&me->super, Q_STATE_CAST(&FSBB_Control_initial));
     QTimeEvt_ctorX(&me->time_evt_check_params , &me->super, CHECK_PARAMS_SIG, 0U);
     QTimeEvt_ctorX(&me->time_evt_cla_watchdog , &me->super, CHECK_CLA_WATCHDOG_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_settle       , &me->super, SET_FAULT_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_settle       , &me->super, SETTLE_TIMEOUT_SIG, 0U);
     QTimeEvt_ctorX(&me->time_evt_report_status, &me->super, REPORT_STATUS_SIG, 0U);
 
 }

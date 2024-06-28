@@ -48,7 +48,7 @@ typedef struct {
     QTimeEvt time_evt_report_status;
     uint16_t aux1;
     uint16_t aux2;
-    uint16_t faults[(FSBB_NUM_OF_FAULTS-1)/16 + 1];
+    FSBB_Control_faults_t faults;
 } FSBB_Control;
 
 // public:

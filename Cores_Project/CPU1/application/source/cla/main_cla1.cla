@@ -8,47 +8,8 @@
 #include "cla1_config.h"
 
 #include "signal_processing_cla.h"
-
-#define CONTROL_FREQUENCY   2000.0f
-#define CONTROL_PERIOD      (1.0f/CONTROL_FREQUENCY)
-
-#define VIN_MIN 5
-
-#define MIN_OFF_DUTY_CICLE_VIN 0
-#define MIN_OFF_DUTY_CICLE_VOUT 0
-
-#define MIN_DUTY_CICLE_VIN_SWITCH 0
-#define MAX_DUTY_CICLE_VIN_SWITCH 1
-
-#define MIN_DUTY_CICLE_VOUT_SWITCH 0
-#define MAX_DUTY_CICLE_VOUT_SWITCH 1
-
-#define HALL1_CURRENT_BIT_OFFSET (32768)
-#define HALL2_CURRENT_BIT_OFFSET (32768)
-
-#define SKIIP1_CURRENT_BIT_OFFSET (32768)
-#define SKIIP1_TEMP_BIT_OFFSET (0)
-#define SKIIP1_VOLTAGE_BIT_OFFSET (0)
-
-#define SKIIP2_CURRENT_BIT_OFFSET (32768)
-#define SKIIP2_TEMP_BIT_OFFSET (0)
-#define SKIIP2_VOLTAGE_BIT_OFFSET (0)
-
-
-#define HALL1_CURRENT_BIT_FACTOR   ((3.0f/0.35f)/32768.0f)
-#define HALL2_CURRENT_BIT_FACTOR   ((3.0f/0.35f)/32768.0f)
-
-#define SKIIP1_CURRENT_BIT_FACTOR  ((3.0f/0.35f)/32768.0f)
-#define SKIIP1_TEMP_BIT_FACTOR     ((3.0f*34.7f/10.0f)/65536.0f)
-#define SKIIP1_VOLTAGE_BIT_FACTOR  ((3.0f*34.7f/10.0f)/65536.0f)
-
-#define SKIIP2_CURRENT_BIT_FACTOR  ((3.0f/0.35f)/32768.0f)
-#define SKIIP2_TEMP_BIT_FACTOR     ((3.0f*34.7f/10.0f)/65536.0f)
-#define SKIIP2_VOLTAGE_BIT_FACTOR  ((3.0f*34.7f/10.0f)/65536.0f)
-
-#define EPWM_PRD 50000
-#define EPWM_DEAD_TIME_COUNT 600
-
+#include "adc_macros.h"
+#include "qm_files/macros_qm.h"
 
 void initializeIIRFilter(IIRFilter *filter, float *b, float *a) {
     // Copy coefficients
@@ -84,8 +45,8 @@ float applyIIRFilter(IIRFilter *filter, float input) {
 float PID_Control_Exe(PID_Control_t *PID_Data){
 
     PID_Data->P_Component            = PID_Data->Kp*PID_Data->Error;
-    PID_Data->I_Component           += CONTROL_PERIOD*(PID_Data->Ki*0.5f*(PID_Data->Error+PID_Data->Error_Prev) - PID_Data->BackCalculation);
-    PID_Data->D_Component            = (2*PID_Data->Kd*(PID_Data->Error-PID_Data->Error_Prev)+(2.0f*PID_Data->Tau-CONTROL_PERIOD)*PID_Data->D_Component)/(2*PID_Data->Tau+(CONTROL_PERIOD));
+    PID_Data->I_Component           += CONTROL_PERIOD_SEC*(PID_Data->Ki*0.5f*(PID_Data->Error+PID_Data->Error_Prev) - PID_Data->BackCalculation);
+    PID_Data->D_Component            = (2*PID_Data->Kd*(PID_Data->Error-PID_Data->Error_Prev)+(2.0f*PID_Data->Tau-CONTROL_PERIOD_SEC)*PID_Data->D_Component)/(2*PID_Data->Tau+(CONTROL_PERIOD_SEC));
 
     PID_Data->Error_Prev             = PID_Data->Error;
 
@@ -133,16 +94,16 @@ __interrupt void Cla1Task1 ( void )
 //    __mdebugstop();
 
 
-    hall1_current_fp  = HALL1_CURRENT_BIT_FACTOR  * applyIIRFilter(&hall1_current_filter , (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_HALL1_CURRENT         ) - HALL1_CURRENT_BIT_OFFSET  );
-    hall2_current_fp  = HALL2_CURRENT_BIT_FACTOR  * applyIIRFilter(&hall2_current_filter , (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT         ) - HALL2_CURRENT_BIT_OFFSET  );
+    hall1_current_fp  = HALL1_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall1_current_filter , (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_HALL1_CURRENT         )) - HALL1_CURRENT_BIT_OFFSET  );
+    hall2_current_fp  = HALL2_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall2_current_filter , (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT         )) - HALL2_CURRENT_BIT_OFFSET  );
 
-    skiip1_current_fp = SKIIP1_CURRENT_BIT_FACTOR * applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT        ) - SKIIP1_CURRENT_BIT_OFFSET );
-    skiip1_temp_fp    = SKIIP1_TEMP_BIT_FACTOR    * applyIIRFilter(&skiip1_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP           ) - SKIIP1_TEMP_BIT_OFFSET    );
-    skiip1_voltage_fp = SKIIP1_VOLTAGE_BIT_FACTOR * applyIIRFilter(&skiip1_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE) - SKIIP1_VOLTAGE_BIT_OFFSET );
+    skiip1_current_fp = SKIIP1_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT        )) - SKIIP1_CURRENT_BIT_OFFSET );
+    skiip1_temp_fp    = SKIIP1_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip1_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP           )) - SKIIP1_TEMP_BIT_OFFSET    );
+    skiip1_voltage_fp = SKIIP1_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip1_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE)) - SKIIP1_VOLTAGE_BIT_OFFSET );
 
-    skiip2_current_fp = SKIIP2_CURRENT_BIT_FACTOR * applyIIRFilter(&skiip2_current_filter, (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT        ) - SKIIP2_CURRENT_BIT_OFFSET );
-    skiip2_temp_fp    = SKIIP2_TEMP_BIT_FACTOR    * applyIIRFilter(&skiip2_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP           ) - SKIIP2_TEMP_BIT_OFFSET    );
-    skiip2_voltage_fp = SKIIP2_VOLTAGE_BIT_FACTOR * applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE) - SKIIP2_VOLTAGE_BIT_OFFSET );
+    skiip2_current_fp = SKIIP2_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip2_current_filter, (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT        )) - SKIIP2_CURRENT_BIT_OFFSET );
+    skiip2_temp_fp    = SKIIP2_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip2_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP           )) - SKIIP2_TEMP_BIT_OFFSET    );
+    skiip2_voltage_fp = SKIIP2_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE)) - SKIIP2_VOLTAGE_BIT_OFFSET );
 
 //    // Teste Vitao
 //

@@ -464,8 +464,6 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="middleware/driverlib_cm/inc"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="middleware/driverlib_cm/ccs"/>
 						<entry excluding="middleware/FreeRTOS/portable/MemMang/heap_5.c|middleware/FreeRTOS/portable/MemMang/heap_3.c|middleware/FreeRTOS/portable/MemMang/heap_2.c|middleware/FreeRTOS/portable/MemMang/heap_1.c|middleware/FreeRTOS/portable/CCS/C2000_C28x|middleware/qpc/ports/risc-v|middleware/qpc/ports/qube|middleware/qpc/src/qv|middleware/qpc/ports/qep-only|middleware/qpc/ports/win32-qv|middleware/qpc/src/qf/qf_actq.c|middleware/qpc/ports/pic32|middleware/qpc/src/qxk|middleware/qpc/3rd_party|middleware/qpc/src/qs|middleware/qpc/src/qk|middleware/qpc/LICENSES|libs/driverlib/Release|middleware/qpc/ports/posix-qutest|middleware/qpc/ports/win32|middleware/qpc/ports/posix|middleware/qpc/ports/config|middleware/qpc/test|middleware/qpc/ports/win32-qutest|middleware/qpc/ports/arm-cm|middleware/qpc/zephyr|middleware/qpc/ports/embos|middleware/qpc/ports/posix-qv|middleware/qpc/ports/lint-plus|middleware/qpc/ports/threadx|middleware/qpc/ports/arm-cr|middleware/driverlib_cm|middleware/qpc/ports/zephyr|middleware/qpc/ports/esp-idf|middleware/qpc/ports/uc-os2|middleware/qpc/examples|middleware/qpc/ports/msp430" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>

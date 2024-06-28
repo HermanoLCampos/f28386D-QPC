@@ -34,6 +34,7 @@
 #include "qpc.h"
 #include "macros_qm.h"
 #include "bsp_basic.h"
+#include "system_assert.h"
 
 //================================================
 //====================Signals=====================
@@ -178,6 +179,47 @@ typedef struct {
     uint16_t setpoint_value;
 } Setpoint_Data_t;
 
+//${Shared::Types::FSBB_Control_faults_t} ....................................
+typedef struct {
+// private:
+    uint16_t skiip1_overvoltage:1;
+    uint16_t skiip1_overcurrent:1;
+    uint16_t skiip1_overheat:1;
+    uint16_t skiip1_halt:1;
+    uint16_t skiip2_overvoltage:1;
+    uint16_t skiip2_overcurrent:1;
+    uint16_t skiip2_overheat:1;
+    uint16_t skiip2_halt:1;
+    uint16_t inductor_overheat:1;
+    uint16_t capacitor_overheat:1;
+    uint16_t error_out_1:1;
+    uint16_t error_out_2:1;
+    uint16_t settle_timeout:1;
+    uint16_t cla_t1_watchdog_timeout:1;
+    uint16_t cla_t2_watchdog_timeout:1;
+    uint16_t emergency_shutdown:1;
+} FSBB_Control_faults_t;
+
+//${Shared::Types::FSBB_Control_Public_Data_t} ...............................
+typedef struct {
+// public:
+    FSBB_Control_faults_t faults;
+} FSBB_Control_Public_Data_t;
+
+//${Shared::Types::System_Public_Data_t} .....................................
+typedef struct {
+// public:
+    FSBB_Control_Public_Data_t fsbb_data;
+} System_Public_Data_t;
+
+//${Shared::Types::Aux Types::Communication_Message_FSBB_Contr~} .............
+typedef struct {
+// public:
+    uint16_t com_sig;
+    uint16_t message_size;
+    FSBB_Control_Public_Data_t payload;
+} Communication_Message_FSBB_Control_Public_Data_t;
+
 //${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {
 // protected:
@@ -240,8 +282,35 @@ typedef struct {
     QEvt super;
 
 // public:
-    uint16_t data;
+    uint16_t fault_id;
 } AO_Evt_Set_Fault_t;
+
+//${Shared::Event_Types::AO::AO_Evt_Set_Multiple_Faults_t} ...................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    FSBB_Control_faults_t faults;
+} AO_Evt_Set_Multiple_Faults_t;
+
+//${Shared::Event_Types::AO::AO_Evt_Update_FSBB_Data_t} ......................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    FSBB_Control_Public_Data_t data;
+} AO_Evt_Update_FSBB_Data_t;
+
+//${Shared::Event_Types::Mutable_Event_Su~::OC_Evt_Aux_Communication_Message~}
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    Communication_Message_FSBB_Control_Public_Data_t msg;
+} OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t;
 
 //${Shared::Macros::RTOS_TICK_FREQUENCY_HZ} ..................................
 #define RTOS_TICK_FREQUENCY_HZ (1000.0f)
@@ -269,7 +338,7 @@ typedef struct {
 #define CRITICAL_LIMIT_SKIIP_VOLTAGE 1000
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE} .......
-#define CRITICAL_LIMIT_SKIIP_TEMPERATURE 200
+#define CRITICAL_LIMIT_SKIIP_TEMPERATURE 90
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_CAPACITOR_TEMPERA~} ......
 #define CRITICAL_LIMIT_CAPACITOR_TEMPERATURE 200
@@ -292,6 +361,9 @@ typedef struct {
 //${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS} ...............
 #define REPORT_STATUS_PERIOD_TIME_MS 1000
 
+//${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MAX_FREQUENCY_MS} ..............
+#define ANALOG_FAULT_MAX_FREQUENCY_MS 1000
+
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
 
@@ -300,6 +372,39 @@ typedef struct {
 
 //${Shared::Macros::CONDITIONAL_LIMI~::MIN_DELTA_V_PRECHARGE_FINISH} .........
 #define MIN_DELTA_V_PRECHARGE_FINISH 20
+
+//${Shared::Macros::CONTROL_MACROS::CONTROL_FREQUENCY_HZ} ....................
+#define CONTROL_FREQUENCY_HZ 2000.0f
+
+//${Shared::Macros::CONTROL_MACROS::CONTROL_PERIOD_SEC} ......................
+#define CONTROL_PERIOD_SEC (1.0f/CONTROL_FREQUENCY_HZ)
+
+//${Shared::Macros::CONTROL_MACROS::VIN_MIN} .................................
+#define VIN_MIN 5
+
+//${Shared::Macros::CONTROL_MACROS::MIN_OFF_DUTY_CICLE_VIN} ..................
+#define MIN_OFF_DUTY_CICLE_VIN 0
+
+//${Shared::Macros::CONTROL_MACROS::MIN_OFF_DUTY_CICLE_VOUT} .................
+#define MIN_OFF_DUTY_CICLE_VOUT 0
+
+//${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VIN_SWITCH} ...............
+#define MIN_DUTY_CICLE_VIN_SWITCH 0
+
+//${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VIN_SWITCH} ...............
+#define MAX_DUTY_CICLE_VIN_SWITCH 1
+
+//${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VOUT_SWITCH} ..............
+#define MIN_DUTY_CICLE_VOUT_SWITCH 0
+
+//${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VOUT_SWITCH} ..............
+#define MAX_DUTY_CICLE_VOUT_SWITCH 1
+
+//${Shared::Macros::CONTROL_MACROS::EPWM_DEAD_TIME_COUNT} ....................
+#define EPWM_DEAD_TIME_COUNT 600
+
+//${Shared::Macros::CONTROL_MACROS::EPWM_PRD} ................................
+#define EPWM_PRD 50000
 
 //${Shared::Event Pools::EVT_POOL_1_SIZE} ....................................
 #define EVT_POOL_1_SIZE 8

@@ -172,7 +172,7 @@ QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::Error}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             //me->fault_cont++;
             //QACTIVE_POST(
             //    me->owner,
@@ -202,7 +202,7 @@ QState OC_IPC_In_Reset(OC_IPC * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::In_Reset}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             //oc_ipc_reset_ch(me->id);
             status_ = Q_HANDLED();
             break;

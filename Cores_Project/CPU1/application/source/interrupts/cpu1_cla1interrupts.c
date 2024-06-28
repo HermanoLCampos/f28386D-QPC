@@ -7,11 +7,12 @@
 
 #include "cpu1_interrupts.h"
 #include "board.h"
-
 #include "cla1_config.h"
-int16_t measure[1000] = {0};
-uint16_t measure_count = 0;
-uint16_t bkpt_counter = 0;
+//int16_t measure[1000] = {0};
+//uint16_t measure_count = 0;
+//uint16_t bkpt_counter = 0;
+
+#include "adc_macros.h"
 
 //
 // cla1Isr1 - CLA1 ISR 1
@@ -43,13 +44,77 @@ __interrupt void cla1Isr1()
 //
 // cla1Isr2 - CLA1 ISR 2
 //
+
+//#define HALL1_CURRENT_LOW_LIMIT_CHECK ???/HALL1_CURRENT_BIT_FACTOR+HALL1_CURRENT_BIT_OFFSET
+//#define HALL1_CURRENT_HIGH_LIMIT_CHECK ???/HALL1_CURRENT_BIT_FACTOR+HALL1_CURRENT_BIT_OFFSET
+
+//#define HALL2_CURRENT_LOW_LIMIT_CHECK ???/HALL2_CURRENT_BIT_FACTOR+HALL2_CURRENT_BIT_OFFSET
+//#define HALL2_CURRENT_HIGH_LIMIT_CHECK ???/HALL2_CURRENT_BIT_FACTOR+HALL2_CURRENT_BIT_OFFSET
+
+#define SKIIP1_CURRENT_LOW_LIMIT_CHECK      ((uint16_t)(SKIIP1_CURRENT_BIT_OFFSET-CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP1_CURRENT_BIT_FACTOR))
+#define SKIIP1_CURRENT_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP1_CURRENT_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP1_CURRENT_BIT_FACTOR))
+
+#define SKIIP1_VOLTAGE_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP1_VOLTAGE_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_VOLTAGE/SKIIP1_VOLTAGE_BIT_FACTOR))
+
+#define SKIIP1_TEMERATURE_HIGH_LIMIT_CHECK  ((uint16_t)(SKIIP1_TEMP_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_TEMPERATURE/SKIIP1_TEMP_BIT_FACTOR))
+
+#define SKIIP2_CURRENT_LOW_LIMIT_CHECK      ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET-CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
+#define SKIIP2_CURRENT_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
+
+#define SKIIP2_VOLTAGE_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP2_VOLTAGE_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_VOLTAGE/SKIIP2_VOLTAGE_BIT_FACTOR))
+
+#define SKIIP2_TEMERATURE_HIGH_LIMIT_CHECK  ((uint16_t)(SKIIP2_TEMP_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_TEMPERATURE/SKIIP2_TEMP_BIT_FACTOR))
+
+
+uint16_t analog_fault_counter = 0;
+
 __interrupt void cla1Isr2()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    //BreakPoint, this function shoudn't be called
-//    BSP_BKPT;
+    uint16_t hall1_current_adc_val      = ADC_readResult(myADCC_RESULT_BASE, myADCC_HALL1_CURRENT);
+    uint16_t hall2_current_adc_val      = ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT);
 
+    uint16_t skiip1_current_adc_val     = ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT);
+    uint16_t skiip1_voltage_adc_val     = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP);
+    uint16_t skiip1_temperature_adc_val = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE);
+
+    uint16_t skiip2_current_adc_val     = ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT);
+    uint16_t skiip2_voltage_adc_val     = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP);
+    uint16_t skiip2_temperature_adc_val = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE);
+
+
+    if(
+        (skiip1_current_adc_val      > SKIIP1_CURRENT_HIGH_LIMIT_CHECK)       ||
+        (skiip1_current_adc_val      < SKIIP1_CURRENT_LOW_LIMIT_CHECK)        ||
+        (skiip1_voltage_adc_val      > SKIIP1_VOLTAGE_HIGH_LIMIT_CHECK)       ||
+        (skiip1_temperature_adc_val  > SKIIP1_TEMERATURE_HIGH_LIMIT_CHECK)    ||
+        (skiip2_current_adc_val      > SKIIP2_CURRENT_HIGH_LIMIT_CHECK)       ||
+        (skiip2_current_adc_val      < SKIIP2_CURRENT_LOW_LIMIT_CHECK)        ||
+        (skiip2_voltage_adc_val      > SKIIP2_VOLTAGE_HIGH_LIMIT_CHECK)       ||
+        (skiip2_temperature_adc_val  > SKIIP2_TEMERATURE_HIGH_LIMIT_CHECK)
+    ){
+        if(analog_fault_counter == 0){
+            analog_fault_counter = (uint16_t)(ANALOG_FAULT_MAX_FREQUENCY_MS/1000.0f*CONTROL_FREQUENCY_HZ);
+            AO_Evt_Set_Multiple_Faults_t aux = {0};
+            AO_Evt_Set_Multiple_Faults_t * analog_faults = Q_NEW_FROM_ISR(AO_Evt_Set_Multiple_Faults_t, SET_MULTIPLE_FAULTS_SIG);
+            analog_faults->faults = aux.faults;
+
+            analog_faults->faults.skiip1_overcurrent = (skiip1_current_adc_val      > SKIIP1_CURRENT_HIGH_LIMIT_CHECK) ||
+                                                       (skiip1_current_adc_val      < SKIIP1_CURRENT_LOW_LIMIT_CHECK );
+            analog_faults->faults.skiip1_overvoltage = (skiip1_voltage_adc_val      > SKIIP1_VOLTAGE_HIGH_LIMIT_CHECK);
+            analog_faults->faults.skiip1_overheat    = (skiip1_temperature_adc_val  > SKIIP1_TEMERATURE_HIGH_LIMIT_CHECK);
+
+            analog_faults->faults.skiip2_overcurrent = (skiip2_current_adc_val      > SKIIP2_CURRENT_HIGH_LIMIT_CHECK) ||
+                                                       (skiip2_current_adc_val      < SKIIP2_CURRENT_LOW_LIMIT_CHECK );
+            analog_faults->faults.skiip2_overvoltage = (skiip2_voltage_adc_val      > SKIIP2_VOLTAGE_HIGH_LIMIT_CHECK);
+            analog_faults->faults.skiip2_overheat    = (skiip2_temperature_adc_val  > SKIIP2_TEMERATURE_HIGH_LIMIT_CHECK);
+
+            QACTIVE_POST_FROM_ISR(p_ao_fsbb_control, &analog_faults->super, &xHigherPriorityTaskWoken, (void *) 0 );
+        }else{
+            analog_fault_counter--;
+        }
+    }
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

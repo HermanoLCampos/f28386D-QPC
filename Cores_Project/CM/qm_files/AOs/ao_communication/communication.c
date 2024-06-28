@@ -131,8 +131,9 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         case IPC_RECEIVE_MSG_SIG: {
             //BSP_BKPT;
 
-            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
-            QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_IPC_NUM_OF_INST) system_assert(__FILE__,0);
+            QASM_DISPATCH( &(me->ipc_inst[id].super) ,e, (void *) 0 );
 
             Communication_ipc_process_msg(me,e);
             status_ = Q_HANDLED();
@@ -144,8 +145,9 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         case IPC_REMOTE_RESET_SIG: // intentionally fall through
         case IPC_RESET_COMPLETE_SIG: // intentionally fall through
         case IPC_SEND_MSG_SIG: {
-            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
-            QASM_DISPATCH( &(me->ipc_inst[ID].super) ,e, (void *) 0 );
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_IPC_NUM_OF_INST) system_assert(__FILE__,0);
+            QASM_DISPATCH( &(me->ipc_inst[id].super) ,e, (void *) 0 );
             status_ = Q_HANDLED();
             break;
         }
@@ -153,8 +155,9 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         case CAN_RECEIVE_MSG_SIG: {
             //BSP_BKPT;
 
-            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
-            QASM_DISPATCH( &(me->can_inst[ID].super) ,e, (void *) 0 );
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
+            QASM_DISPATCH( &(me->can_inst[id].super) ,e, (void *) 0 );
 
             Communication_can_process_msg(me,e);
             status_ = Q_HANDLED();
@@ -165,8 +168,18 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         case CAN_BUS_OFF_SIG: // intentionally fall through
         case CAN_PASSIVE_ERROR_SIG: // intentionally fall through
         case CAN_ERROR_CLEAR_SIG: {
-            uint16_t ID = Q_EVT_CAST(OC_Evt)->ID;
-            QASM_DISPATCH( &(me->can_inst[ID].super) ,e, (void *) 0 );
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
+            QASM_DISPATCH( &(me->can_inst[id].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::UPDATE_FSBB_DATA}
+        case UPDATE_FSBB_DATA_SIG: {
+            //BSP_BKPT;
+
+            const AO_Evt_Update_FSBB_Data_t * fsbb_public_data = Q_EVT_CAST(AO_Evt_Update_FSBB_Data_t);
+            me->sys_data.fsbb_data = fsbb_public_data->data;
             status_ = Q_HANDLED();
             break;
         }

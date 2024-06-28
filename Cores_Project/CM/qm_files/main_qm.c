@@ -220,6 +220,9 @@ OC_Evt_Communication_Message_t const im_evt_change_setpoint = {
         .payload = {0}
     }
 };
+
+//${CM::Immutable_Events::From CPU1::im_evt_update_fsbb_data} ................
+QEvt const im_evt_update_fsbb_data = QEVT_INITIALIZER(UPDATE_FSBB_DATA_SIG);
 //$enddef${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$define${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -233,6 +236,10 @@ const com_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
     [COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_can_send_msg[OC_CAN_MCAN_ID].super,
+    },
+    [COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_update_fsbb_data,
     }
 };
 

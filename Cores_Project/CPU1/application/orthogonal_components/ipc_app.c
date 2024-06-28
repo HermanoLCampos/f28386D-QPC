@@ -20,7 +20,7 @@ void OC_IPC_send_msg(OC_IPC * const me,
     *((Communication_Message_t *) msg.Payload) = com_msg->msg;
 
     if(
-        BSP_IPC_sendMessageToQueue(
+        !BSP_IPC_sendMessageToQueue(
             &ipc_message_queue[me->id],
             &msg,
             IPC_ADDR_CORRECTION_DISABLE,

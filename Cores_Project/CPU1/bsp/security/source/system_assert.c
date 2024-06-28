@@ -17,5 +17,5 @@ void system_assert(const char *filename, int assert_number){
 #endif
     taskDISABLE_INTERRUPTS();
     BSP_BKPT;
-    while(1);
+//    while(1);
 }
