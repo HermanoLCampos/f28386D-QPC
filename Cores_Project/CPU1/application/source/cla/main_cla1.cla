@@ -77,9 +77,6 @@ IIRFilter skiip2_current_filter;
 IIRFilter skiip2_temp_filter;
 IIRFilter skiip2_voltage_filter;
 
-// Current Control PID
-PID_Control_t FSBB_IL_PID_Control;
-
 float32_t hall1_current_fp;
 float32_t hall2_current_fp;
 float32_t skiip1_current_fp;
@@ -129,6 +126,16 @@ __interrupt void Cla1Task1 ( void )
 
     CLA2CPU_Message.task_1_watchdog_response = CPU2CLA_Message.task_1_watchdog_request;
 }
+
+
+#ifdef FLC_CONTROL
+// Current Control PID
+PID_Control_t FSBB_IL_PID_Control;
+#endif
+
+#ifdef PI_CONTROL
+PID_Control_t FSBB_IL_PID_Control_mvp;
+#endif
 
 __interrupt void Cla1Task2 ( void )
 {
@@ -191,14 +198,16 @@ __interrupt void Cla1Task2 ( void )
 //    }
 
 
-
-    float32_t vl_ref;
     float32_t duty_cicle_switch_vin;
     float32_t duty_cicle_switch_vout;
 
     // Change Duty Cicle
 
     if(CPU2CLA_Message.FSBB_Control_State == FSBB_CONTROL_RUNNING){
+
+#ifdef FLC_CONTROL
+
+    float32_t vl_ref;
 
     FSBB_IL_PID_Control.Min_Lim              = -skiip2_voltage_fp;
     FSBB_IL_PID_Control.Max_Lim              =  skiip1_voltage_fp;
@@ -220,15 +229,38 @@ __interrupt void Cla1Task2 ( void )
         duty_cicle_switch_vout = ( skiip1_voltage_fp - vl_ref )/skiip2_voltage_fp;
     }
 
-    }else{
-        duty_cicle_switch_vin  = MIN_OFF_DUTY_CICLE_VIN;
-        duty_cicle_switch_vout = MIN_OFF_DUTY_CICLE_VOUT;
+#endif
+
+#ifdef PI_CONTROL
+#define BUCK_BOOST_FACTOR 0.05f
+    float duty_to_mod = 0;
+
+    FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip1_current_fp;
+    duty_to_mod = PID_Control_Exe( &FSBB_IL_PID_Control );
+
+    if(duty_to_mod < -BUCK_BOOST_FACTOR){ //BUCK MODE
+        duty_cicle_switch_vin  = (1.0f+duty_to_mod)/(1+BUCK_BOOST_FACTOR);
+        duty_cicle_switch_vout = MAX_DUTY_CICLE_VOUT_SWITCH;
+    }else if(duty_to_mod > BUCK_BOOST_FACTOR){ //BOOST MODE
+        duty_cicle_switch_vin  = MAX_DUTY_CICLE_VIN_SWITCH;
+        duty_cicle_switch_vout = 1.0f-(duty_to_mod+BUCK_BOOST_FACTOR)/(1.0f+BUCK_BOOST_FACTOR);
+    }else{ // BUCK-BOOST MODE
+        duty_cicle_switch_vin  = (1+duty_to_mod)/(1.0f+BUCK_BOOST_FACTOR);
+        duty_cicle_switch_vout = 1.0f-(duty_to_mod+BUCK_BOOST_FACTOR)/(1.0f+BUCK_BOOST_FACTOR);
     }
+
+#endif
 
 #ifdef FORCE_DUTY_CICLE
     duty_cicle_switch_vin = CPU2CLA_Message.duty_cicle_vin*( 0.01f );
     duty_cicle_switch_vout = CPU2CLA_Message.duty_cicle_vout*( 0.01f );
 #endif
+
+    }else{
+        duty_cicle_switch_vin  = MIN_OFF_DUTY_CICLE_VIN;
+        duty_cicle_switch_vout = MIN_OFF_DUTY_CICLE_VOUT;
+    }
+
 
     if(duty_cicle_switch_vin<MIN_DUTY_CICLE_VIN_SWITCH){
         duty_cicle_switch_vin = MIN_DUTY_CICLE_VIN_SWITCH;
@@ -330,6 +362,8 @@ __interrupt void Cla1Task8 ( void )
     initializeIIRFilter(&skiip2_temp_filter,b, a);
     initializeIIRFilter(&skiip2_voltage_filter,b, a);
 
+#ifdef FLC_CONTROL
+
     // Inductor Current Control
 
     FSBB_IL_PID_Control.Kp                   = 0.01421;
@@ -349,5 +383,28 @@ __interrupt void Cla1Task8 ( void )
     FSBB_IL_PID_Control.Max_Lim              = 0;
 
     FSBB_IL_PID_Control.Error_Prev           =0;
+
+#endif
+
+#ifdef PI_CONTROL
+    // Inductor Current Control MVP
+    FSBB_IL_PID_Control_mvp.Kp                   = 9.99999975e-05;
+    FSBB_IL_PID_Control_mvp.Ki                   = 0.00999999978;
+    FSBB_IL_PID_Control_mvp.Kd                   = 0.00000;
+    FSBB_IL_PID_Control_mvp.Tau                  = 0.50000;
+    FSBB_IL_PID_Control_mvp.Ktt                  = 0.5;
+
+    FSBB_IL_PID_Control_mvp.Klim = FSBB_IL_PID_Control.Ki/(FSBB_IL_PID_Control.Kp*FSBB_IL_PID_Control.Ktt);
+
+    FSBB_IL_PID_Control_mvp.I_Component          = 0;
+    FSBB_IL_PID_Control_mvp.D_Component          = 0;
+
+    FSBB_IL_PID_Control_mvp.BackCalculation = 0;
+
+    FSBB_IL_PID_Control_mvp.Min_Lim              = -1;
+    FSBB_IL_PID_Control_mvp.Max_Lim              = 1;
+
+    FSBB_IL_PID_Control_mvp.Error_Prev           =0;
+#endif
 
 }
