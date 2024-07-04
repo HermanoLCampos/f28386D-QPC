@@ -59,36 +59,36 @@ extern "C"
 //*****************************************************************************
 
 //
-// CANA -> CAN1 Pinmux
+// CANA -> CAN_SKIIP Pinmux
 //
 //
 // CANA_RX - GPIO Settings
 //
 #define GPIO_PIN_CANA_RX 62
-#define CAN1_CANRX_GPIO 62
-#define CAN1_CANRX_PIN_CONFIG GPIO_62_CANA_RX
+#define CAN_SKIIP_CANRX_GPIO 62
+#define CAN_SKIIP_CANRX_PIN_CONFIG GPIO_62_CANA_RX
 //
 // CANA_TX - GPIO Settings
 //
 #define GPIO_PIN_CANA_TX 63
-#define CAN1_CANTX_GPIO 63
-#define CAN1_CANTX_PIN_CONFIG GPIO_63_CANA_TX
+#define CAN_SKIIP_CANTX_GPIO 63
+#define CAN_SKIIP_CANTX_PIN_CONFIG GPIO_63_CANA_TX
 
 //
-// CANB -> CAN2 Pinmux
+// CANB -> CAN_PUBLIC Pinmux
 //
 //
 // CANB_RX - GPIO Settings
 //
 #define GPIO_PIN_CANB_RX 39
-#define CAN2_CANRX_GPIO 39
-#define CAN2_CANRX_PIN_CONFIG GPIO_39_CANB_RX
+#define CAN_PUBLIC_CANRX_GPIO 39
+#define CAN_PUBLIC_CANRX_PIN_CONFIG GPIO_39_CANB_RX
 //
 // CANB_TX - GPIO Settings
 //
 #define GPIO_PIN_CANB_TX 38
-#define CAN2_CANTX_GPIO 38
-#define CAN2_CANTX_PIN_CONFIG GPIO_38_CANB_TX
+#define CAN_PUBLIC_CANTX_GPIO 38
+#define CAN_PUBLIC_CANTX_PIN_CONFIG GPIO_38_CANB_TX
 
 //
 // EPWM4 -> GD_HB_1 Pinmux
@@ -252,15 +252,15 @@ extern "C"
 //
 // GPIO45 - GPIO Settings
 //
-#define S_CAN1_GPIO_PIN_CONFIG GPIO_45_GPIO45
+#define S_CAN_SKIIP_GPIO_PIN_CONFIG GPIO_45_GPIO45
 //
 // GPIO44 - GPIO Settings
 //
-#define S_CAN2_GPIO_PIN_CONFIG GPIO_44_GPIO44
+#define S_CAN_PUBLIC_GPIO_PIN_CONFIG GPIO_44_GPIO44
 //
 // GPIO66 - GPIO Settings
 //
-#define S_CAN3_GPIO_PIN_CONFIG GPIO_66_GPIO66
+#define S_MCAN_GPIO_PIN_CONFIG GPIO_66_GPIO66
 //
 // GPIO2 - GPIO Settings
 //
@@ -477,35 +477,13 @@ void myADCD_init();
 // CAN Configurations
 //
 //*****************************************************************************
-#define CAN1_BASE CANA_BASE
+#define CAN_SKIIP_BASE CANA_BASE
 
-#define CAN1_MessageObj1_ID 1580
-#define CAN1_MessageObj2_ID 1452
-#define CAN1_MessageObj3_ID 1581
-#define CAN1_MessageObj4_ID 1453
-#define CAN1_MessageObj5_ID 1836
-#define CAN1_MessageObj6_ID 1837
-void CAN1_init();
+void CAN_SKIIP_init();
 
-#define CAN2_BASE CANB_BASE
+#define CAN_PUBLIC_BASE CANB_BASE
 
-#define CAN2_MessageObj1_ID 660
-#define CAN2_MessageObj2_ID 661
-#define CAN2_MessageObj3_ID 662
-#define CAN2_MessageObj4_ID 663
-#define CAN2_MessageObj5_ID 664
-#define CAN2_MessageObj6_ID 665
-#define CAN2_MessageObj7_ID 666
-#define CAN2_MessageObj8_ID 667
-#define CAN2_MessageObj9_ID 668
-#define CAN2_MessageObj10_ID 669
-#define CAN2_MessageObj11_ID 670
-#define CAN2_MessageObj12_ID 671
-#define CAN2_MessageObj13_ID 672
-#define CAN2_MessageObj14_ID 673
-#define CAN2_MessageObj15_ID 674
-#define CAN2_MessageObj16_ID 675
-void CAN2_init();
+void CAN_PUBLIC_init();
 
 
 //*****************************************************************************
@@ -675,12 +653,12 @@ void HSD_ST_1_2_init();
 void HSD_ST_3_4_init();
 #define CARD_DETECT 74
 void CARD_DETECT_init();
-#define S_CAN1 45
-void S_CAN1_init();
-#define S_CAN2 44
-void S_CAN2_init();
-#define S_CAN3 66
-void S_CAN3_init();
+#define S_CAN_SKIIP 45
+void S_CAN_SKIIP_init();
+#define S_CAN_PUBLIC 44
+void S_CAN_PUBLIC_init();
+#define S_MCAN 66
+void S_MCAN_init();
 #define RTC_INT 2
 void RTC_INT_init();
 #define SBC_INTB 55
@@ -785,15 +763,25 @@ extern __interrupt void INT_myADCC_1_ISR(void);
 #define INT_myADCD_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
 extern __interrupt void INT_myADCD_1_ISR(void);
 
-// Interrupt Settings for INT_CAN2_0
-#define INT_CAN2_0 INT_CANB0
-#define INT_CAN2_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
-extern __interrupt void INT_CAN2_0_ISR(void);
+// Interrupt Settings for INT_CAN_SKIIP_0
+#define INT_CAN_SKIIP_0 INT_CANA0
+#define INT_CAN_SKIIP_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
+extern __interrupt void INT_CAN_SKIIP_0_ISR(void);
 
-// Interrupt Settings for INT_CAN2_1
-#define INT_CAN2_1 INT_CANB1
-#define INT_CAN2_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
-extern __interrupt void INT_CAN2_1_ISR(void);
+// Interrupt Settings for INT_CAN_SKIIP_1
+#define INT_CAN_SKIIP_1 INT_CANA1
+#define INT_CAN_SKIIP_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
+extern __interrupt void INT_CAN_SKIIP_1_ISR(void);
+
+// Interrupt Settings for INT_CAN_PUBLIC_0
+#define INT_CAN_PUBLIC_0 INT_CANB0
+#define INT_CAN_PUBLIC_0_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
+extern __interrupt void INT_CAN_PUBLIC_0_ISR(void);
+
+// Interrupt Settings for INT_CAN_PUBLIC_1
+#define INT_CAN_PUBLIC_1 INT_CANB1
+#define INT_CAN_PUBLIC_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP9
+extern __interrupt void INT_CAN_PUBLIC_1_ISR(void);
 
 // Interrupt Settings for INT_GD_HB_2
 #define INT_GD_HB_2 INT_EPWM3

@@ -1,5 +1,5 @@
 /*
- * cm_can_1_interrupts.c
+ * cm_can_public_interrupts.c
  *
  *  Created on: 15 de mai de 2024
  *      Author: ramon.martins
@@ -8,19 +8,19 @@
 #include "cm_interrupts.h"
 #include "modulink.h"
 
-__interrupt void CAN_1_ISR0(){
+__interrupt void CAN_PUBLIC_ISR0(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     uint32_t status;
     CAN_MsgFrameType frameType;
 
-    status = CAN_getInterruptCause(CANA_BASE);
+    status = CAN_getInterruptCause(CAN_PUBLIC_BASE);
 
 //    BSP_BKPT;
 
     switch(status){
 
     case CAN_INT_INT0ID_STATUS:
-        status = CAN_getStatus(CANA_BASE);
+        status = CAN_getStatus(CAN_PUBLIC_BASE);
 
         if(status & CAN_STATUS_RXOK || status & CAN_STATUS_TXOK){
             // Bus Off state
@@ -86,9 +86,9 @@ __interrupt void CAN_1_ISR0(){
 
 
         OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
-        CAN_Received->super.ID = OC_CAN_CANA_ID;
-        CAN_readMessageWithID(CANA_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
-        CAN_clearInterruptStatus(CANA_BASE, status );
+        CAN_Received->super.ID = OC_CAN_CAN_PUBLIC_ID;
+        CAN_readMessageWithID(CAN_PUBLIC_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
+        CAN_clearInterruptStatus(CAN_PUBLIC_BASE, status );
 
         QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
 
@@ -104,17 +104,17 @@ __interrupt void CAN_1_ISR0(){
 
 //    BSP_BKPT;
 
-    CAN_clearGlobalInterruptStatus(CANA_BASE, CAN_GLOBAL_INT_CANINT0);
+    CAN_clearGlobalInterruptStatus(CAN_PUBLIC_BASE, CAN_GLOBAL_INT_CANINT0);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
-__interrupt void CAN_1_ISR1(){
+__interrupt void CAN_PUBLIC_ISR1(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 //    BSP_BKPT;
 
-    CAN_clearGlobalInterruptStatus(CANA_BASE, CAN_GLOBAL_INT_CANINT1);
+    CAN_clearGlobalInterruptStatus(CAN_PUBLIC_BASE, CAN_GLOBAL_INT_CANINT1);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }

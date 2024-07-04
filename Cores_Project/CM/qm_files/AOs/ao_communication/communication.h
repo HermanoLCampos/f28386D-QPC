@@ -48,12 +48,15 @@ typedef struct {
     OC_IPC ipc_inst[OC_IPC_NUM_OF_INST];
     OC_CAN can_inst[OC_CAN_NUM_OF_INST];
     System_Public_Data_t sys_data;
+    QTimeEvt time_evt_can_periodic_message;
 } Communication;
 
 // public:
 void Communication_ipc_process_msg(Communication * const me,
     QEvt const * const e);
 void Communication_can_process_msg(Communication * const me,
+    QEvt const * const e);
+void Communication_Can_Periodic_Msg(Communication * const me,
     QEvt const * const e);
 
 // protected:

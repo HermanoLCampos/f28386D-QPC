@@ -43,25 +43,25 @@ void user_board_init(){
 }
 
 void user_CAN_Init(){
-    CAN_initModule(CAN1_BASE);
-    CAN_setBitRate(CAN1_BASE, CM_CLK_FREQ, 250000, 16);
+    CAN_initModule(CAN_PUBLIC_BASE);
+    CAN_setBitRate(CAN_PUBLIC_BASE, CM_CLK_FREQ, 250000, 16);
 
-    CAN_enableInterrupt(CAN1_BASE, CAN_INT_ERROR|CAN_INT_IE0|CAN_INT_IE1|CAN_INT_STATUS);
+    CAN_enableInterrupt(CAN_PUBLIC_BASE, CAN_INT_ERROR|CAN_INT_IE0|CAN_INT_IE1|CAN_INT_STATUS);
 
-    Interrupt_enable(INT_CANA0);
+    Interrupt_enable(INT_CAN_PUBLIC_0);
 
-    CAN_enableGlobalInterrupt(CAN1_BASE,CAN_GLOBAL_INT_CANINT0);
-    CAN_enableGlobalInterrupt(CAN1_BASE,CAN_GLOBAL_INT_CANINT1);
+    CAN_enableGlobalInterrupt(CAN_PUBLIC_BASE,CAN_GLOBAL_INT_CANINT0);
+    CAN_enableGlobalInterrupt(CAN_PUBLIC_BASE,CAN_GLOBAL_INT_CANINT1);
 
-    Interrupt_registerHandler(INT_CANA0, &CAN_1_ISR0);
-    Interrupt_registerHandler(INT_CANA1, &CAN_1_ISR1);
+    Interrupt_registerHandler(INT_CAN_PUBLIC_0, &CAN_PUBLIC_ISR0);
+    Interrupt_registerHandler(INT_CAN_PUBLIC_1, &CAN_PUBLIC_ISR1);
 
-    CAN_setInterruptMux(CAN1_BASE, 0);
+    CAN_setInterruptMux(CAN_PUBLIC_BASE, 0);
 
     for(uint16_t i_msg = 1; i_msg<= MODULINK_CAN_MAX_MSG; i_msg++){
         // Declare the Message Objects
         CAN_setupMessageObject(
-            CAN1_BASE,                                          //Base
+            CAN_PUBLIC_BASE,                                          //Base
             i_msg,                                              // MailBox Number
             modulink_can_messages_proprieties[i_msg].msg_id,    // Message ID
             CAN_MSG_FRAME_EXT,                                  // Extended ID
@@ -72,8 +72,8 @@ void user_CAN_Init(){
         );
     }
 
-    CAN_startModule(CAN1_BASE);
+    CAN_startModule(CAN_PUBLIC_BASE);
 
-    CAN_enableAutoBusOn(CAN1_BASE);
-    CAN_setAutoBusOnTime(CAN1_BASE, 250000);
+    CAN_enableAutoBusOn(CAN_PUBLIC_BASE);
+    CAN_setAutoBusOnTime(CAN_PUBLIC_BASE, 250000);
 }

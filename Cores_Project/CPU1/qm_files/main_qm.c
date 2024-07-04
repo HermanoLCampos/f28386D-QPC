@@ -158,9 +158,9 @@ OC_Evt const im_evt_ipc_receive_msg[OC_IPC_NUM_OF_INST] ={
 
 //${CPU1::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}
 OC_Evt const im_evt_can_send_msg[OC_CAN_NUM_OF_INST] ={
-    [OC_CAN_CANB_ID] = {
+    [OC_CAN_CAN_SKIIP_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
-        .ID = OC_CAN_CANB_ID,
+        .ID = OC_CAN_CAN_SKIIP_ID,
     },
 };
 //$enddef${CPU1::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -203,7 +203,7 @@ com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX] ={
     },
 };
 
-//${CPU1::Signals::com_signals_canb[COM_SIG_CANB_MA~} ........................
-const com_tag_t com_signals_canb[COM_SIG_CANB_MAX] ={
+//${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~} ........................
+const com_tag_t com_signals_can_skiip[COM_SIG_CAN_SKIIP_MAX] ={
 };
 //$enddef${CPU1::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

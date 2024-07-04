@@ -552,6 +552,7 @@ report_message-&gt;super.ID = OC_IPC_CPU1_CM_ID;
 report_message-&gt;msg.com_sig = COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT;
 report_message-&gt;msg.message_size = sizeof(FSBB_Control_Public_Data_t);
 report_message-&gt;msg.payload.faults = me-&gt;faults;
+
 QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *) 0);
 </action>
         <tran_glyph conn="36,50,3,-1,22">
@@ -684,8 +685,8 @@ FSBB_Control_Open_Contactors(me,e);
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
         <tran trig="CLEAR_FAULT" target="../../7">
          <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
-AO_Evt_Set_Multiple_Faults_t aux = {0};
-me-&gt;faults = aux.faults;</action>
+FSBB_Control_faults_t aux = {0};
+me-&gt;faults = aux;</action>
          <tran_glyph conn="54,36,3,2,18,-14">
           <action box="0,-2,11,2"/>
          </tran_glyph>
@@ -787,13 +788,21 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
      <operation name="ao_fsbb_control_ctor" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_~::pAO}-->
       <parameter name="pAO" type="const QActive  * const"/>
-      <code>FSBB_Control * const me = (FSBB_Control *) pAO;
+      <code>// Active Objects
+
+FSBB_Control * const me = (FSBB_Control *) pAO;
 QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));
+
+// Time Events
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params , &amp;me-&gt;super, CHECK_PARAMS_SIG, 0U);
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog , &amp;me-&gt;super, CHECK_CLA_WATCHDOG_SIG, 0U);
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle       , &amp;me-&gt;super, SETTLE_TIMEOUT_SIG, 0U);
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status, &amp;me-&gt;super, REPORT_STATUS_SIG, 0U);
-</code>
+
+// Vars
+
+AO_Evt_Set_Multiple_Faults_t aux = {0};
+me-&gt;faults = aux.faults;</code>
      </operation>
     </package>
    </package>
@@ -831,7 +840,7 @@ QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) , (void *)0, (void 
 
 QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ].super) , (void *)0, (void *)0 );
 
-QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super)   , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super)   , (void *)0, (void *)0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Waiting_QF::RUNNING_QF}-->
@@ -852,7 +861,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_ru
 
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_running_qf, (void *) 0 );
 
-QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super),&amp;im_evt_running_qf, (void *) 0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Start::INIT_COMPLETE}-->
@@ -862,7 +871,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_in
 #endif
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_init_complete, (void *) 0 );
 
-QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANB_ID].super),&amp;im_evt_init_complete, (void *) 0 );</action>
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super),&amp;im_evt_init_complete, (void *) 0 );</action>
         <tran_glyph conn="8,32,3,3,28">
          <action box="0,-2,14,2"/>
         </tran_glyph>
@@ -947,7 +956,7 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID] ,&amp;me-&gt;super, OC_IPC
 #endif
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&amp;me-&gt;super, OC_IPC_CPU1_CM_ID  );
 
-OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB_ID);</code>
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN_CAN_SKIIP_ID);</code>
      </operation>
     </package>
    </package>
@@ -1034,8 +1043,8 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
     },
 };</code>
    </attribute>
-   <!--${CPU1::Signals::com_signals_canb[COM_SIG_CANB_MA~}-->
-   <attribute name="com_signals_canb[COM_SIG_CANB_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
+   <!--${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~}-->
+   <attribute name="com_signals_can_skiip[COM_SIG_CAN_SKIIP_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
     <code>={
 };</code>
    </attribute>
@@ -1069,7 +1078,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
     <!--${CPU1::OC_enum::CAN::can_named}-->
     <attribute name="can_named" type="enum" visibility="0x04" properties="0x00">
      <code>{
-    OC_CAN_CANB_ID,
+    OC_CAN_CAN_SKIIP_ID,
     OC_CAN_NUM_OF_INST,
 };</code>
     </attribute>
@@ -1223,9 +1232,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANB_ID] ,&amp;me-&gt;super, OC_CAN_CANB
      <!--${CPU1::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}-->
      <attribute name="im_evt_can_send_msg[OC_CAN_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
-    [OC_CAN_CANB_ID] = {
+    [OC_CAN_CAN_SKIIP_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
-        .ID = OC_CAN_CANB_ID,
+        .ID = OC_CAN_CAN_SKIIP_ID,
     },
 };</code>
      </attribute>
@@ -1516,6 +1525,8 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
      <attribute name="can_inst[OC_CAN_NUM_OF_INST]" type="OC_CAN" visibility="0x02" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::sys_data}-->
      <attribute name="sys_data" type="System_Public_Data_t" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::time_evt_can_periodic_message}-->
+     <attribute name="time_evt_can_periodic_message" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::ipc_process_msg}-->
      <operation name="ipc_process_msg" type="void" visibility="0x00" properties="0x00">
       <!--${CM::AOs::AO_Communication::Communication::ipc_process_msg::e}-->
@@ -1524,6 +1535,11 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
      <!--${CM::AOs::AO_Communication::Communication::can_process_msg}-->
      <operation name="can_process_msg" type="void" visibility="0x00" properties="0x00">
       <!--${CM::AOs::AO_Communication::Communication::can_process_msg::e}-->
+      <parameter name="e" type="QEvt const * const"/>
+     </operation>
+     <!--${CM::AOs::AO_Communication::Communication::Can_Periodic_Msg}-->
+     <operation name="Can_Periodic_Msg" type="void" visibility="0x00" properties="0x00">
+      <!--${CM::AOs::AO_Communication::Communication::Can_Periodic_Msg::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CM::AOs::AO_Communication::Communication::SM}-->
@@ -1544,7 +1560,7 @@ QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID].super) , (void *)0, (void *)
 QASM_INIT( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
 #endif
 
-QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_CAN_PUBLIC_ID].super) , (void *)0, (void *)0 );
 //QASM_INIT( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
@@ -1566,7 +1582,7 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
 #endif
 
-QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_PUBLIC_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
 //QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_running_qf, (void *) 0 );
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
@@ -1578,8 +1594,15 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
 #endif
 
-QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CANA_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
-//QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_init_complete, (void *) 0 );</action>
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_PUBLIC_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
+//QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_MCAN_ID].super) , &amp;im_evt_init_complete, (void *) 0 );
+
+// Time Events
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_can_periodic_message,
+(uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);</action>
         <tran_glyph conn="8,32,3,3,28">
          <action box="0,-2,14,2"/>
         </tran_glyph>
@@ -1599,7 +1622,7 @@ if(id&gt;OC_IPC_NUM_OF_INST) system_assert(__FILE__,0);
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[id].super) ,e, (void *) 0 );
 
 Communication_ipc_process_msg(me,e);</action>
-        <tran_glyph conn="36,10,3,-1,16">
+        <tran_glyph conn="36,10,3,-1,18">
          <action box="0,-2,15,2"/>
         </tran_glyph>
        </tran>
@@ -1608,7 +1631,7 @@ Communication_ipc_process_msg(me,e);</action>
         <action>uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
 if(id&gt;OC_IPC_NUM_OF_INST) system_assert(__FILE__,0);
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[id].super) ,e, (void *) 0 );</action>
-        <tran_glyph conn="36,12,3,-1,16">
+        <tran_glyph conn="36,12,3,-1,18">
          <action box="0,-2,19,9"/>
         </tran_glyph>
        </tran>
@@ -1621,7 +1644,7 @@ if(id&gt;OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
 QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );
 
 Communication_can_process_msg(me,e);</action>
-        <tran_glyph conn="36,22,3,-1,16">
+        <tran_glyph conn="36,22,3,-1,18">
          <action box="0,-2,16,2"/>
         </tran_glyph>
        </tran>
@@ -1630,7 +1653,7 @@ Communication_can_process_msg(me,e);</action>
         <action>uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
 if(id&gt;OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
 QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
-        <tran_glyph conn="36,24,3,-1,16">
+        <tran_glyph conn="36,24,3,-1,18">
          <action box="0,-2,17,7"/>
         </tran_glyph>
        </tran>
@@ -1640,8 +1663,15 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
 
 const AO_Evt_Update_FSBB_Data_t * fsbb_public_data = Q_EVT_CAST(AO_Evt_Update_FSBB_Data_t);
 me-&gt;sys_data.fsbb_data = fsbb_public_data-&gt;data;</action>
-        <tran_glyph conn="36,38,3,-1,18">
+        <tran_glyph conn="36,45,3,-1,18">
          <action box="0,-2,17,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE}-->
+       <tran trig="CAN_PERIODIC_MESSAGE">
+        <action>Communication_Can_Periodic_Msg(me,e);</action>
+        <tran_glyph conn="36,36,3,-1,18">
+         <action box="0,-2,20,2"/>
         </tran_glyph>
        </tran>
        <state_glyph node="36,4,54,62"/>
@@ -1661,8 +1691,16 @@ me-&gt;sys_data.fsbb_data = fsbb_public_data-&gt;data;</action>
      <operation name="ao_communication_ctor" type="void" visibility="0x00" properties="0x00">
       <!--${CM::AOs::AO_Communication::globals::ao_communication~::pAO}-->
       <parameter name="pAO" type="const QActive  * const"/>
-      <code>Communication * const me = (Communication *) pAO;
+      <code>// Active Object
+
+Communication * const me = (Communication *) pAO;
 QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
+
+// Time Events
+
+QTimeEvt_ctorX( &amp;me-&gt;time_evt_can_periodic_message,
+                &amp;me-&gt;super,
+                CAN_PERIODIC_MESSAGE_SIG, 0U);
 
 // Orthogonal Components
 
@@ -1670,8 +1708,11 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU1_ID] , &amp;me-&gt;super, OC_IPC_
 #ifdef DUALCORE
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CM_CPU2_ID] , &amp;me-&gt;super, OC_IPC_CM_CPU2_ID);
 #endif
-OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA_ID);
-//OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN_ID);</code>
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_PUBLIC_ID] ,&amp;me-&gt;super, OC_CAN_CAN_PUBLIC_ID);
+//OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_MCAN_ID] ,&amp;me-&gt;super, OC_CAN_MCAN_ID);
+
+System_Public_Data_t aux = {0};
+me-&gt;sys_data = aux;</code>
      </operation>
     </package>
    </package>
@@ -1692,6 +1733,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     RUNNING_QF_SIG,
     INIT_COMPLETE_SIG,
     UPDATE_FSBB_DATA_SIG,
+    CAN_PERIODIC_MESSAGE_SIG,
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -1705,9 +1747,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
    <!--${CM::Signals::com_signals_ipc_cpu1_cm[COM_SIG_~}-->
    <attribute name="com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG] = {
+    [COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG] = {
         .p_ao = &amp;p_ao_communication,
-        .im_evt = &amp;im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+        .im_evt = &amp;im_evt_can_send_msg[OC_CAN_CAN_PUBLIC_ID].super,
     },
     [COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG] = {
         .p_ao = &amp;p_ao_communication,
@@ -1722,9 +1764,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
    <!--${CM::Signals::com_signals_ipc_cpu2_cm[COM_SIG_~}-->
    <attribute name="com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG] = {
+    [COM_SIG_IPC_CPU2_CM_SEND_CAN_PUBLIC_MSG] = {
         .p_ao = &amp;p_ao_communication,
-        .im_evt = &amp;im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+        .im_evt = &amp;im_evt_can_send_msg[OC_CAN_CAN_PUBLIC_ID].super,
     },
     [COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG] = {
         .p_ao = &amp;p_ao_communication,
@@ -1732,34 +1774,34 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     }
 };</code>
    </attribute>
-   <!--${CM::Signals::com_signals_cana[COM_SIG_CANA_MA~}-->
-   <attribute name="com_signals_cana[COM_SIG_CANA_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
+   <!--${CM::Signals::com_signals_can_public[COM_SIG_C~}-->
+   <attribute name="com_signals_can_public[COM_SIG_CAN_PUBLIC_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
     <code>={
-    [COM_SIG_CANA_CONTROL_START] = {
+    [COM_SIG_CAN_PUBLIC_CONTROL_START] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_start_control.super.super,
     },
-    [COM_SIG_CANA_CONTROL_STOP] = {
+    [COM_SIG_CAN_PUBLIC_CONTROL_STOP] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_stop_control.super.super,
     },
-    [COM_SIG_CANA_EMERGENCY_SHUTDOWN] = {
+    [COM_SIG_CAN_PUBLIC_EMERGENCY_SHUTDOWN] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_emergency_shutdown.super.super,
     },
-    [COM_SIG_CANA_PRECHARGE_START] = {
+    [COM_SIG_CAN_PUBLIC_PRECHARGE_START] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_precharge_start.super.super,
     },
-    [COM_SIG_CANA_RESET] = {
+    [COM_SIG_CAN_PUBLIC_RESET] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_reset.super.super,
     },
-    [COM_SIG_CANA_CLEAR_FAULT] = {
+    [COM_SIG_CAN_PUBLIC_CLEAR_FAULT] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_clear_fault.super.super,
     },
-    [COM_SIG_CANA_CHANGE_SETPOINT] = {
+    [COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT] = {
         .p_ao = &amp;p_ao_communication,
         .im_evt = &amp;im_evt_change_setpoint.super.super,
     },
@@ -1799,7 +1841,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     <!--${CM::OC_enum::CAN::can_named}-->
     <attribute name="can_named" type="enum" visibility="0x04" properties="0x00">
      <code>{
-    OC_CAN_CANA_ID,
+    OC_CAN_CAN_PUBLIC_ID,
     OC_CAN_MCAN_ID,
     OC_CAN_NUM_OF_INST,
 };</code>
@@ -1904,9 +1946,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
      <!--${CM::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}-->
      <attribute name="im_evt_can_send_msg[OC_CAN_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
       <code>={
-    [OC_CAN_CANA_ID] = {
+    [OC_CAN_CAN_PUBLIC_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
-        .ID = OC_CAN_CANA_ID,
+        .ID = OC_CAN_CAN_PUBLIC_ID,
     },
     [OC_CAN_MCAN_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
@@ -2039,18 +2081,18 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
    </class>
    <!--${Shared::Signals::Communication_CAN}-->
    <package name="Communication_CAN" stereotype="0x00">
-    <!--${Shared::Signals::Communication_CA~::com_signals_cana}-->
-    <attribute name="com_signals_cana" type="enum" visibility="0x04" properties="0x00">
+    <!--${Shared::Signals::Communication_CA~::com_signals_can_public}-->
+    <attribute name="com_signals_can_public" type="enum" visibility="0x04" properties="0x00">
      <code>{
-    COM_SIG_CANA_CONTROL_START,
-    COM_SIG_CANA_CONTROL_STOP,
-    COM_SIG_CANA_EMERGENCY_SHUTDOWN,
-    COM_SIG_CANA_PRECHARGE_START,
-    COM_SIG_CANA_CHANGE_SETPOINT,
-    COM_SIG_CANA_RESET,
-    COM_SIG_CANA_CLEAR_FAULT,
-    COM_SIG_CANA_MAX,
-    COM_SIG_CANA_NOTHING = COM_SIG_CANA_MAX,
+    COM_SIG_CAN_PUBLIC_CONTROL_START,
+    COM_SIG_CAN_PUBLIC_CONTROL_STOP,
+    COM_SIG_CAN_PUBLIC_EMERGENCY_SHUTDOWN,
+    COM_SIG_CAN_PUBLIC_PRECHARGE_START,
+    COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT,
+    COM_SIG_CAN_PUBLIC_RESET,
+    COM_SIG_CAN_PUBLIC_CLEAR_FAULT,
+    COM_SIG_CAN_PUBLIC_MAX,
+    COM_SIG_CAN_PUBLIC_NOTHING = COM_SIG_CAN_PUBLIC_MAX,
 };</code>
     </attribute>
     <!--${Shared::Signals::Communication_CA~::com_signals_mcan}-->
@@ -2060,11 +2102,11 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     COM_SIG_MCAN_NOTHING = COM_SIG_MCAN_MAX,
 };</code>
     </attribute>
-    <!--${Shared::Signals::Communication_CA~::com_signals_canb}-->
-    <attribute name="com_signals_canb" type="enum" visibility="0x04" properties="0x00">
+    <!--${Shared::Signals::Communication_CA~::com_signals_can_skiip}-->
+    <attribute name="com_signals_can_skiip" type="enum" visibility="0x04" properties="0x00">
      <code>{
-    COM_SIG_CANB_MAX,
-    COM_SIG_CANB_NOTHING = COM_SIG_CANB_MAX,
+    COM_SIG_CAN_SKIIP_MAX,
+    COM_SIG_CAN_SKIIP_NOTHING = COM_SIG_CAN_SKIIP_MAX,
 };</code>
     </attribute>
    </package>
@@ -2090,7 +2132,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     <attribute name="com_signals_cpu1_cm_ipc" type="enum" visibility="0x04" properties="0x00">
      <code>{
     //Index Signals Here
-    COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
     COM_SIG_IPC_CPU1_CM_MAX,
@@ -2116,7 +2158,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     <attribute name="com_signals_cpu2_cm_ipc" type="enum" visibility="0x04" properties="0x00">
      <code>{
     //Index Signals Here
-    COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU2_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU2_CM_MAX,
     COM_SIG_IPC_CPU2_CM_NOTHING = COM_SIG_IPC_CPU2_CM_MAX,
@@ -2221,6 +2263,10 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
     <attribute name="cla_t2_watchdog_timeout:1" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${Shared::Types::FSBB_Control_fau~::emergency_shutdown:1}-->
     <attribute name="emergency_shutdown:1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::FSBB_Control_fau~::skiip1_error:1}-->
+    <attribute name="skiip1_error:1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::FSBB_Control_fau~::skiip2_error:1}-->
+    <attribute name="skiip2_error:1" type="uint16_t" visibility="0x02" properties="0x00"/>
    </class>
    <!--${Shared::Types::FSBB_Control_Public_Data_t}-->
    <class name="FSBB_Control_Public_Data_t">
@@ -2313,14 +2359,6 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CANA_ID] ,&amp;me-&gt;super, OC_CAN_CANA
   </package>
   <!--${Shared::Macros}-->
   <package name="Macros" stereotype="0x00">
-   <!--${Shared::Macros::RTOS_TICK_FREQUENCY_HZ}-->
-   <attribute name="RTOS_TICK_FREQUENCY_HZ" type="" visibility="0x03" properties="0x00">
-    <code>(1000.0f)</code>
-   </attribute>
-   <!--${Shared::Macros::RTOS_TICK_PERIOD_MS}-->
-   <attribute name="RTOS_TICK_PERIOD_MS" type="" visibility="0x03" properties="0x00">
-    <code>(1000.f/RTOS_TICK_FREQUENCY_HZ)</code>
-   </attribute>
    <!--${Shared::Macros::OC_IPC_CMD_REMOTE_RESET}-->
    <attribute name="OC_IPC_CMD_REMOTE_RESET" type="" visibility="0x03" properties="0x00">
     <code>0
@@ -2365,6 +2403,14 @@ in payload the message</documentation>
    </package>
    <!--${Shared::Macros::TIME_MACROS}-->
    <package name="TIME_MACROS" stereotype="0x00">
+    <!--${Shared::Macros::TIME_MACROS::RTOS_TICK_FREQUENCY_HZ}-->
+    <attribute name="RTOS_TICK_FREQUENCY_HZ" type="" visibility="0x03" properties="0x00">
+     <code>(1000.0f)</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::RTOS_TICK_PERIOD_MS}-->
+    <attribute name="RTOS_TICK_PERIOD_MS" type="" visibility="0x03" properties="0x00">
+     <code>(1000.f/RTOS_TICK_FREQUENCY_HZ)</code>
+    </attribute>
     <!--${Shared::Macros::TIME_MACROS::CHECK_PARAMS_PRECHARGE_TIME_MS}-->
     <attribute name="CHECK_PARAMS_PRECHARGE_TIME_MS" type="" visibility="0x03" properties="0x00">
      <code>100</code>
@@ -2385,8 +2431,12 @@ in payload the message</documentation>
     <attribute name="REPORT_STATUS_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
      <code>1000</code>
     </attribute>
-    <!--${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MAX_FREQUENCY_MS}-->
-    <attribute name="ANALOG_FAULT_MAX_FREQUENCY_MS" type="" visibility="0x03" properties="0x00">
+    <!--${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MIN_TIME_MS}-->
+    <attribute name="ANALOG_FAULT_MIN_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_TIME_MS}-->
+    <attribute name="CAN_PERIODIC_MSG_TIME_MS" type="" visibility="0x03" properties="0x00">
      <code>1000</code>
     </attribute>
    </package>

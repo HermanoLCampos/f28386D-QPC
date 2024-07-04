@@ -120,9 +120,9 @@ OC_Evt const im_evt_ipc_remote_reset[OC_IPC_NUM_OF_INST] ={
 
 //${CM::Immutable_Events::Communication::CAN::im_evt_can_send_msg[OC_CAN_NUM_O~}
 OC_Evt const im_evt_can_send_msg[OC_CAN_NUM_OF_INST] ={
-    [OC_CAN_CANA_ID] = {
+    [OC_CAN_CAN_PUBLIC_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
-        .ID = OC_CAN_CANA_ID,
+        .ID = OC_CAN_CAN_PUBLIC_ID,
     },
     [OC_CAN_MCAN_ID] = {
         .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
@@ -229,9 +229,9 @@ QEvt const im_evt_update_fsbb_data = QEVT_INITIALIZER(UPDATE_FSBB_DATA_SIG);
 
 //${CM::Signals::com_signals_ipc_cpu1_cm[COM_SIG_~} ..........................
 const com_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
-    [COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG] = {
+    [COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG] = {
         .p_ao = &p_ao_communication,
-        .im_evt = &im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_CAN_PUBLIC_ID].super,
     },
     [COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG] = {
         .p_ao = &p_ao_communication,
@@ -245,9 +245,9 @@ const com_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
 
 //${CM::Signals::com_signals_ipc_cpu2_cm[COM_SIG_~} ..........................
 const com_tag_t com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX] ={
-    [COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG] = {
+    [COM_SIG_IPC_CPU2_CM_SEND_CAN_PUBLIC_MSG] = {
         .p_ao = &p_ao_communication,
-        .im_evt = &im_evt_can_send_msg[OC_CAN_CANA_ID].super,
+        .im_evt = &im_evt_can_send_msg[OC_CAN_CAN_PUBLIC_ID].super,
     },
     [COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG] = {
         .p_ao = &p_ao_communication,
@@ -255,33 +255,33 @@ const com_tag_t com_signals_ipc_cpu2_cm[COM_SIG_IPC_CPU2_CM_MAX] ={
     }
 };
 
-//${CM::Signals::com_signals_cana[COM_SIG_CANA_MA~} ..........................
-const com_tag_t com_signals_cana[COM_SIG_CANA_MAX] ={
-    [COM_SIG_CANA_CONTROL_START] = {
+//${CM::Signals::com_signals_can_public[COM_SIG_C~} ..........................
+const com_tag_t com_signals_can_public[COM_SIG_CAN_PUBLIC_MAX] ={
+    [COM_SIG_CAN_PUBLIC_CONTROL_START] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_start_control.super.super,
     },
-    [COM_SIG_CANA_CONTROL_STOP] = {
+    [COM_SIG_CAN_PUBLIC_CONTROL_STOP] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_stop_control.super.super,
     },
-    [COM_SIG_CANA_EMERGENCY_SHUTDOWN] = {
+    [COM_SIG_CAN_PUBLIC_EMERGENCY_SHUTDOWN] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_emergency_shutdown.super.super,
     },
-    [COM_SIG_CANA_PRECHARGE_START] = {
+    [COM_SIG_CAN_PUBLIC_PRECHARGE_START] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_precharge_start.super.super,
     },
-    [COM_SIG_CANA_RESET] = {
+    [COM_SIG_CAN_PUBLIC_RESET] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_reset.super.super,
     },
-    [COM_SIG_CANA_CLEAR_FAULT] = {
+    [COM_SIG_CAN_PUBLIC_CLEAR_FAULT] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_clear_fault.super.super,
     },
-    [COM_SIG_CANA_CHANGE_SETPOINT] = {
+    [COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_change_setpoint.super.super,
     },

@@ -63,7 +63,7 @@ QState Communication_Waiting_QF(Communication * const me, QEvt const * const e) 
             QASM_INIT( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , (void *)0, (void *)0 );
             #endif
 
-            QASM_INIT( &(me->can_inst[OC_CAN_CANA_ID].super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->can_inst[OC_CAN_CAN_PUBLIC_ID].super) , (void *)0, (void *)0 );
             //QASM_INIT( &(me->can_inst[OC_CAN_MCAN_ID].super) , (void *)0, (void *)0 );
 
             QACTIVE_POST(&me->super,&im_evt_running_qf,(void *)0);
@@ -95,7 +95,7 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_running_qf, (void *) 0 );
             #endif
 
-            QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_PUBLIC_ID].super) , &im_evt_running_qf, (void *) 0 );
             //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_running_qf, (void *) 0 );
 
             QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
@@ -110,8 +110,15 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CM_CPU2_ID].super) , &im_evt_init_complete, (void *) 0 );
             #endif
 
-            QASM_DISPATCH( &(me->can_inst[OC_CAN_CANA_ID].super) , &im_evt_init_complete, (void *) 0 );
+            QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_PUBLIC_ID].super) , &im_evt_init_complete, (void *) 0 );
             //QASM_DISPATCH( &(me->can_inst[OC_CAN_MCAN_ID].super) , &im_evt_init_complete, (void *) 0 );
+
+            // Time Events
+
+            QTimeEvt_armX(&me->time_evt_can_periodic_message,
+            (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+            (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            );
             status_ = Q_TRAN(&Communication_Operation);
             break;
         }
@@ -183,6 +190,12 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
             status_ = Q_HANDLED();
             break;
         }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE}
+        case CAN_PERIODIC_MESSAGE_SIG: {
+            Communication_Can_Periodic_Msg(me,e);
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&QHsm_top);
             break;
@@ -199,8 +212,16 @@ QActive * const p_ao_communication = &inst_ao_communication.super;
 
 //${CM::AOs::AO_Communication::globals::ao_communication_ctor} ...............
 void ao_communication_ctor(const QActive  * const pAO) {
+    // Active Object
+
     Communication * const me = (Communication *) pAO;
     QActive_ctor(&me->super, Q_STATE_CAST(&Communication_initial));
+
+    // Time Events
+
+    QTimeEvt_ctorX( &me->time_evt_can_periodic_message,
+                    &me->super,
+                    CAN_PERIODIC_MESSAGE_SIG, 0U);
 
     // Orthogonal Components
 
@@ -208,8 +229,11 @@ void ao_communication_ctor(const QActive  * const pAO) {
     #ifdef DUALCORE
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CM_CPU2_ID] , &me->super, OC_IPC_CM_CPU2_ID);
     #endif
-    OC_CAN_ctor(&me->can_inst[OC_CAN_CANA_ID] ,&me->super, OC_CAN_CANA_ID);
+    OC_CAN_ctor(&me->can_inst[OC_CAN_CAN_PUBLIC_ID] ,&me->super, OC_CAN_CAN_PUBLIC_ID);
     //OC_CAN_ctor(&me->can_inst[OC_CAN_MCAN_ID] ,&me->super, OC_CAN_MCAN_ID);
+
+    System_Public_Data_t aux = {0};
+    me->sys_data = aux;
 }
 //$enddef${CM::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

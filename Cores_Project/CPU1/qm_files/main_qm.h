@@ -50,17 +50,17 @@ typedef struct {
     const QEvt * const im_evt;
 } com_tag_t;
 
-//${Shared::Signals::Communication_CA~::com_signals_cana} ....................
-enum com_signals_cana {
-    COM_SIG_CANA_CONTROL_START,
-    COM_SIG_CANA_CONTROL_STOP,
-    COM_SIG_CANA_EMERGENCY_SHUTDOWN,
-    COM_SIG_CANA_PRECHARGE_START,
-    COM_SIG_CANA_CHANGE_SETPOINT,
-    COM_SIG_CANA_RESET,
-    COM_SIG_CANA_CLEAR_FAULT,
-    COM_SIG_CANA_MAX,
-    COM_SIG_CANA_NOTHING = COM_SIG_CANA_MAX,
+//${Shared::Signals::Communication_CA~::com_signals_can_public} ..............
+enum com_signals_can_public {
+    COM_SIG_CAN_PUBLIC_CONTROL_START,
+    COM_SIG_CAN_PUBLIC_CONTROL_STOP,
+    COM_SIG_CAN_PUBLIC_EMERGENCY_SHUTDOWN,
+    COM_SIG_CAN_PUBLIC_PRECHARGE_START,
+    COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT,
+    COM_SIG_CAN_PUBLIC_RESET,
+    COM_SIG_CAN_PUBLIC_CLEAR_FAULT,
+    COM_SIG_CAN_PUBLIC_MAX,
+    COM_SIG_CAN_PUBLIC_NOTHING = COM_SIG_CAN_PUBLIC_MAX,
 };
 
 //${Shared::Signals::Communication_CA~::com_signals_mcan} ....................
@@ -69,10 +69,10 @@ enum com_signals_mcan {
     COM_SIG_MCAN_NOTHING = COM_SIG_MCAN_MAX,
 };
 
-//${Shared::Signals::Communication_CA~::com_signals_canb} ....................
-enum com_signals_canb {
-    COM_SIG_CANB_MAX,
-    COM_SIG_CANB_NOTHING = COM_SIG_CANB_MAX,
+//${Shared::Signals::Communication_CA~::com_signals_can_skiip} ...............
+enum com_signals_can_skiip {
+    COM_SIG_CAN_SKIIP_MAX,
+    COM_SIG_CAN_SKIIP_NOTHING = COM_SIG_CAN_SKIIP_MAX,
 };
 
 //${Shared::Signals::Communication IP~::com_signals_cpu1_cpu2_ipc} ...........
@@ -92,7 +92,7 @@ enum com_signals_cpu2_cpu1_ipc {
 //${Shared::Signals::Communication IP~::com_signals_cpu1_cm_ipc} .............
 enum com_signals_cpu1_cm_ipc {
     //Index Signals Here
-    COM_SIG_IPC_CPU1_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
     COM_SIG_IPC_CPU1_CM_MAX,
@@ -116,7 +116,7 @@ enum com_signals_cm_cpu1_ipc {
 //${Shared::Signals::Communication IP~::com_signals_cpu2_cm_ipc} .............
 enum com_signals_cpu2_cm_ipc {
     //Index Signals Here
-    COM_SIG_IPC_CPU2_CM_SEND_CANA_MSG,
+    COM_SIG_IPC_CPU2_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU2_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU2_CM_MAX,
     COM_SIG_IPC_CPU2_CM_NOTHING = COM_SIG_IPC_CPU2_CM_MAX,
@@ -199,6 +199,8 @@ typedef struct {
     uint16_t cla_t1_watchdog_timeout:1;
     uint16_t cla_t2_watchdog_timeout:1;
     uint16_t emergency_shutdown:1;
+    uint16_t skiip1_error:1;
+    uint16_t skiip2_error:1;
 } FSBB_Control_faults_t;
 
 //${Shared::Types::FSBB_Control_Public_Data_t} ...............................
@@ -313,12 +315,6 @@ typedef struct {
     Communication_Message_FSBB_Control_Public_Data_t msg;
 } OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t;
 
-//${Shared::Macros::RTOS_TICK_FREQUENCY_HZ} ..................................
-#define RTOS_TICK_FREQUENCY_HZ (1000.0f)
-
-//${Shared::Macros::RTOS_TICK_PERIOD_MS} .....................................
-#define RTOS_TICK_PERIOD_MS (1000.f/RTOS_TICK_FREQUENCY_HZ)
-
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
 
@@ -347,6 +343,12 @@ typedef struct {
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_INDUCTOR_TEMPERAT~} ......
 #define CRITICAL_LIMIT_INDUCTOR_TEMPERATURE 200
 
+//${Shared::Macros::TIME_MACROS::RTOS_TICK_FREQUENCY_HZ} .....................
+#define RTOS_TICK_FREQUENCY_HZ (1000.0f)
+
+//${Shared::Macros::TIME_MACROS::RTOS_TICK_PERIOD_MS} ........................
+#define RTOS_TICK_PERIOD_MS (1000.f/RTOS_TICK_FREQUENCY_HZ)
+
 //${Shared::Macros::TIME_MACROS::CHECK_PARAMS_PRECHARGE_TIME_MS} .............
 #define CHECK_PARAMS_PRECHARGE_TIME_MS 100
 
@@ -362,8 +364,11 @@ typedef struct {
 //${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS} ...............
 #define REPORT_STATUS_PERIOD_TIME_MS 1000
 
-//${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MAX_FREQUENCY_MS} ..............
-#define ANALOG_FAULT_MAX_FREQUENCY_MS 1000
+//${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MIN_TIME_MS} ...................
+#define ANALOG_FAULT_MIN_TIME_MS 1000
+
+//${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_TIME_MS} ...................
+#define CAN_PERIODIC_MSG_TIME_MS 1000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
@@ -553,8 +558,8 @@ extern com_tag_t com_signals_ipc_cpu2_cpu1[COM_SIG_IPC_CPU2_CPU1_MAX];
 //${CPU1::Signals::com_signals_ipc_cm_cpu1[COM_SIG_~} ........................
 extern com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX];
 
-//${CPU1::Signals::com_signals_canb[COM_SIG_CANB_MA~} ........................
-extern const com_tag_t com_signals_canb[COM_SIG_CANB_MAX];
+//${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~} ........................
+extern const com_tag_t com_signals_can_skiip[COM_SIG_CAN_SKIIP_MAX];
 //$enddecl${CPU1::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //================================================
@@ -613,7 +618,7 @@ enum ipc_named {
 
 //${CPU1::OC_enum::CAN::can_named} ...........................................
 enum can_named {
-    OC_CAN_CANB_ID,
+    OC_CAN_CAN_SKIIP_ID,
     OC_CAN_NUM_OF_INST,
 };
 //$enddecl${CPU1::OC_enum} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

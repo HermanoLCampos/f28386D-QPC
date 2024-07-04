@@ -225,6 +225,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             report_message->msg.com_sig = COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT;
             report_message->msg.message_size = sizeof(FSBB_Control_Public_Data_t);
             report_message->msg.payload.faults = me->faults;
+
             QACTIVE_POST( p_ao_communication , &report_message->super.super , (void *) 0);
 
             status_ = Q_HANDLED();
@@ -405,8 +406,8 @@ QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}
         case CLEAR_FAULT_SIG: {
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
-            AO_Evt_Set_Multiple_Faults_t aux = {0};
-            me->faults = aux.faults;
+            FSBB_Control_faults_t aux = {0};
+            me->faults = aux;
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -526,12 +527,20 @@ QActive * const p_ao_fsbb_control = &inst_ao_fsbb_control.super;
 
 //${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_ctor} ...............
 void ao_fsbb_control_ctor(const QActive  * const pAO) {
+    // Active Objects
+
     FSBB_Control * const me = (FSBB_Control *) pAO;
     QActive_ctor(&me->super, Q_STATE_CAST(&FSBB_Control_initial));
+
+    // Time Events
     QTimeEvt_ctorX(&me->time_evt_check_params , &me->super, CHECK_PARAMS_SIG, 0U);
     QTimeEvt_ctorX(&me->time_evt_cla_watchdog , &me->super, CHECK_CLA_WATCHDOG_SIG, 0U);
     QTimeEvt_ctorX(&me->time_evt_settle       , &me->super, SETTLE_TIMEOUT_SIG, 0U);
     QTimeEvt_ctorX(&me->time_evt_report_status, &me->super, REPORT_STATUS_SIG, 0U);
 
+    // Vars
+
+    AO_Evt_Set_Multiple_Faults_t aux = {0};
+    me->faults = aux.faults;
 }
 //$enddef${CPU1::AOs::AO_FSBB_Control} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

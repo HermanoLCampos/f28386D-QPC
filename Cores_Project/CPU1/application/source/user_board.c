@@ -19,14 +19,15 @@ void user_board_init(){
 
     PinMux_init();
     SYSCTL_init();
+    INPUTXBAR_init();
     SYNC_init();
     ASYSCTL_init();
     CLA_init();
     MEMCFG_init();
     ADC_init();
 //    CAN_init();
-//        CAN1_init();
-        CAN2_init();
+//        CAN_PUBLIC_init();
+        CAN_SKIIP_init();
     CPUTIMER_init();
     EPWM_init();
     GPIO_init();
@@ -35,6 +36,7 @@ void user_board_init(){
     IPC_SYSCFG_init();
 #endif
     SPI_init();
+    XINT_init();
     INTERRUPT_init();
 
     EDIS;

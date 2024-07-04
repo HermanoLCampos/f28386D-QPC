@@ -236,7 +236,7 @@ __interrupt void Cla1Task2 ( void )
     float duty_to_mod = 0;
 
     FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip1_current_fp;
-    duty_to_mod = PID_Control_Exe( &FSBB_IL_PID_Control );
+    duty_to_mod = PID_Control_Exe( &FSBB_IL_PID_Control_mvp );
 
     if(duty_to_mod < -BUCK_BOOST_FACTOR){ //BUCK MODE
         duty_cicle_switch_vin  = (1.0f+duty_to_mod)/(1+BUCK_BOOST_FACTOR);
@@ -394,7 +394,7 @@ __interrupt void Cla1Task8 ( void )
     FSBB_IL_PID_Control_mvp.Tau                  = 0.50000;
     FSBB_IL_PID_Control_mvp.Ktt                  = 0.5;
 
-    FSBB_IL_PID_Control_mvp.Klim = FSBB_IL_PID_Control.Ki/(FSBB_IL_PID_Control.Kp*FSBB_IL_PID_Control.Ktt);
+    FSBB_IL_PID_Control_mvp.Klim = FSBB_IL_PID_Control_mvp.Ki/(FSBB_IL_PID_Control_mvp.Kp*FSBB_IL_PID_Control_mvp.Ktt);
 
     FSBB_IL_PID_Control_mvp.I_Component          = 0;
     FSBB_IL_PID_Control_mvp.D_Component          = 0;

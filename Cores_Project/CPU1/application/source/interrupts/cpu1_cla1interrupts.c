@@ -95,7 +95,7 @@ __interrupt void cla1Isr2()
         (skiip2_temperature_adc_val  > SKIIP2_TEMERATURE_HIGH_LIMIT_CHECK)
     ){
         if(analog_fault_counter == 0){
-            analog_fault_counter = (uint16_t)(ANALOG_FAULT_MAX_FREQUENCY_MS/1000.0f*CONTROL_FREQUENCY_HZ);
+            analog_fault_counter = (uint16_t)(ANALOG_FAULT_MIN_TIME_MS/1000.0f*CONTROL_FREQUENCY_HZ);
             AO_Evt_Set_Multiple_Faults_t aux = {0};
             AO_Evt_Set_Multiple_Faults_t * analog_faults = Q_NEW_FROM_ISR(AO_Evt_Set_Multiple_Faults_t, SET_MULTIPLE_FAULTS_SIG);
             analog_faults->faults = aux.faults;

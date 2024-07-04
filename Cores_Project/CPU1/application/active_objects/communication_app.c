@@ -64,15 +64,15 @@ void Communication_can_process_msg(Communication * const me,
     Communication_Message_t * msg_received = (Communication_Message_t *) me->can_inst[ID].msg_buffer;
     for(uint16_t buffer_index = 0 ; buffer_index < OC_CAN_MSG_BUFFER_SIZE ; buffer_index = buffer_index + msg_received->message_size+2){
         msg_received = (Communication_Message_t *) ( ( (uint16_t *) me->can_inst[ID].msg_buffer ) + buffer_index);
-        if(ID == OC_CAN_CANB_ID){
-            if(msg_received->com_sig < COM_SIG_CANB_NOTHING){
+        if(ID == OC_CAN_CAN_SKIIP_ID){
+            if(msg_received->com_sig < COM_SIG_CAN_PUBLIC_NOTHING){
                 switch(msg_received->com_sig){
                 default:
-                    Communication_send_default_message(msg_received,&com_signals_canb[msg_received->com_sig]);
+                    Communication_send_default_message(msg_received,&com_signals_can_skiip[msg_received->com_sig]);
                     break;
                 }
             }else{
-                if(msg_received->com_sig == COM_SIG_CANB_NOTHING) break;
+                if(msg_received->com_sig == COM_SIG_CAN_PUBLIC_NOTHING) break;
                 //Invalid Com Signal
 
                 break;

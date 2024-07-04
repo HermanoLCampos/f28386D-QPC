@@ -30,12 +30,6 @@
 //$endhead${.::Cores_Project::CPU1::qm_files::macros_qm.h} ^^^^^^^^^^^^^^^^^^^
 //$declare${Shared::Macros} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//${Shared::Macros::RTOS_TICK_FREQUENCY_HZ} ..................................
-#define RTOS_TICK_FREQUENCY_HZ (1000.0f)
-
-//${Shared::Macros::RTOS_TICK_PERIOD_MS} .....................................
-#define RTOS_TICK_PERIOD_MS (1000.f/RTOS_TICK_FREQUENCY_HZ)
-
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
 
@@ -64,6 +58,12 @@
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_INDUCTOR_TEMPERAT~} ......
 #define CRITICAL_LIMIT_INDUCTOR_TEMPERATURE 200
 
+//${Shared::Macros::TIME_MACROS::RTOS_TICK_FREQUENCY_HZ} .....................
+#define RTOS_TICK_FREQUENCY_HZ (1000.0f)
+
+//${Shared::Macros::TIME_MACROS::RTOS_TICK_PERIOD_MS} ........................
+#define RTOS_TICK_PERIOD_MS (1000.f/RTOS_TICK_FREQUENCY_HZ)
+
 //${Shared::Macros::TIME_MACROS::CHECK_PARAMS_PRECHARGE_TIME_MS} .............
 #define CHECK_PARAMS_PRECHARGE_TIME_MS 100
 
@@ -79,8 +79,11 @@
 //${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS} ...............
 #define REPORT_STATUS_PERIOD_TIME_MS 1000
 
-//${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MAX_FREQUENCY_MS} ..............
-#define ANALOG_FAULT_MAX_FREQUENCY_MS 1000
+//${Shared::Macros::TIME_MACROS::ANALOG_FAULT_MIN_TIME_MS} ...................
+#define ANALOG_FAULT_MIN_TIME_MS 1000
+
+//${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_TIME_MS} ...................
+#define CAN_PERIODIC_MSG_TIME_MS 1000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20

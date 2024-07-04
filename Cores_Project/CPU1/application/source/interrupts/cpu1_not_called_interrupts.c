@@ -7,18 +7,19 @@
 
 
 #include "cpu1_interrupts.h"
+#include "board.h"
 
 //
 // canA_Isr1 - CANA ISR 1
 //
-__interrupt void INT_CAN1_0_ISR(){
+__interrupt void INT_CAN_PUBLIC_0_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-//    ESTOP0;
+    system_assert("not_called_interrupts", 0);
 
     // Clear Interrupt Flag
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+    Interrupt_clearACKGroup(INT_CAN_PUBLIC_0_INTERRUPT_ACK_GROUP);
 
     // FreeRTOS: End of the ISR
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -28,14 +29,14 @@ __interrupt void INT_CAN1_0_ISR(){
 // canA_Isr2 - CANA ISR 2
 //
 
-__interrupt void INT_CAN1_1_ISR(){
+__interrupt void INT_CAN_PUBLIC_1_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called
-//    ESTOP0;
+    system_assert("not_called_interrupts", 0);
 
     // Clear Interrupt Flag
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+    Interrupt_clearACKGroup(INT_CAN_PUBLIC_1_INTERRUPT_ACK_GROUP);
 
     // FreeRTOS: End of the ISR
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

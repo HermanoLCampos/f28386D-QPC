@@ -8,21 +8,22 @@
 
 #include "cpu1_interrupts.h"
 #include "modulink.h"
+#include "board.h"
 
 //
 // canB_Isr1 - CANB ISR 1
 //
-__interrupt void INT_CAN2_0_ISR(){
+__interrupt void INT_CAN_SKIIP_0_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     uint32_t status;
 //    CAN_MsgFrameType frameType;
 
-    status = CAN_getInterruptCause(CANB_BASE);
+    status = CAN_getInterruptCause(CAN_SKIIP_BASE);
 
     switch(status){
 
     case CAN_INT_INT0ID_STATUS:
-        status = CAN_getStatus(CANB_BASE);
+        status = CAN_getStatus(CAN_SKIIP_BASE);
 
         if(status & CAN_STATUS_RXOK || status & CAN_STATUS_TXOK){
             // Bus Off state
@@ -88,8 +89,8 @@ __interrupt void INT_CAN2_0_ISR(){
 //
 //        OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
 //        CAN_Received->super.ID = OC_CAN_CANB_ID;
-//        CAN_readMessageWithID(CANB_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
-//        CAN_clearInterruptStatus(CANB_BASE, status );
+//        CAN_readMessageWithID(CAN_SKIIP_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
+//        CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
 //
 //        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
 //
@@ -108,7 +109,7 @@ __interrupt void INT_CAN2_0_ISR(){
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
 
-    CAN_clearGlobalInterruptStatus(CANB_BASE, CAN_GLOBAL_INT_CANINT0);
+    CAN_clearGlobalInterruptStatus(CAN_SKIIP_BASE, CAN_GLOBAL_INT_CANINT0);
 
     // FreeRTOS: End of the ISR
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -118,7 +119,7 @@ __interrupt void INT_CAN2_0_ISR(){
 // canB_Isr2 - CANB ISR 2
 //
 
-__interrupt void INT_CAN2_1_ISR(){
+__interrupt void INT_CAN_SKIIP_1_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     //BreakPoint, this function shoudn't be called

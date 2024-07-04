@@ -19,11 +19,11 @@ __interrupt void cla1Isr6();
 __interrupt void cla1Isr7();
 __interrupt void cla1Isr8();
 
-__interrupt void INT_CAN1_0_ISR();
-__interrupt void INT_CAN1_1_ISR();
+__interrupt void INT_CAN_SKIIP_0_ISR();
+__interrupt void INT_CAN_SKIIP_1_ISR();
 
-__interrupt void INT_CAN2_0_ISR();
-__interrupt void INT_CAN2_1_ISR();
+__interrupt void INT_CAN_PUBLIC_0_ISR();
+__interrupt void INT_CAN_PUBLIC_1_ISR();
 
 __interrupt void INT_FO_HB_1_ISR();
 __interrupt void INT_FO_HB_2_ISR();
