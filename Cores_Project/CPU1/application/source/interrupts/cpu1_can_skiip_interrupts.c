@@ -7,11 +7,29 @@
 
 
 #include "cpu1_interrupts.h"
-#include "modulink.h"
+#include "dbc_skiip.h"
 #include "board.h"
 
+typedef struct{
+    uint16_t data1:8;
+    uint16_t data2:8;
+    uint16_t data3:8;
+    uint16_t data4:8;
+    uint16_t data5:8;
+    uint16_t data6:8;
+    uint16_t data7:8;
+    uint16_t data8:8;
+}c2000_can_data_adapter_t;
+
+
+#include "bsp_can_fifo.h"
+
+
+extern CAN_FIFO_t CAN_SKIIP_1_fifo;
+extern CAN_FIFO_t CAN_SKIIP_2_fifo;
+
 //
-// canB_Isr1 - CANB ISR 1
+// canB_Isr1 - CAN ISR 1
 //
 __interrupt void INT_CAN_SKIIP_0_ISR(){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -84,22 +102,49 @@ __interrupt void INT_CAN_SKIIP_0_ISR(){
             }
         }
         break;
-//    case CAN_MSG_IN_1_INDEX:
-//    case CAN_MSG_IN_2_INDEX:{
-//
-//        OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
-//        CAN_Received->super.ID = OC_CAN_CANB_ID;
-//        CAN_readMessageWithID(CAN_SKIIP_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
-//        CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
-//
-//        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
-//
-//        /* Parser Data */
-//
-//         Message Received Evt
-//
+
+    case DBC_SKIIP_CAN_MSG_STD_IN_INDEX:{
+
+
+        CAN_MsgFrameType frameType;
+        uint16_t data[8];
+        OC_Evt_CAN_Message_Received_t  * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
+        CAN_Received->super.ID = OC_CAN_CAN_SKIIP_ID;
+
+        CAN_readMessageWithID(CAN_SKIIP_BASE, status , &frameType, &CAN_Received->Message_ID , data);
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data1 = data[0];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data2 = data[1];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data3 = data[2];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data4 = data[3];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data5 = data[4];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data6 = data[5];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data7 = data[6];
+        ((c2000_can_data_adapter_t *)CAN_Received->Data)->data8 = data[7];
+
+        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
+
+        CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
+
+
+        break;
+    }
+
+    case DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX:{
+        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_1_fifo);
+        CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
+        break;
+    }
+    case DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX:{
+        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_2_fifo);
+        CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
+        break;
+    }
+
+
+//    case DBC_SKIIP_CAN_MSG_EXT_IN_INDEX:{
 //        break;
 //    }
+
     default:
         break;
     }
@@ -116,7 +161,7 @@ __interrupt void INT_CAN_SKIIP_0_ISR(){
 }
 
 //
-// canB_Isr2 - CANB ISR 2
+// canB_Isr2 - CAN ISR 2
 //
 
 __interrupt void INT_CAN_SKIIP_1_ISR(){

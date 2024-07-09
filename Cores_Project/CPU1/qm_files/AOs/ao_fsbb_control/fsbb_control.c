@@ -98,6 +98,11 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
             (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
 
+            QTimeEvt_armX(&me->time_evt_update_measure_request,
+            (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+            (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -146,7 +151,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
                 break;
             case FSBB_FAULT_SKIIP2_HALT:
                 me->faults.skiip2_halt = 1;
-            break;
+                break;
             case FSBB_FAULT_INDUCTOR_OVERHEAT:
                 me->faults.inductor_overheat = 1;
                 break;
@@ -167,6 +172,12 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
                 break;
             case FSBB_FAULT_EMERGENCY_SHUTDOWN:
                 me->faults.emergency_shutdown = 1;
+                break;
+            case FSBB_FAULT_SKIIP1_CARDIAC_ARREST:
+                me->faults.skiip1_cardiac_arrest = 1;
+                break;
+            case FSBB_FAULT_SKIIP2_CARDIAC_ARREST:
+                me->faults.skiip2_cardiac_arrest = 1;
                 break;
             default:
                 system_assert("AO_FSBB_Control",0);
@@ -233,13 +244,24 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}
         case EMERGENCY_SHUTDOWN_SIG: // intentionally fall through
-        case SETTLE_TIMEOUT_SIG: {
+        case SETTLE_TIMEOUT_SIG: // intentionally fall through
+        case SKIIP1_HEARTBEAT_TIMEOUT_SIG: // intentionally fall through
+        case SKIIP2_HEARTBEAT_TIMEOUT_SIG: {
             switch(e->sig){
             case EMERGENCY_SHUTDOWN_SIG:
                 me->faults.emergency_shutdown = 1;
                 break;
             case SETTLE_TIMEOUT_SIG:
                 me->faults.settle_timeout = 1;
+                break;
+            case SKIIP1_HEARTBEAT_TIMEOUT_SIG:
+                me->faults.skiip1_cardiac_arrest = 1;
+                break;
+            case SKIIP2_HEARTBEAT_TIMEOUT_SIG:
+                me->faults.skiip2_cardiac_arrest = 1;
+                break;
+            default:
+                break;
             }
             status_ = Q_TRAN(&FSBB_Control_Fault);
             break;
@@ -263,6 +285,31 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             }
 
             status_ = Q_TRAN(&FSBB_Control_Fault);
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SKIIP1_HEART_BEAT, SKIIP2_HEART_~}
+        case SKIIP1_HEART_BEAT_SIG: // intentionally fall through
+        case SKIIP2_HEART_BEAT_SIG: {
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_MEASURE}
+        case UPDATE_MEASURE_SIG: {
+
+            AO_Evt_FSBB_Measure_Update_t const * evt_update_measure =  Q_EVT_CAST(AO_Evt_FSBB_Measure_Update_t);
+
+            switch(evt_update_measure->data.measure_id){
+            case FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE:
+            case FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE:
+            case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
+            case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
+                me->measures[evt_update_measure->data.measure_id] = evt_update_measure->data.measure-2731;
+                break;
+            default:
+                system_assert("fsbb_control", 0);
+                break;
+            }
+            status_ = Q_HANDLED();
             break;
         }
         default: {
@@ -528,18 +575,21 @@ QActive * const p_ao_fsbb_control = &inst_ao_fsbb_control.super;
 //${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_ctor} ...............
 void ao_fsbb_control_ctor(const QActive  * const pAO) {
     // Active Objects
-
     FSBB_Control * const me = (FSBB_Control *) pAO;
     QActive_ctor(&me->super, Q_STATE_CAST(&FSBB_Control_initial));
 
     // Time Events
-    QTimeEvt_ctorX(&me->time_evt_check_params , &me->super, CHECK_PARAMS_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_cla_watchdog , &me->super, CHECK_CLA_WATCHDOG_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_settle       , &me->super, SETTLE_TIMEOUT_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_report_status, &me->super, REPORT_STATUS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_check_params             , &me->super        , CHECK_PARAMS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_cla_watchdog             , &me->super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_settle                   , &me->super        , SETTLE_TIMEOUT_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_report_status            , &me->super        , REPORT_STATUS_SIG, 0U);
+
+    QTimeEvt_ctorX(&me->time_evt_skiip1_heartbeat_timeout , &me->super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+    QTimeEvt_ctorX(&me->time_evt_skiip2_heartbeat_timeout , &me->super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+
+    QTimeEvt_ctorX(&me->time_evt_update_measure_request   , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG, 0U);
 
     // Vars
-
     AO_Evt_Set_Multiple_Faults_t aux = {0};
     me->faults = aux.faults;
 }

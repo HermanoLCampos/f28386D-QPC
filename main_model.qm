@@ -361,6 +361,14 @@ OC_CAN_receive_msg(me,e);
      <attribute name="aux2" type="uint16_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::faults}-->
      <attribute name="faults" type="FSBB_Control_faults_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::measures[NUM_OF_FSBB_MEASURES]}-->
+     <attribute name="measures[NUM_OF_FSBB_MEASURES]" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_update_measure_request}-->
+     <attribute name="time_evt_update_measure_request" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_skiip1_heartbeat_timeou~}-->
+     <attribute name="time_evt_skiip1_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_skiip2_heartbeat_timeou~}-->
+     <attribute name="time_evt_skiip2_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
      <operation name="Start_Precharge" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
@@ -415,7 +423,7 @@ CPU2CLA_Message.task_2_watchdog_request = 0;
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
-       <tran trig="INIT_COMPLETE" target="../../3/7">
+       <tran trig="INIT_COMPLETE" target="../../3/9">
         <action>QTimeEvt_armX(&amp;me-&gt;time_evt_cla_watchdog,
 (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
 (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
@@ -424,6 +432,11 @@ QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
 QTimeEvt_armX(&amp;me-&gt;time_evt_report_status,
 (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
 (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_update_measure_request,
+(uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
 </action>
         <tran_glyph conn="8,30,3,3,24,-16,22">
@@ -437,14 +450,14 @@ QTimeEvt_armX(&amp;me-&gt;time_evt_report_status,
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
       <state name="Operation">
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
-       <tran trig="RESET" target="../7">
+       <tran trig="RESET" target="../9">
         <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</action>
         <tran_glyph conn="36,18,3,3,18">
          <action box="0,-2,10,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
-       <tran trig="SET_FAULT" target="../11">
+       <tran trig="SET_FAULT" target="../13">
         <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
 switch(Evt_Set_Fault-&gt;fault_id){
 case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
@@ -470,7 +483,7 @@ case FSBB_FAULT_SKIIP2_OVERHEAT:
     break;
 case FSBB_FAULT_SKIIP2_HALT:
     me-&gt;faults.skiip2_halt = 1;
-break;
+    break;
 case FSBB_FAULT_INDUCTOR_OVERHEAT:
     me-&gt;faults.inductor_overheat = 1;
     break;
@@ -491,6 +504,12 @@ case FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT:
     break;
 case FSBB_FAULT_EMERGENCY_SHUTDOWN:
     me-&gt;faults.emergency_shutdown = 1;
+    break;
+case FSBB_FAULT_SKIIP1_CARDIAC_ARREST:
+    me-&gt;faults.skiip1_cardiac_arrest = 1;
+    break;
+case FSBB_FAULT_SKIIP2_CARDIAC_ARREST:
+    me-&gt;faults.skiip2_cardiac_arrest = 1;
     break;
 default:
     system_assert(&quot;AO_FSBB_Control&quot;,0);
@@ -560,20 +579,29 @@ QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}-->
-       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT" target="../11">
+       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../13">
         <action>switch(e-&gt;sig){
 case EMERGENCY_SHUTDOWN_SIG:
     me-&gt;faults.emergency_shutdown = 1;
     break;
 case SETTLE_TIMEOUT_SIG:
     me-&gt;faults.settle_timeout = 1;
+    break;
+case SKIIP1_HEARTBEAT_TIMEOUT_SIG:
+    me-&gt;faults.skiip1_cardiac_arrest = 1;
+    break;
+case SKIIP2_HEARTBEAT_TIMEOUT_SIG:
+    me-&gt;faults.skiip2_cardiac_arrest = 1;
+    break;
+default:
+    break;
 }</action>
         <tran_glyph conn="36,36,3,3,18">
-         <action box="0,-2,10,2"/>
+         <action box="0,-2,15,4"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}-->
-       <tran trig="SET_MULTIPLE_FAULTS" target="../11">
+       <tran trig="SET_MULTIPLE_FAULTS" target="../13">
         <action>AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
 
 typedef union{
@@ -590,8 +618,34 @@ for(uint16_t faults_index = 0;
     p_aux1-&gt;data[faults_index] |= p_aux2-&gt;data[faults_index];
 }
 </action>
-        <tran_glyph conn="36,38,3,3,18">
+        <tran_glyph conn="36,42,3,3,18">
          <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SKIIP1_HEART_BEAT, SKIIP2_HEART_~}-->
+       <tran trig="SKIIP1_HEART_BEAT, SKIIP2_HEART_BEAT">
+        <tran_glyph conn="36,54,3,-1,22">
+         <action box="0,-2,16,4"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_MEASURE}-->
+       <tran trig="UPDATE_MEASURE">
+        <action>
+AO_Evt_FSBB_Measure_Update_t const * evt_update_measure =  Q_EVT_CAST(AO_Evt_FSBB_Measure_Update_t);
+
+switch(evt_update_measure-&gt;data.measure_id){
+case FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE:
+case FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE:
+case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
+case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
+    me-&gt;measures[evt_update_measure-&gt;data.measure_id] = evt_update_measure-&gt;data.measure-2731;
+    break;
+default:
+    system_assert(&quot;fsbb_control&quot;, 0);
+    break;
+}</action>
+        <tran_glyph conn="36,60,3,-1,22">
+         <action box="0,-2,20,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
@@ -599,7 +653,7 @@ for(uint16_t faults_index = 0;
         <documentation>this state waits the command to charge the  capacitors.</documentation>
         <entry>//BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
-        <tran trig="PRECHARGE_START" target="../../8">
+        <tran trig="PRECHARGE_START" target="../../10">
          <action>//BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
@@ -638,7 +692,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
-        <tran trig="PRECHARGE_FINISH" target="../../9">
+        <tran trig="PRECHARGE_FINISH" target="../../11">
          <action>FSBB_Control_Finish_Precharge(me,e);</action>
          <tran_glyph conn="84,20,3,1,22,14,-2">
           <action box="0,-2,16,2"/>
@@ -653,7 +707,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
        <state name="Idle">
         <documentation>waiting the command to start the control</documentation>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
-        <tran trig="START_CONTROL" target="../../10">
+        <tran trig="START_CONTROL" target="../../12">
          <tran_glyph conn="84,38,3,3,32">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -665,7 +719,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
-        <tran trig="STOP_CONTROL" target="../../13">
+        <tran trig="STOP_CONTROL" target="../../15">
          <tran_glyph conn="116,36,3,1,22,18,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -683,7 +737,7 @@ FSBB_Control_Open_Contactors(me,e);
 
 //BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
-        <tran trig="CLEAR_FAULT" target="../../7">
+        <tran trig="CLEAR_FAULT" target="../../9">
          <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
 FSBB_Control_faults_t aux = {0};
 me-&gt;faults = aux;</action>
@@ -691,7 +745,7 @@ me-&gt;faults = aux;</action>
           <action box="0,-2,11,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="54,30,20,12">
+        <state_glyph node="54,30,20,14">
          <entry box="1,2,6,2"/>
         </state_glyph>
        </state>
@@ -718,7 +772,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../9">
+         <choice target="../../../11">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_OPEN</guard>
           <choice_glyph conn="89,54,5,3,-7,-14,2">
            <action box="-5,0,4,2"/>
@@ -756,7 +810,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../12">
+         <choice target="../../../14">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
           <choice_glyph conn="120,56,5,1,-16">
            <action box="-4,0,4,2"/>
@@ -789,18 +843,21 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
       <!--${CPU1::AOs::AO_FSBB_Control::globals::ao_fsbb_control_~::pAO}-->
       <parameter name="pAO" type="const QActive  * const"/>
       <code>// Active Objects
-
 FSBB_Control * const me = (FSBB_Control *) pAO;
 QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));
 
 // Time Events
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params , &amp;me-&gt;super, CHECK_PARAMS_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog , &amp;me-&gt;super, CHECK_CLA_WATCHDOG_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle       , &amp;me-&gt;super, SETTLE_TIMEOUT_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status, &amp;me-&gt;super, REPORT_STATUS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params             , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog             , &amp;me-&gt;super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle                   , &amp;me-&gt;super        , SETTLE_TIMEOUT_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status            , &amp;me-&gt;super        , REPORT_STATUS_SIG, 0U);
+
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip1_heartbeat_timeout , &amp;me-&gt;super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout , &amp;me-&gt;super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request   , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG, 0U);
 
 // Vars
-
 AO_Evt_Set_Multiple_Faults_t aux = {0};
 me-&gt;faults = aux.faults;</code>
      </operation>
@@ -824,6 +881,13 @@ me-&gt;faults = aux.faults;</code>
       <!--${CPU1::AOs::AO_Communication::Communication::can_process_msg::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
+     <!--${CPU1::AOs::AO_Communication::Communication::update_measure_request}-->
+     <operation name="update_measure_request" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_Communication::Communication::update_measure_r~::e}-->
+      <parameter name="e" type="QEvt const * const"/>
+     </operation>
+     <!--${CPU1::AOs::AO_Communication::Communication::skiip_can_open_config}-->
+     <operation name="skiip_can_open_config" type="void" visibility="0x00" properties="0x00"/>
      <!--${CPU1::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_Communication::Communication::SM::initial}-->
@@ -871,7 +935,9 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_in
 #endif
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_init_complete, (void *) 0 );
 
-QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super),&amp;im_evt_init_complete, (void *) 0 );</action>
+QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super),&amp;im_evt_init_complete, (void *) 0 );
+
+Communication_skiip_can_open_config(me);</action>
         <tran_glyph conn="8,32,3,3,28">
          <action box="0,-2,14,2"/>
         </tran_glyph>
@@ -908,7 +974,9 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}-->
        <tran trig="CAN_RECEIVE_MSG">
-        <action>uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
+        <action>//BSP_BKPT;
+
+uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
 if(id&gt;OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );
@@ -929,7 +997,14 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
          <action box="0,-2,17,7"/>
         </tran_glyph>
        </tran>
-       <state_glyph node="36,4,38,46"/>
+       <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::UPDATE_MEASURE_REQUEST}-->
+       <tran trig="UPDATE_MEASURE_REQUEST">
+        <action>Communication_update_measure_request(me,e);</action>
+        <tran_glyph conn="36,48,3,-1,22">
+         <action box="0,-2,23,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="36,4,38,50"/>
       </state>
       <state_diagram size="82,68"/>
      </statechart>
@@ -983,17 +1058,27 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     PRECHARGE_FINISH_SIG,
     START_CONTROL_SIG,
     STOP_CONTROL_SIG,
-    EMERGENCY_SHUTDOWN_SIG,
+
     RESET_SIG,
+
     SET_FAULT_SIG,
+    EMERGENCY_SHUTDOWN_SIG,
+    SETTLE_TIMEOUT_SIG,
+    SKIIP1_HEARTBEAT_TIMEOUT_SIG,
+    SKIIP2_HEARTBEAT_TIMEOUT_SIG,
     SET_MULTIPLE_FAULTS_SIG,
+
     CLEAR_FAULT_SIG,
     CHANGE_SETPOINT_SIG,
-    UPDATE_PARAMS_SIG,
-    CHECK_WATCHDOG_SIG,
-    CHECK_PARAMS_SIG,
+
     CHECK_CLA_WATCHDOG_SIG,
-    SETTLE_TIMEOUT_SIG,
+    SKIIP1_HEART_BEAT_SIG,
+    SKIIP2_HEART_BEAT_SIG,
+    CHECK_PARAMS_SIG,
+
+    UPDATE_MEASURE_REQUEST_SIG,
+    UPDATE_MEASURE_SIG,
+
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -1046,7 +1131,20 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
    <!--${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~}-->
    <attribute name="com_signals_can_skiip[COM_SIG_CAN_SKIIP_MAX]" type="const com_tag_t" visibility="0x00" properties="0x00">
     <code>={
-};</code>
+    [COM_SIG_CAN_SKIIP_1_HEART_BEAT] = {
+        .p_ao = &amp;p_ao_fsbb_control,
+        .im_evt = &amp;im_evt_skiip_1_heart_beat,
+    },
+    [COM_SIG_CAN_SKIIP_2_HEART_BEAT] = {
+        .p_ao = &amp;p_ao_fsbb_control,
+        .im_evt = &amp;im_evt_skiip_2_heart_beat,
+    },
+    [COM_SIG_CAN_SKIIP_UPDATE_MEASURE] = {
+        .p_ao = &amp;p_ao_fsbb_control,
+        .im_evt = &amp;im_evt_update_measure,
+    },
+};
+</code>
    </attribute>
   </package>
   <!--${CPU1::ao_priority}-->
@@ -1115,10 +1213,6 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     <attribute name="im_evt_stop_control" type="QEvt const" visibility="0x00" properties="0x00">
      <code>= QEVT_INITIALIZER(STOP_CONTROL_SIG);</code>
     </attribute>
-    <!--${CPU1::Immutable_Events::FSBB::im_evt_update_params}-->
-    <attribute name="im_evt_update_params" type="QEvt const" visibility="0x00" properties="0x00">
-     <code>= QEVT_INITIALIZER(UPDATE_PARAMS_SIG);</code>
-    </attribute>
     <!--${CPU1::Immutable_Events::FSBB::im_evt_reset}-->
     <attribute name="im_evt_reset" type="QEvt const" visibility="0x00" properties="0x00">
      <code>= QEVT_INITIALIZER(RESET_SIG);</code>
@@ -1130,6 +1224,18 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     <!--${CPU1::Immutable_Events::FSBB::im_evt_change_setpoint}-->
     <attribute name="im_evt_change_setpoint" type="QEvt const" visibility="0x00" properties="0x00">
      <code>= QEVT_INITIALIZER(CHANGE_SETPOINT_SIG);</code>
+    </attribute>
+    <!--${CPU1::Immutable_Events::FSBB::im_evt_skiip_1_heart_beat}-->
+    <attribute name="im_evt_skiip_1_heart_beat" type="QEvt const" visibility="0x00" properties="0x00">
+     <code>= QEVT_INITIALIZER(SKIIP1_HEART_BEAT_SIG);</code>
+    </attribute>
+    <!--${CPU1::Immutable_Events::FSBB::im_evt_skiip_2_heart_beat}-->
+    <attribute name="im_evt_skiip_2_heart_beat" type="QEvt const" visibility="0x00" properties="0x00">
+     <code>= QEVT_INITIALIZER(SKIIP2_HEART_BEAT_SIG);</code>
+    </attribute>
+    <!--${CPU1::Immutable_Events::FSBB::im_evt_update_measure}-->
+    <attribute name="im_evt_update_measure" type="QEvt const" visibility="0x00" properties="0x00">
+     <code>= QEVT_INITIALIZER(UPDATE_MEASURE_SIG);</code>
     </attribute>
    </package>
    <!--${CPU1::Immutable_Events::Communication}-->
@@ -1663,7 +1769,7 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
 
 const AO_Evt_Update_FSBB_Data_t * fsbb_public_data = Q_EVT_CAST(AO_Evt_Update_FSBB_Data_t);
 me-&gt;sys_data.fsbb_data = fsbb_public_data-&gt;data;</action>
-        <tran_glyph conn="36,45,3,-1,18">
+        <tran_glyph conn="36,54,3,-1,18">
          <action box="0,-2,17,2"/>
         </tran_glyph>
        </tran>
@@ -2105,6 +2211,9 @@ me-&gt;sys_data = aux;</code>
     <!--${Shared::Signals::Communication_CA~::com_signals_can_skiip}-->
     <attribute name="com_signals_can_skiip" type="enum" visibility="0x04" properties="0x00">
      <code>{
+    COM_SIG_CAN_SKIIP_1_HEART_BEAT,
+    COM_SIG_CAN_SKIIP_2_HEART_BEAT,
+    COM_SIG_CAN_SKIIP_UPDATE_MEASURE,
     COM_SIG_CAN_SKIIP_MAX,
     COM_SIG_CAN_SKIIP_NOTHING = COM_SIG_CAN_SKIIP_MAX,
 };</code>
@@ -2201,8 +2310,20 @@ me-&gt;sys_data = aux;</code>
     FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT,
     FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT,
     FSBB_FAULT_EMERGENCY_SHUTDOWN,
+    FSBB_FAULT_SKIIP1_CARDIAC_ARREST,
+    FSBB_FAULT_SKIIP2_CARDIAC_ARREST,
 
     FSBB_NUM_OF_FAULTS,
+};</code>
+   </attribute>
+   <!--${Shared::Signals::fsbb_measures}-->
+   <attribute name="fsbb_measures" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+    FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE,
+    NUM_OF_FSBB_MEASURES,
 };</code>
    </attribute>
   </package>
@@ -2267,6 +2388,10 @@ me-&gt;sys_data = aux;</code>
     <attribute name="skiip1_error:1" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${Shared::Types::FSBB_Control_fau~::skiip2_error:1}-->
     <attribute name="skiip2_error:1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::FSBB_Control_fau~::skiip1_cardiac_arrest:1}-->
+    <attribute name="skiip1_cardiac_arrest:1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::FSBB_Control_fau~::skiip2_cardiac_arrest:1}-->
+    <attribute name="skiip2_cardiac_arrest:1" type="uint16_t" visibility="0x02" properties="0x00"/>
    </class>
    <!--${Shared::Types::FSBB_Control_Public_Data_t}-->
    <class name="FSBB_Control_Public_Data_t">
@@ -2289,6 +2414,50 @@ me-&gt;sys_data = aux;</code>
      <!--${Shared::Types::Aux Types::Communication_Me~::payload}-->
      <attribute name="payload" type="FSBB_Control_Public_Data_t" visibility="0x00" properties="0x00"/>
     </class>
+    <!--${Shared::Types::Aux Types::FSBB_Measure_Update_t}-->
+    <class name="FSBB_Measure_Update_t">
+     <!--${Shared::Types::Aux Types::FSBB_Measure_Upd~::measure_id}-->
+     <attribute name="measure_id" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::FSBB_Measure_Upd~::measure}-->
+     <attribute name="measure" type="uint16_t" visibility="0x02" properties="0x00"/>
+    </class>
+    <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_Data_Decode_t}-->
+    <class name="CAN_Open_1_Byte_Data_Decode_t">
+     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::header:8}-->
+     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::object_id:16}-->
+     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::subindex:8}-->
+     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::data:8}-->
+     <attribute name="data:8" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::reserved:24}-->
+     <attribute name="reserved:24" type="uint64_t" visibility="0x02" properties="0x00"/>
+    </class>
+    <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_Data_Decode_t}-->
+    <class name="CAN_Open_2_Byte_Data_Decode_t">
+     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::header:8}-->
+     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::object_id:16}-->
+     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::subindex:8}-->
+     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::data:16}-->
+     <attribute name="data:16" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::reserved:16}-->
+     <attribute name="reserved:16" type="uint64_t" visibility="0x02" properties="0x00"/>
+    </class>
+    <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_Data_Decode_t}-->
+    <class name="CAN_Open_4_Byte_Data_Decode_t">
+     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::header:8}-->
+     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::object_id:16}-->
+     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::subindex:8}-->
+     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::data:32}-->
+     <attribute name="data:32" type="uint64_t" visibility="0x02" properties="0x00"/>
+    </class>
    </package>
   </package>
   <!--${Shared::Event_Types}-->
@@ -2309,15 +2478,15 @@ me-&gt;sys_data = aux;</code>
     <class name="OC_Evt_CAN_Message_Received_t" superclass="Shared::Event_Types::OC::OC_Evt">
      <!--${Shared::Event_Types::OC::OC_Evt_CAN_Messa~::Message_ID}-->
      <attribute name="Message_ID" type="uint32_t" visibility="0x00" properties="0x00"/>
-     <!--${Shared::Event_Types::OC::OC_Evt_CAN_Messa~::Data[8]}-->
-     <attribute name="Data[8]" type="uint8_t" visibility="0x00" properties="0x00"/>
+     <!--${Shared::Event_Types::OC::OC_Evt_CAN_Messa~::Data[4]}-->
+     <attribute name="Data[4]" type="uint16_t" visibility="0x00" properties="0x00"/>
     </class>
     <!--${Shared::Event_Types::OC::OC_Evt_CAN_Send_Message_t}-->
     <class name="OC_Evt_CAN_Send_Message_t" superclass="Shared::Event_Types::OC::OC_Evt">
      <!--${Shared::Event_Types::OC::OC_Evt_CAN_Send_~::Message_Box_ID}-->
-     <attribute name="Message_Box_ID" type="uint8_t" visibility="0x00" properties="0x00"/>
-     <!--${Shared::Event_Types::OC::OC_Evt_CAN_Send_~::Data[8]}-->
-     <attribute name="Data[8]" type="uint8_t" visibility="0x00" properties="0x00"/>
+     <attribute name="Message_Box_ID" type="uint16_t" visibility="0x00" properties="0x00"/>
+     <!--${Shared::Event_Types::OC::OC_Evt_CAN_Send_~::Data[4]}-->
+     <attribute name="Data[4]" type="uint16_t" visibility="0x00" properties="0x00"/>
     </class>
     <!--${Shared::Event_Types::OC::OC_Evt_Communication_Message_t}-->
     <class name="OC_Evt_Communication_Message_t" superclass="Shared::Event_Types::OC::OC_Evt">
@@ -2347,6 +2516,11 @@ me-&gt;sys_data = aux;</code>
      <!--${Shared::Event_Types::AO::AO_Evt_Update_FS~::data}-->
      <attribute name="data" type="FSBB_Control_Public_Data_t" visibility="0x00" properties="0x00"/>
     </class>
+    <!--${Shared::Event_Types::AO::AO_Evt_Update_Measure_t}-->
+    <class name="AO_Evt_Update_Measure_t" superclass="qpc::QEvt">
+     <!--${Shared::Event_Types::AO::AO_Evt_Update_Me~::measure}-->
+     <attribute name="measure" type="uint16_t" visibility="0x00" properties="0x00"/>
+    </class>
    </package>
    <!--${Shared::Event_Types::Mutable_Event_Support}-->
    <package name="Mutable_Event_Support" stereotype="0x00">
@@ -2354,6 +2528,11 @@ me-&gt;sys_data = aux;</code>
     <class name="OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t" superclass="Shared::Event_Types::OC::OC_Evt">
      <!--${Shared::Event_Types::Mutable_Event_Su~::OC_Evt_Aux_Commu~::msg}-->
      <attribute name="msg" type="Communication_Message_FSBB_Control_Public_Data_t" visibility="0x00" properties="0x00"/>
+    </class>
+    <!--${Shared::Event_Types::Mutable_Event_Su~::AO_Evt_FSBB_Measure_Update_t}-->
+    <class name="AO_Evt_FSBB_Measure_Update_t" superclass="qpc::QEvt">
+     <!--${Shared::Event_Types::Mutable_Event_Su~::AO_Evt_FSBB_Meas~::data}-->
+     <attribute name="data" type="FSBB_Measure_Update_t" visibility="0x02" properties="0x00"/>
     </class>
    </package>
   </package>
@@ -2437,6 +2616,14 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_TIME_MS}-->
     <attribute name="CAN_PERIODIC_MSG_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::MEASURE_PERIOD_TIME_MS}-->
+    <attribute name="MEASURE_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>1000</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS}-->
+    <attribute name="SKIIP_HEARTBEAT_TIMEOUT_MS" type="" visibility="0x03" properties="0x00">
      <code>1000</code>
     </attribute>
    </package>

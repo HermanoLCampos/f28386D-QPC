@@ -201,11 +201,17 @@ can1.interruptFlags          = ["CAN_INT_ERROR","CAN_INT_IE0","CAN_INT_STATUS"];
 can1.interruptLine           = ["CAN_GLOBAL_INT_CANINT0"];
 can1.$name                   = "CAN_SKIIP";
 can1.enableInterrupt         = true;
+can1.enableAutoBusOn         = true;
+can1.AutoBusOnTimer          = 500000;
+can1.msgObjsUsed             = [1];
 can1.can.$assign             = "CANA";
 can1.can.can_rxPin.$assign   = "GPIO62";
 can1.can.can_txPin.$assign   = "GPIO63";
 can1.can0Int.enableInterrupt = true;
 can1.can1Int.enableInterrupt = true;
+can1.msgObj1.$name           = "msgObj0";
+can1.msgObj1.msgType         = "CAN_MSG_OBJ_TYPE_TX";
+can1.msgObj1.flags           = ["CAN_MSG_OBJ_TX_INT_ENABLE"];
 
 can2.interruptFlags        = ["CAN_INT_ERROR","CAN_INT_IE0","CAN_INT_STATUS"];
 can2.interruptLine         = ["CAN_GLOBAL_INT_CANINT0"];

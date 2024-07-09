@@ -81,13 +81,15 @@ __interrupt void CAN_PUBLIC_ISR0(){
             }
         }
         break;
-    case MODULINK_CAN_MSG_IN_1_INDEX:
-    case MODULINK_CAN_MSG_IN_2_INDEX:{
-
+//    case MODULINK_CAN_MSG_STD_IN_INDEX:{
+//
+//        break;
+//    }
+    case MODULINK_CAN_MSG_EXT_IN_INDEX:{
 
         OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
         CAN_Received->super.ID = OC_CAN_CAN_PUBLIC_ID;
-        CAN_readMessageWithID(CAN_PUBLIC_BASE, status , &frameType, &CAN_Received->Message_ID , CAN_Received->Data);
+        CAN_readMessageWithID(CAN_PUBLIC_BASE, status , &frameType, &CAN_Received->Message_ID , (uint8_t *) CAN_Received->Data);
         CAN_clearInterruptStatus(CAN_PUBLIC_BASE, status );
 
         QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);

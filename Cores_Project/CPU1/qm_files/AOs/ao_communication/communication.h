@@ -54,6 +54,9 @@ void Communication_ipc_process_msg(Communication * const me,
     QEvt const * const e);
 void Communication_can_process_msg(Communication * const me,
     QEvt const * const e);
+void Communication_update_measure_request(Communication * const me,
+    QEvt const * const e);
+void Communication_skiip_can_open_config(Communication * const me);
 
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);

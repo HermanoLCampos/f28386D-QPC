@@ -1,11 +1,12 @@
 /************************************************************/
 // Automatically generated C header file from CAN DBC file
 // Source file name: modulink.dbc
-// Date created: 2024-07-03
+// Date created: 2024-07-09
 /************************************************************/
 
 
-
+#ifndef _MODULINK_DBC_H_
+#define _MODULINK_DBC_H_
 
 /************************************************************/
 //====================Messages Proprieties====================
@@ -13,8 +14,8 @@
 
 
 
-#define MODULINK_CAN_MSG_RECEIVE_ID 0x00ff8300
-#define MODULINK_CAN_MSG_RECEIVE_MASK 0x1f0003ff
+#define MODULINK_CAN_MSG_RECEIVE_ID_EXT 0x00ff8300
+#define MODULINK_CAN_MSG_RECEIVE_MASK_EXT 0x1e000300
 
 
 
@@ -647,8 +648,7 @@ typedef struct{
 }MODULINK_CAN_MSG_VPU_SYSTEM_STATUS_t;
 
 enum{
-    MODULINK_CAN_MSG_IN_1_INDEX,
-    MODULINK_CAN_MSG_IN_2_INDEX,
+    MODULINK_CAN_MSG_EXT_IN_INDEX=1,
     MODULINK_CAN_MSG_VPU_MEASURES_1_INDEX,
     MODULINK_CAN_MSG_VPU_MEASURES_2_INDEX,
     MODULINK_CAN_MSG_VPU_SETPOINTS_1_INDEX,
@@ -702,3 +702,5 @@ extern const MessageProprieties_t modulink_can_messages_proprieties[MODULINK_CAN
 
 #define CAN_GET_VALUE_BY_NAME( _CAN_MSG , _CAN_SIG , _CAN_VALUE ) \
 ( _CAN_MSG##_##_CAN_SIG##_##_CAN_VALUE )
+
+#endif

@@ -60,9 +60,6 @@ QEvt const im_evt_start_control = QEVT_INITIALIZER(START_CONTROL_SIG);
 //${CPU1::Immutable_Events::FSBB::im_evt_stop_control} .......................
 QEvt const im_evt_stop_control = QEVT_INITIALIZER(STOP_CONTROL_SIG);
 
-//${CPU1::Immutable_Events::FSBB::im_evt_update_params} ......................
-QEvt const im_evt_update_params = QEVT_INITIALIZER(UPDATE_PARAMS_SIG);
-
 //${CPU1::Immutable_Events::FSBB::im_evt_reset} ..............................
 QEvt const im_evt_reset = QEVT_INITIALIZER(RESET_SIG);
 
@@ -71,6 +68,15 @@ QEvt const im_evt_clear_fault = QEVT_INITIALIZER(CLEAR_FAULT_SIG);
 
 //${CPU1::Immutable_Events::FSBB::im_evt_change_setpoint} ....................
 QEvt const im_evt_change_setpoint = QEVT_INITIALIZER(CHANGE_SETPOINT_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_skiip_1_heart_beat} .................
+QEvt const im_evt_skiip_1_heart_beat = QEVT_INITIALIZER(SKIIP1_HEART_BEAT_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_skiip_2_heart_beat} .................
+QEvt const im_evt_skiip_2_heart_beat = QEVT_INITIALIZER(SKIIP2_HEART_BEAT_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_update_measure} .....................
+QEvt const im_evt_update_measure = QEVT_INITIALIZER(UPDATE_MEASURE_SIG);
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
@@ -205,5 +211,18 @@ com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX] ={
 
 //${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~} ........................
 const com_tag_t com_signals_can_skiip[COM_SIG_CAN_SKIIP_MAX] ={
+    [COM_SIG_CAN_SKIIP_1_HEART_BEAT] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_skiip_1_heart_beat,
+    },
+    [COM_SIG_CAN_SKIIP_2_HEART_BEAT] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_skiip_2_heart_beat,
+    },
+    [COM_SIG_CAN_SKIIP_UPDATE_MEASURE] = {
+        .p_ao = &p_ao_fsbb_control,
+        .im_evt = &im_evt_update_measure,
+    },
 };
+
 //$enddef${CPU1::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

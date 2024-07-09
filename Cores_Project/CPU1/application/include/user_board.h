@@ -14,4 +14,6 @@
 
 void user_board_init();
 
+void user_msg_box_init();
+
 #endif /* APPLICATION_INCLUDE_USER_BOARD_H_ */

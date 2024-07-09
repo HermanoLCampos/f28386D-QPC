@@ -70,6 +70,9 @@ enum com_signals_mcan {
 
 //${Shared::Signals::Communication_CA~::com_signals_can_skiip} ...............
 enum com_signals_can_skiip {
+    COM_SIG_CAN_SKIIP_1_HEART_BEAT,
+    COM_SIG_CAN_SKIIP_2_HEART_BEAT,
+    COM_SIG_CAN_SKIIP_UPDATE_MEASURE,
     COM_SIG_CAN_SKIIP_MAX,
     COM_SIG_CAN_SKIIP_NOTHING = COM_SIG_CAN_SKIIP_MAX,
 };
@@ -154,8 +157,19 @@ enum fsbb_faults_list {
     FSBB_FAULT_CLA_1_WATCHDOG_TIMEOUT,
     FSBB_FAULT_CLA_2_WATCHDOG_TIMEOUT,
     FSBB_FAULT_EMERGENCY_SHUTDOWN,
+    FSBB_FAULT_SKIIP1_CARDIAC_ARREST,
+    FSBB_FAULT_SKIIP2_CARDIAC_ARREST,
 
     FSBB_NUM_OF_FAULTS,
+};
+
+//${Shared::Signals::fsbb_measures} ..........................................
+enum fsbb_measures {
+    FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE,
+    FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE,
+    NUM_OF_FSBB_MEASURES,
 };
 
 //${Shared::Types::com_payload} ..............................................
@@ -200,6 +214,8 @@ typedef struct {
     uint16_t emergency_shutdown:1;
     uint16_t skiip1_error:1;
     uint16_t skiip2_error:1;
+    uint16_t skiip1_cardiac_arrest:1;
+    uint16_t skiip2_cardiac_arrest:1;
 } FSBB_Control_faults_t;
 
 //${Shared::Types::FSBB_Control_Public_Data_t} ...............................
@@ -221,6 +237,42 @@ typedef struct {
     uint16_t message_size;
     FSBB_Control_Public_Data_t payload;
 } Communication_Message_FSBB_Control_Public_Data_t;
+
+//${Shared::Types::Aux Types::FSBB_Measure_Update_t} .........................
+typedef struct {
+// private:
+    uint16_t measure_id;
+    uint16_t measure;
+} FSBB_Measure_Update_t;
+
+//${Shared::Types::Aux Types::CAN_Open_1_Byte_Data_Decode_t} .................
+typedef struct {
+// private:
+    uint64_t header:8;
+    uint64_t object_id:16;
+    uint16_t subindex:8;
+    uint64_t data:8;
+    uint64_t reserved:24;
+} CAN_Open_1_Byte_Data_Decode_t;
+
+//${Shared::Types::Aux Types::CAN_Open_2_Byte_Data_Decode_t} .................
+typedef struct {
+// private:
+    uint64_t header:8;
+    uint64_t object_id:16;
+    uint16_t subindex:8;
+    uint64_t data:16;
+    uint64_t reserved:16;
+} CAN_Open_2_Byte_Data_Decode_t;
+
+//${Shared::Types::Aux Types::CAN_Open_4_Byte_Data_Decode_t} .................
+typedef struct {
+// private:
+    uint64_t header:8;
+    uint64_t object_id:16;
+    uint16_t subindex:8;
+    uint64_t data:32;
+} CAN_Open_4_Byte_Data_Decode_t;
 
 //${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {
@@ -247,7 +299,7 @@ typedef struct {
 
 // public:
     uint32_t Message_ID;
-    uint8_t Data[8];
+    uint16_t Data[4];
 } OC_Evt_CAN_Message_Received_t;
 
 //${Shared::Event_Types::OC::OC_Evt_CAN_Send_Message_t} ......................
@@ -256,8 +308,8 @@ typedef struct {
     OC_Evt super;
 
 // public:
-    uint8_t Message_Box_ID;
-    uint8_t Data[8];
+    uint16_t Message_Box_ID;
+    uint16_t Data[4];
 } OC_Evt_CAN_Send_Message_t;
 
 //${Shared::Event_Types::OC::OC_Evt_Communication_Message_t} .................
@@ -305,6 +357,15 @@ typedef struct {
     FSBB_Control_Public_Data_t data;
 } AO_Evt_Update_FSBB_Data_t;
 
+//${Shared::Event_Types::AO::AO_Evt_Update_Measure_t} ........................
+typedef struct {
+// protected:
+    QEvt super;
+
+// public:
+    uint16_t measure;
+} AO_Evt_Update_Measure_t;
+
 //${Shared::Event_Types::Mutable_Event_Su~::OC_Evt_Aux_Communication_Message~}
 typedef struct {
 // protected:
@@ -313,6 +374,15 @@ typedef struct {
 // public:
     Communication_Message_FSBB_Control_Public_Data_t msg;
 } OC_Evt_Aux_Communication_Message_FSBB_Control_Public_Data_t;
+
+//${Shared::Event_Types::Mutable_Event_Su~::AO_Evt_FSBB_Measure_Update_t} ....
+typedef struct {
+// protected:
+    QEvt super;
+
+// private:
+    FSBB_Measure_Update_t data;
+} AO_Evt_FSBB_Measure_Update_t;
 
 //${Shared::Macros::OC_IPC_CMD_REMOTE_RESET} .................................
 #define OC_IPC_CMD_REMOTE_RESET 0
@@ -368,6 +438,12 @@ typedef struct {
 
 //${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_TIME_MS} ...................
 #define CAN_PERIODIC_MSG_TIME_MS 1000
+
+//${Shared::Macros::TIME_MACROS::MEASURE_PERIOD_TIME_MS} .....................
+#define MEASURE_PERIOD_TIME_MS 1000
+
+//${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS} .................
+#define SKIIP_HEARTBEAT_TIMEOUT_MS 1000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20

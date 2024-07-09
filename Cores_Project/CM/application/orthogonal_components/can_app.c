@@ -23,7 +23,7 @@ void OC_CAN_send_msg(OC_CAN * const me,
     if(me->id == OC_CAN_MCAN_ID){
         // find out how to send msg by mcan
     }else{
-        CAN_sendMessage(oc_can_base[OC_CAN_CAN_PUBLIC_ID], Evt_CAN_MSG->Message_Box_ID, 8, Evt_CAN_MSG->Data);
+        CAN_sendMessage(oc_can_base[OC_CAN_CAN_PUBLIC_ID], Evt_CAN_MSG->Message_Box_ID, 8, (uint8_t *) Evt_CAN_MSG->Data);
     }
 }
 void OC_CAN_receive_msg(OC_CAN * const me,

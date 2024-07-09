@@ -479,6 +479,7 @@ void myADCD_init();
 //*****************************************************************************
 #define CAN_SKIIP_BASE CANA_BASE
 
+#define CAN_SKIIP_MessageObj1_ID 0
 void CAN_SKIIP_init();
 
 #define CAN_PUBLIC_BASE CANB_BASE

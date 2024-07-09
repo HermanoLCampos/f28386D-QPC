@@ -58,15 +58,15 @@ void user_CAN_Init(){
 
     CAN_setInterruptMux(CAN_PUBLIC_BASE, 0);
 
-    for(uint16_t i_msg = 1; i_msg<= MODULINK_CAN_MAX_MSG; i_msg++){
+    for(uint16_t i_msg = 1; i_msg < MODULINK_CAN_MAX_MSG; i_msg++){
         // Declare the Message Objects
         CAN_setupMessageObject(
-            CAN_PUBLIC_BASE,                                          //Base
+            CAN_PUBLIC_BASE,                                    //Base
             i_msg,                                              // MailBox Number
             modulink_can_messages_proprieties[i_msg].msg_id,    // Message ID
             CAN_MSG_FRAME_EXT,                                  // Extended ID
             modulink_can_messages_proprieties[i_msg].msgType,   // Message Type
-            modulink_can_messages_proprieties[i_msg].mask,      // Message Mask
+           ~modulink_can_messages_proprieties[i_msg].mask,      // Message Mask
             modulink_can_messages_proprieties[i_msg].flags,     // Message Flags
             modulink_can_messages_proprieties[i_msg].dlc        // Message DLC
         );

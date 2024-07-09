@@ -49,6 +49,10 @@ typedef struct {
     uint16_t aux1;
     uint16_t aux2;
     FSBB_Control_faults_t faults;
+    uint16_t measures[NUM_OF_FSBB_MEASURES];
+    QTimeEvt time_evt_update_measure_request;
+    QTimeEvt time_evt_skiip1_heartbeat_timeout;
+    QTimeEvt time_evt_skiip2_heartbeat_timeout;
 } FSBB_Control;
 
 // public:

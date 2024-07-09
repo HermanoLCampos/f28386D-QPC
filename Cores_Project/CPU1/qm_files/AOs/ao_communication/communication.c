@@ -106,6 +106,8 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             QASM_DISPATCH( &(me->ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&im_evt_init_complete, (void *) 0 );
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super),&im_evt_init_complete, (void *) 0 );
+
+            Communication_skiip_can_open_config(me);
             status_ = Q_TRAN(&Communication_Operation);
             break;
         }
@@ -149,6 +151,8 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
+            //BSP_BKPT;
+
             uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
             if(id>OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
 
@@ -168,6 +172,12 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
             if(id>OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
 
             QASM_DISPATCH( &(me->can_inst[id].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_Communication::Communication::SM::Operation::UPDATE_MEASURE_REQUEST}
+        case UPDATE_MEASURE_REQUEST_SIG: {
+            Communication_update_measure_request(me,e);
             status_ = Q_HANDLED();
             break;
         }
