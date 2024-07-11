@@ -69,7 +69,7 @@ void Communication_skiip_can_open_config(Communication * const me){
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->header    = 0x2B;
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1 , CAN_SIG_VPU_TO_SKIIP1_OBJ_ID , CAN_VALUE_OBJ_NUMBER_PRODUCER_HEARTBEAT);
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex = 0x00;
-    ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->data = 1000;
+    ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->data = SKIIP_HEARTBEAT_TIMEOUT_MS*0.5;
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->reserved = 0x0000;
 
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
@@ -79,7 +79,7 @@ void Communication_skiip_can_open_config(Communication * const me){
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->header    = 0x2B;
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , CAN_VALUE_OBJ_NUMBER_PRODUCER_HEARTBEAT);
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex = 0x00;
-    ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->data = 1000;
+    ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->data = SKIIP_HEARTBEAT_TIMEOUT_MS*0.5;
     ((CAN_Open_2_Byte_Data_Decode_t *) &evt_to_send.Data)->reserved = 0x0000;
 
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
@@ -103,6 +103,10 @@ void Communication_update_measure_request(Communication * const me,
     ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex  = 0;
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
 
+    ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1 , CAN_SIG_VPU_TO_SKIIP1_OBJ_ID , CAN_VALUE_OBJ_NUMBER_ERROR_STATE);
+    ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex  = 0;
+    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
+
     evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX;
 
     ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB);
@@ -110,6 +114,10 @@ void Communication_update_measure_request(Communication * const me,
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
 
     ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB);
+    ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex  = 0;
+    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
+
+    ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->object_id = CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , CAN_VALUE_OBJ_NUMBER_ERROR_STATE);
     ((CAN_Open_4_Byte_Data_Decode_t *) &evt_to_send.Data)->subindex  = 0;
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
 

@@ -14,6 +14,9 @@
 
 #include "adc_macros.h"
 
+#include "cla1_shared_memory.h"
+#include "cpu1_cm_memory_shared.h"
+
 //
 // cla1Isr1 - CLA1 ISR 1
 //
@@ -68,6 +71,9 @@ __interrupt void cla1Isr1()
 
 uint16_t analog_fault_counter = 0;
 
+#pragma DATA_SECTION(CPU1_CM_Message , "MSGRAM_CPU_TO_CM")
+CPU1_CM_Message_t CPU1_CM_Message;
+
 __interrupt void cla1Isr2()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -115,6 +121,19 @@ __interrupt void cla1Isr2()
             analog_fault_counter--;
         }
     }
+
+
+    // Update data directly by cla.
+    CPU1_CM_Message.FSBB_IL_Setpoint = CLA2CPU_Message.FSBB_IL_Setpoint;
+    CPU1_CM_Message.hall1_current    = CLA2CPU_Message.hall1_current;
+    CPU1_CM_Message.hall2_current    = CLA2CPU_Message.hall2_current;
+    CPU1_CM_Message.sbc_muxout       = CLA2CPU_Message.sbc_muxout;
+    CPU1_CM_Message.skiip1_current   = CLA2CPU_Message.skiip1_current;
+    CPU1_CM_Message.skiip1_temp      = CLA2CPU_Message.skiip1_temp;
+    CPU1_CM_Message.skiip1_voltage   = CLA2CPU_Message.skiip1_voltage;
+    CPU1_CM_Message.skiip2_current   = CLA2CPU_Message.skiip2_current;
+    CPU1_CM_Message.skiip2_temp      = CLA2CPU_Message.skiip2_temp;
+    CPU1_CM_Message.skiip2_voltage   = CLA2CPU_Message.skiip2_voltage;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

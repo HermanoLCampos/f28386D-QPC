@@ -15,5 +15,6 @@
 void user_board_init();
 
 void user_msg_box_init();
+void init_cpu2cm_memory();
 
 #endif /* APPLICATION_INCLUDE_USER_BOARD_H_ */

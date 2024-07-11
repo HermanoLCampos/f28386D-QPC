@@ -369,6 +369,10 @@ OC_CAN_receive_msg(me,e);
      <attribute name="time_evt_skiip1_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_skiip2_heartbeat_timeou~}-->
      <attribute name="time_evt_skiip2_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip1_faults}-->
+     <attribute name="skiip1_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip2_faults}-->
+     <attribute name="skiip2_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
      <operation name="Start_Precharge" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
@@ -416,29 +420,43 @@ temporary state to waiting the kernel.</documentation>
       <state name="Start">
        <documentation>state which sets peripheral and variables.</documentation>
        <entry>//BSP_BKPT;
-FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
 
 CPU2CLA_Message.task_1_watchdog_request = 0;
 CPU2CLA_Message.task_2_watchdog_request = 0;
 
 QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
-       <tran trig="INIT_COMPLETE" target="../../3/9">
-        <action>QTimeEvt_armX(&amp;me-&gt;time_evt_cla_watchdog,
-(uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-(uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+       <tran trig="INIT_COMPLETE" target="../../3/10">
+        <action>QTimeEvt_armX(
+    &amp;me-&gt;time_evt_cla_watchdog,
+    (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
 
-QTimeEvt_armX(&amp;me-&gt;time_evt_report_status,
-(uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-(uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_report_status,
+    (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
 
-QTimeEvt_armX(&amp;me-&gt;time_evt_update_measure_request,
-(uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-(uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_update_measure_request,
+    (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
-</action>
+
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+);</action>
         <tran_glyph conn="8,30,3,3,24,-16,22">
          <action box="0,-2,10,2"/>
         </tran_glyph>
@@ -450,14 +468,23 @@ QTimeEvt_armX(&amp;me-&gt;time_evt_update_measure_request,
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
       <state name="Operation">
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
-       <tran trig="RESET" target="../9">
-        <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</action>
+       <tran trig="RESET" target="../10">
+        <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
+
+QTimeEvt_rearm(
+    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+    SKIIP_HEARTBEAT_TIMEOUT_MS
+);
+
+QTimeEvt_rearm(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+    SKIIP_HEARTBEAT_TIMEOUT_MS
+);</action>
         <tran_glyph conn="36,18,3,3,18">
          <action box="0,-2,10,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
-       <tran trig="SET_FAULT" target="../13">
+       <tran trig="SET_FAULT" target="../14">
         <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
 switch(Evt_Set_Fault-&gt;fault_id){
 case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
@@ -579,7 +606,7 @@ QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}-->
-       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../13">
+       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../14">
         <action>switch(e-&gt;sig){
 case EMERGENCY_SHUTDOWN_SIG:
     me-&gt;faults.emergency_shutdown = 1;
@@ -601,7 +628,7 @@ default:
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}-->
-       <tran trig="SET_MULTIPLE_FAULTS" target="../13">
+       <tran trig="SET_MULTIPLE_FAULTS" target="../14">
         <action>AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
 
 typedef union{
@@ -624,6 +651,20 @@ for(uint16_t faults_index = 0;
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SKIIP1_HEART_BEAT, SKIIP2_HEART_~}-->
        <tran trig="SKIIP1_HEART_BEAT, SKIIP2_HEART_BEAT">
+        <action>switch(e-&gt;sig){
+case SKIIP1_HEART_BEAT_SIG:
+    QTimeEvt_rearm(
+        &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+        SKIIP_HEARTBEAT_TIMEOUT_MS
+    );
+    break;
+case SKIIP2_HEART_BEAT_SIG:
+    QTimeEvt_rearm(
+        &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+        SKIIP_HEARTBEAT_TIMEOUT_MS
+    );
+    break;
+}</action>
         <tran_glyph conn="36,54,3,-1,22">
          <action box="0,-2,16,4"/>
         </tran_glyph>
@@ -648,12 +689,18 @@ default:
          <action box="0,-2,20,2"/>
         </tran_glyph>
        </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_SKIIP1_FALTS,UPDATE_SKIIP~}-->
+       <tran trig="UPDATE_SKIIP1_FALTS,UPDATE_SKIIP2_FALTS">
+        <tran_glyph conn="36,62,3,-1,22">
+         <action box="0,-2,10,2"/>
+        </tran_glyph>
+       </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
        <state name="Uncharged">
         <documentation>this state waits the command to charge the  capacitors.</documentation>
         <entry>//BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
-        <tran trig="PRECHARGE_START" target="../../10">
+        <tran trig="PRECHARGE_START" target="../../11">
          <action>//BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
@@ -692,7 +739,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
-        <tran trig="PRECHARGE_FINISH" target="../../11">
+        <tran trig="PRECHARGE_FINISH" target="../../12">
          <action>FSBB_Control_Finish_Precharge(me,e);</action>
          <tran_glyph conn="84,20,3,1,22,14,-2">
           <action box="0,-2,16,2"/>
@@ -706,20 +753,23 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}-->
        <state name="Idle">
         <documentation>waiting the command to start the control</documentation>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
-        <tran trig="START_CONTROL" target="../../12">
+        <tran trig="START_CONTROL" target="../../13">
          <tran_glyph conn="84,38,3,3,32">
           <action box="0,-2,14,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="84,30,20,12"/>
+        <state_glyph node="84,30,20,12">
+         <entry box="1,2,6,2"/>
+        </state_glyph>
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}-->
        <state name="Running">
         <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
-        <tran trig="STOP_CONTROL" target="../../15">
+        <tran trig="STOP_CONTROL" target="../../16">
          <tran_glyph conn="116,36,3,1,22,18,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -737,10 +787,20 @@ FSBB_Control_Open_Contactors(me,e);
 
 //BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
-        <tran trig="CLEAR_FAULT" target="../../9">
+        <tran trig="CLEAR_FAULT" target="../../10">
          <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
 FSBB_Control_faults_t aux = {0};
-me-&gt;faults = aux;</action>
+me-&gt;faults = aux;
+
+QTimeEvt_rearm(
+    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+    SKIIP_HEARTBEAT_TIMEOUT_MS
+);
+
+QTimeEvt_rearm(
+    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+    SKIIP_HEARTBEAT_TIMEOUT_MS
+);</action>
          <tran_glyph conn="54,36,3,2,18,-14">
           <action box="0,-2,11,2"/>
          </tran_glyph>
@@ -752,7 +812,7 @@ me-&gt;faults = aux;</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2}-->
        <state name="To_Idle_2">
         <documentation>Deactivate the control and waints the current reach zero.</documentation>
-        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPING);
 
 QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
 (uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -772,7 +832,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../11">
+         <choice target="../../../12">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_OPEN</guard>
           <choice_glyph conn="89,54,5,3,-7,-14,2">
            <action box="-5,0,4,2"/>
@@ -790,7 +850,12 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1}-->
        <state name="To_Idle_1">
         <documentation>Controlling the Current to Zero.</documentation>
-        <entry>
+        <entry>CPU2CLA_Message.FSBB_IL_Setpoint = 0;
+
+#ifdef FORCE_DUTY_CICLE
+    CPU2CLA_Message.duty_cicle_vin  = 0;
+    CPU2CLA_Message.duty_cicle_vout = 0;
+#endif
 
 QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
 (uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -810,7 +875,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../14">
+         <choice target="../../../15">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
           <choice_glyph conn="120,56,5,1,-16">
            <action box="-4,0,4,2"/>
@@ -1067,6 +1132,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     SKIIP1_HEARTBEAT_TIMEOUT_SIG,
     SKIIP2_HEARTBEAT_TIMEOUT_SIG,
     SET_MULTIPLE_FAULTS_SIG,
+
+    UPDATE_SKIIP1_FALTS_SIG,
+    UPDATE_SKIIP2_FALTS_SIG,
 
     CLEAR_FAULT_SIG,
     CHANGE_SETPOINT_SIG,
@@ -2350,6 +2418,39 @@ me-&gt;sys_data = aux;</code>
     <!--${Shared::Types::Setpoint_Data_t::setpoint_value}-->
     <attribute name="setpoint_value" type="uint16_t" visibility="0x02" properties="0x00"/>
    </class>
+   <!--${Shared::Types::Skiip_CAN_Faults_t}-->
+   <class name="Skiip_CAN_Faults_t">
+    <!--${Shared::Types::Skiip_CAN_Faults~::dc_link_overvoltage : 1}-->
+    <attribute name="dc_link_overvoltage : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::over_temperature_pcb : 1}-->
+    <attribute name="over_temperature_pcb : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::over_temperature_dcb : 1}-->
+    <attribute name="over_temperature_dcb : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::over_current  : 1}-->
+    <attribute name="over_current  : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::bot_oscilation_error : 1}-->
+    <attribute name="bot_oscilation_error : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::bot_overlap_error : 1}-->
+    <attribute name="bot_overlap_error : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::bot_vce : 1}-->
+    <attribute name="bot_vce : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::top_oscilation_error : 1}-->
+    <attribute name="top_oscilation_error : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::top_overlap_error : 1}-->
+    <attribute name="top_overlap_error : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::top_vce : 1}-->
+    <attribute name="top_vce : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::internal_error : 1}-->
+    <attribute name="internal_error : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::switch_signal_active : 1}-->
+    <attribute name="switch_signal_active : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::halt_set : 1}-->
+    <attribute name="halt_set : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::under_voltage_vp : 1}-->
+    <attribute name="under_voltage_vp : 1" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Skiip_CAN_Faults~::reserved : 2}-->
+    <attribute name="reserved : 2" type="uint16_t" visibility="0x02" properties="0x00"/>
+   </class>
    <!--${Shared::Types::FSBB_Control_faults_t}-->
    <class name="FSBB_Control_faults_t">
     <!--${Shared::Types::FSBB_Control_fau~::skiip1_overvoltage:1}-->
@@ -2624,7 +2725,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS}-->
     <attribute name="SKIIP_HEARTBEAT_TIMEOUT_MS" type="" visibility="0x03" properties="0x00">
-     <code>1000</code>
+     <code>2000</code>
     </attribute>
    </package>
    <!--${Shared::Macros::CONDITIONAL_LIMITS}-->

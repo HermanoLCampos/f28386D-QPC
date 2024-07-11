@@ -10,6 +10,10 @@
 #include "cm.h"
 #include "modulink.h"
 
+#include "cpu1_cm_memory_shared.h"
+
+CPU1_CM_Message_t * CPU1_CM_Message;
+
 static void Communication_send_default_message(Communication_Message_t * com_message, const com_tag_t * const com_tag);
 
 void Communication_ipc_process_msg(Communication * const me,
@@ -113,27 +117,52 @@ void Communication_Can_Periodic_Msg(Communication * const me,
         .Data = {0},
     };
 
-    evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_FAULTS_1_INDEX;
 
-    MODULINK_CAN_MSG_VPU_FAULTS_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_FAULTS_1_t *) evt_can_msg.Data;
-    msg_payload->CAN_SIG_VPU_CAPACITOR_OVERHEAT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CAPACITOR_OVERHEAT , me->sys_data.fsbb_data.faults.capacitor_overheat );
-    msg_payload->CAN_SIG_VPU_CLA_T1_WATCHDOG_TIMEOUT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CLA_T1_WATCHDOG_TIMEOUT , me->sys_data.fsbb_data.faults.cla_t1_watchdog_timeout );
-    msg_payload->CAN_SIG_VPU_CLA_T2_WATCHDOG_TIMEOUT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CLA_T2_WATCHDOG_TIMEOUT , me->sys_data.fsbb_data.faults.cla_t2_watchdog_timeout );
-    msg_payload->CAN_SIG_VPU_EMERGENCY_SHUTDOWN      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_EMERGENCY_SHUTDOWN , me->sys_data.fsbb_data.faults.emergency_shutdown );
-    msg_payload->CAN_SIG_VPU_INDUCTOR_OVERHEAT       = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_INDUCTOR_OVERHEAT , me->sys_data.fsbb_data.faults.inductor_overheat );
-    msg_payload->CAN_SIG_VPU_SETTLE_TIMEOUT          = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SETTLE_TIMEOUT , me->sys_data.fsbb_data.faults.settle_timeout );
-    msg_payload->CAN_SIG_VPU_SKIIP1_ERROR            = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_ERROR , me->sys_data.fsbb_data.faults.skiip1_error );
-    msg_payload->CAN_SIG_VPU_SKIIP1_HALT             = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_HALT , me->sys_data.fsbb_data.faults.skiip1_halt );
-    msg_payload->CAN_SIG_VPU_SKIIP1_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip1_overcurrent );
-    msg_payload->CAN_SIG_VPU_SKIIP1_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERHEAT , me->sys_data.fsbb_data.faults.skiip1_overheat );
-    msg_payload->CAN_SIG_VPU_SKIIP1_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip1_overvoltage );
-    msg_payload->CAN_SIG_VPU_SKIIP2_ERROR            = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_ERROR , me->sys_data.fsbb_data.faults.skiip2_error );
-    msg_payload->CAN_SIG_VPU_SKIIP2_HALT             = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_HALT , me->sys_data.fsbb_data.faults.skiip2_halt );
-    msg_payload->CAN_SIG_VPU_SKIIP2_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip2_overcurrent );
-    msg_payload->CAN_SIG_VPU_SKIIP2_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERHEAT , me->sys_data.fsbb_data.faults.skiip2_overheat );
-    msg_payload->CAN_SIG_VPU_SKIIP2_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip2_overvoltage );
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_FAULTS_1_INDEX;
+        MODULINK_CAN_MSG_VPU_FAULTS_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_FAULTS_1_t *) evt_can_msg.Data;
+        msg_payload->CAN_SIG_VPU_CAPACITOR_OVERHEAT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CAPACITOR_OVERHEAT , me->sys_data.fsbb_data.faults.capacitor_overheat );
+        msg_payload->CAN_SIG_VPU_CLA_T1_WATCHDOG_TIMEOUT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CLA_T1_WATCHDOG_TIMEOUT , me->sys_data.fsbb_data.faults.cla_t1_watchdog_timeout );
+        msg_payload->CAN_SIG_VPU_CLA_T2_WATCHDOG_TIMEOUT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_CLA_T2_WATCHDOG_TIMEOUT , me->sys_data.fsbb_data.faults.cla_t2_watchdog_timeout );
+        msg_payload->CAN_SIG_VPU_EMERGENCY_SHUTDOWN      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_EMERGENCY_SHUTDOWN , me->sys_data.fsbb_data.faults.emergency_shutdown );
+        msg_payload->CAN_SIG_VPU_INDUCTOR_OVERHEAT       = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_INDUCTOR_OVERHEAT , me->sys_data.fsbb_data.faults.inductor_overheat );
+        msg_payload->CAN_SIG_VPU_SETTLE_TIMEOUT          = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SETTLE_TIMEOUT , me->sys_data.fsbb_data.faults.settle_timeout );
+        msg_payload->CAN_SIG_VPU_SKIIP1_ERROR            = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_ERROR , me->sys_data.fsbb_data.faults.skiip1_error );
+        msg_payload->CAN_SIG_VPU_SKIIP1_HALT             = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_HALT , me->sys_data.fsbb_data.faults.skiip1_halt );
+        msg_payload->CAN_SIG_VPU_SKIIP1_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip1_overcurrent );
+        msg_payload->CAN_SIG_VPU_SKIIP1_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERHEAT , me->sys_data.fsbb_data.faults.skiip1_overheat );
+        msg_payload->CAN_SIG_VPU_SKIIP1_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip1_overvoltage );
+        msg_payload->CAN_SIG_VPU_SKIIP2_ERROR            = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_ERROR , me->sys_data.fsbb_data.faults.skiip2_error );
+        msg_payload->CAN_SIG_VPU_SKIIP2_HALT             = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_HALT , me->sys_data.fsbb_data.faults.skiip2_halt );
+        msg_payload->CAN_SIG_VPU_SKIIP2_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip2_overcurrent );
+        msg_payload->CAN_SIG_VPU_SKIIP2_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERHEAT , me->sys_data.fsbb_data.faults.skiip2_overheat );
+        msg_payload->CAN_SIG_VPU_SKIIP2_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip2_overvoltage );
 
-    QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_MEASURES_1_INDEX;
+        MODULINK_CAN_MSG_VPU_MEASURES_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_MEASURES_1_t *) evt_can_msg.Data;
+        msg_payload->CAN_SIG_VPU_SKIIP_1_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_CURRENT, CPU1_CM_Message->skiip1_current );
+        msg_payload->CAN_SIG_VPU_SKIIP_1_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_VOLTAGE, CPU1_CM_Message->skiip1_voltage );
+        msg_payload->CAN_SIG_VPU_SKIIP_2_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_CURRENT, CPU1_CM_Message->skiip2_current );
+        msg_payload->CAN_SIG_VPU_SKIIP_2_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_VOLTAGE, CPU1_CM_Message->skiip2_voltage );
+
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_SETPOINTS_1_INDEX;
+        MODULINK_CAN_MSG_VPU_SETPOINTS_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_SETPOINTS_1_t *) evt_can_msg.Data;
+
+        msg_payload->CAN_SIG_VPU_FSSB_POWER_SP = 0;
+        msg_payload->CAN_SIG_VPU_IND_FSBB_CURRENT_SP = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_SETPOINTS_1 , CAN_SIG_VPU_IND_FSBB_CURRENT_SP, CPU1_CM_Message->FSBB_IL_Setpoint );
+
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+//
+//    CPU1_CM_Message;
 
 }
 

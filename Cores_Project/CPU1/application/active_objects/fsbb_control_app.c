@@ -39,41 +39,35 @@ void FSBB_Control_Open_Contactors(FSBB_Control * const me,
 void FSBB_Control_Change_Control_State(FSBB_Control * const me,
     uint16_t control_state){
 
-    if(control_state == FSBB_CONTROL_ERROR){
-        CPU2CLA_Message.FSBB_Control_State = FSBB_CONTROL_ERROR;
-
+    CPU2CLA_Message.FSBB_Control_State = control_state;
+    switch(control_state){
+    case FSBB_CONTROL_INIT:
         //Leg Vin
         EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
-        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
         EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
-        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
 
         //Leg Vout
         EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
-        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
         EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
-        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
-    }
-
-    if(control_state == FSBB_CONTROL_STOPPED){
-        CPU2CLA_Message.FSBB_Control_State = FSBB_CONTROL_STOPPED;
-
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        break;
+    case FSBB_CONTROL_STOPPED:
         //Leg Vin
         EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
-        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
         EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
-        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
 
         //Leg Vout
         EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
-        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
         EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
-        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
-    }
-
-    if(control_state == FSBB_CONTROL_RUNNING && CPU2CLA_Message.FSBB_Control_State != FSBB_CONTROL_ERROR){
-        CPU2CLA_Message.FSBB_Control_State = FSBB_CONTROL_STOPPED;
-
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        break;
+    case FSBB_CONTROL_RUNNING:
         //Leg Vin
         EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_DISABLED);
         EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_DISABLED);
@@ -85,6 +79,33 @@ void FSBB_Control_Change_Control_State(FSBB_Control * const me,
         EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_DISABLED);
         EPWM_setActionQualifierContSWForceAction(FO_HB_2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_DISABLED);
         EPWM_setActionQualifierContSWForceAction(FO_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_DISABLED);
+        break;
+    case FSBB_CONTROL_STOPING:
+        //Leg Vin
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
 
+        //Leg Vout
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
+        break;
+    case FSBB_CONTROL_ERROR:
+        //Leg Vin
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
+
+        //Leg Vout
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_LOW);
+        EPWM_setActionQualifierContSWForceAction(GD_HB_2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_SW_OUTPUT_HIGH);
+        EPWM_setActionQualifierContSWForceAction(FO_HB_1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_SW_OUTPUT_LOW);
+        break;
     }
+
 }

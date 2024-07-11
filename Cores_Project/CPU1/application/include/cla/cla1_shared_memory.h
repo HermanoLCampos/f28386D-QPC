@@ -20,7 +20,6 @@
 // Caution use only variables with n*16bits size
 // CLA to CPU Message RAM area
 typedef struct{
-
 //Task 1 (C) Variables
 
     uint16_t skiip1_voltage;
@@ -39,6 +38,7 @@ typedef struct{
     uint16_t task_1_watchdog_response;
 
 //Task 2 (C) Variables
+    uint16_t FSBB_IL_Setpoint; // Feedback
 
     uint16_t task_2_watchdog_response;
 
@@ -99,10 +99,12 @@ typedef struct{ //Cla_CPU Memory, Be careful this memory can be initialized by C
 
 }CLA_Memory_CPU_Init;
 
-enum{
-    FSBB_CONTROL_RUNNING,
+typedef enum{
+    FSBB_CONTROL_INIT,
     FSBB_CONTROL_STOPPED,
+    FSBB_CONTROL_RUNNING,
+    FSBB_CONTROL_STOPING,
     FSBB_CONTROL_ERROR,
-};
+}fsbb_cla_state_t;
 
 #endif /* APPLICATION_INCLUDE_CLA_CLA1_SHARED_MEMORY_H_ */

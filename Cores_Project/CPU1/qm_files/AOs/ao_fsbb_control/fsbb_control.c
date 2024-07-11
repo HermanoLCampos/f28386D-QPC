@@ -77,7 +77,7 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start}
         case Q_ENTRY_SIG: {
             //BSP_BKPT;
-            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
 
             CPU2CLA_Message.task_1_watchdog_request = 0;
             CPU2CLA_Message.task_2_watchdog_request = 0;
@@ -88,21 +88,35 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}
         case INIT_COMPLETE_SIG: {
-            QTimeEvt_armX(&me->time_evt_cla_watchdog,
-            (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-            (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            QTimeEvt_armX(
+                &me->time_evt_cla_watchdog,
+                (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
 
-            QTimeEvt_armX(&me->time_evt_report_status,
-            (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-            (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            QTimeEvt_armX(
+                &me->time_evt_report_status,
+                (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((REPORT_STATUS_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
 
-            QTimeEvt_armX(&me->time_evt_update_measure_request,
-            (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-            (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            QTimeEvt_armX(
+                &me->time_evt_update_measure_request,
+                (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((MEASURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
 
+            QTimeEvt_armX(
+                &me->time_evt_skiip1_heartbeat_timeout,
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+
+            QTimeEvt_armX(
+                &me->time_evt_skiip2_heartbeat_timeout,
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+            );
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -120,7 +134,16 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}
         case RESET_SIG: {
-            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
+
+            QTimeEvt_rearm(
+                &me->time_evt_skiip1_heartbeat_timeout,
+                SKIIP_HEARTBEAT_TIMEOUT_MS
+            );
+
+            QTimeEvt_rearm(&me->time_evt_skiip2_heartbeat_timeout,
+                SKIIP_HEARTBEAT_TIMEOUT_MS
+            );
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -290,6 +313,20 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SKIIP1_HEART_BEAT, SKIIP2_HEART_~}
         case SKIIP1_HEART_BEAT_SIG: // intentionally fall through
         case SKIIP2_HEART_BEAT_SIG: {
+            switch(e->sig){
+            case SKIIP1_HEART_BEAT_SIG:
+                QTimeEvt_rearm(
+                    &me->time_evt_skiip1_heartbeat_timeout,
+                    SKIIP_HEARTBEAT_TIMEOUT_MS
+                );
+                break;
+            case SKIIP2_HEART_BEAT_SIG:
+                QTimeEvt_rearm(
+                    &me->time_evt_skiip2_heartbeat_timeout,
+                    SKIIP_HEARTBEAT_TIMEOUT_MS
+                );
+                break;
+            }
             status_ = Q_HANDLED();
             break;
         }
@@ -309,6 +346,12 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
                 system_assert("fsbb_control", 0);
                 break;
             }
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_SKIIP1_FALTS,UPDATE_SKIIP~}
+        case UPDATE_SKIIP1_FALTS_SIG: // intentionally fall through
+        case UPDATE_SKIIP2_FALTS_SIG: {
             status_ = Q_HANDLED();
             break;
         }
@@ -400,6 +443,12 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
 QState FSBB_Control_Idle(FSBB_Control * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}
+        case Q_ENTRY_SIG: {
+            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+            status_ = Q_HANDLED();
+            break;
+        }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}
         case START_CONTROL_SIG: {
             status_ = Q_TRAN(&FSBB_Control_Running);
@@ -455,6 +504,16 @@ QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e) {
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
             FSBB_Control_faults_t aux = {0};
             me->faults = aux;
+
+            QTimeEvt_rearm(
+                &me->time_evt_skiip1_heartbeat_timeout,
+                SKIIP_HEARTBEAT_TIMEOUT_MS
+            );
+
+            QTimeEvt_rearm(
+                &me->time_evt_skiip2_heartbeat_timeout,
+                SKIIP_HEARTBEAT_TIMEOUT_MS
+            );
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
             break;
         }
@@ -472,7 +531,7 @@ QState FSBB_Control_To_Idle_2(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2}
         case Q_ENTRY_SIG: {
-            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+            FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPING);
 
             QTimeEvt_armX(&me->time_evt_check_params,
             (uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -522,7 +581,12 @@ QState FSBB_Control_To_Idle_1(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1}
         case Q_ENTRY_SIG: {
+            CPU2CLA_Message.FSBB_IL_Setpoint = 0;
 
+            #ifdef FORCE_DUTY_CICLE
+                CPU2CLA_Message.duty_cicle_vin  = 0;
+                CPU2CLA_Message.duty_cicle_vout = 0;
+            #endif
 
             QTimeEvt_armX(&me->time_evt_check_params,
             (uint16_t) ((CHECK_PARAMS_IL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),

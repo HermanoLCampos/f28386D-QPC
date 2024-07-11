@@ -53,6 +53,8 @@ typedef struct {
     QTimeEvt time_evt_update_measure_request;
     QTimeEvt time_evt_skiip1_heartbeat_timeout;
     QTimeEvt time_evt_skiip2_heartbeat_timeout;
+    Skiip_CAN_Faults_t skiip1_faults;
+    Skiip_CAN_Faults_t skiip2_faults;
 } FSBB_Control;
 
 // public:

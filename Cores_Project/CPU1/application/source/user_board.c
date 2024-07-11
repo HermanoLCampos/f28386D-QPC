@@ -65,6 +65,8 @@ void user_board_init(){
     BSP_IPC_initMessageQueue(IPC_CPU1_L_CPU2_R , &ipc_message_queue[OC_IPC_CPU1_CPU2_ID] , IPC_INT1 , IPC_INT1);
 #endif
 
+    init_cpu2cm_memory();
+
 }
 
 void user_msg_box_init(){
@@ -109,4 +111,15 @@ void user_msg_box_init(){
     );
     BSP_CAN_init_fifo(&CAN_SKIIP_2_fifo, CAN_SKIIP_BASE, i_msg);
 
+}
+
+#include "cpu1_cm_memory_shared.h"
+
+void init_cpu2cm_memory(){
+    extern CPU1_CM_Message_t CPU1_CM_Message;
+    CPU1_CM_Message_t zero_cpu1_cm_message = {0};
+    CPU1_CM_Message = zero_cpu1_cm_message;
+
+    IPC_sendCommand(IPC_CPU1_L_CM_R, IPC_FLAG31, IPC_ADDR_CORRECTION_ENABLE, 0 , (uint32_t) (&CPU1_CM_Message), 0);
+    IPC_waitForAck(IPC_CPU1_L_CM_R, IPC_FLAG31);
 }

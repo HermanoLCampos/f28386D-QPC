@@ -193,6 +193,26 @@ typedef struct {
     uint16_t setpoint_value;
 } Setpoint_Data_t;
 
+//${Shared::Types::Skiip_CAN_Faults_t} .......................................
+typedef struct {
+// private:
+    uint16_t dc_link_overvoltage : 1;
+    uint16_t over_temperature_pcb : 1;
+    uint16_t over_temperature_dcb : 1;
+    uint16_t over_current  : 1;
+    uint16_t bot_oscilation_error : 1;
+    uint16_t bot_overlap_error : 1;
+    uint16_t bot_vce : 1;
+    uint16_t top_oscilation_error : 1;
+    uint16_t top_overlap_error : 1;
+    uint16_t top_vce : 1;
+    uint16_t internal_error : 1;
+    uint16_t switch_signal_active : 1;
+    uint16_t halt_set : 1;
+    uint16_t under_voltage_vp : 1;
+    uint16_t reserved : 2;
+} Skiip_CAN_Faults_t;
+
 //${Shared::Types::FSBB_Control_faults_t} ....................................
 typedef struct {
 // private:
@@ -443,7 +463,7 @@ typedef struct {
 #define MEASURE_PERIOD_TIME_MS 1000
 
 //${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS} .................
-#define SKIIP_HEARTBEAT_TIMEOUT_MS 1000
+#define SKIIP_HEARTBEAT_TIMEOUT_MS 2000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20

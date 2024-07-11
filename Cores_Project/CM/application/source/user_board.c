@@ -40,6 +40,8 @@ void user_board_init(){
 #endif
 
     user_CAN_Init();
+
+    init_cpu2cm_memory();
 }
 
 void user_CAN_Init(){
@@ -77,3 +79,18 @@ void user_CAN_Init(){
     CAN_enableAutoBusOn(CAN_PUBLIC_BASE);
     CAN_setAutoBusOnTime(CAN_PUBLIC_BASE, 250000);
 }
+
+#include "cpu1_cm_memory_shared.h"
+
+
+// Initialization of CM to C28x shared memory
+void init_cpu2cm_memory(){
+    extern CPU1_CM_Message_t * CPU1_CM_Message;
+    uint32_t command;
+    uint32_t data;
+
+    IPC_waitForFlag(IPC_CM_L_CPU1_R, IPC_FLAG31);
+    IPC_readCommand(IPC_CM_L_CPU1_R, IPC_FLAG31, IPC_ADDR_CORRECTION_ENABLE, &command,(uint32_t*) &CPU1_CM_Message, &data);
+    IPC_ackFlagRtoL(IPC_CM_L_CPU1_R, IPC_FLAG31);
+}
+

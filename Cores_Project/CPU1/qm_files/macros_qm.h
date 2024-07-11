@@ -89,7 +89,7 @@
 #define MEASURE_PERIOD_TIME_MS 1000
 
 //${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS} .................
-#define SKIIP_HEARTBEAT_TIMEOUT_MS 1000
+#define SKIIP_HEARTBEAT_TIMEOUT_MS 2000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20

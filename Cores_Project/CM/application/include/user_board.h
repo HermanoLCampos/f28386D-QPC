@@ -13,5 +13,6 @@
 
 void user_board_init();
 void user_CAN_Init();
+void init_cpu2cm_memory();
 
 #endif /* APPLICATION_INCLUDE_USER_BOARD_H_ */
