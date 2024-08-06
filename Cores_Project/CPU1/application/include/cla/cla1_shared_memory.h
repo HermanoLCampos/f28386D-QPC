@@ -38,9 +38,18 @@ typedef struct{
     uint16_t task_1_watchdog_response;
 
 //Task 2 (C) Variables
+
     uint16_t FSBB_IL_Setpoint; // Feedback
 
     uint16_t task_2_watchdog_response;
+
+
+    float32_t P_COMP;
+    float32_t I_COMP;
+    float32_t D_Vin;
+    float32_t D_Vout;
+    float32_t V_L;
+
 
 //Task 3 (C) Variables
 
@@ -71,6 +80,9 @@ typedef struct{
 //Task 2 (C) Variables
     uint16_t FSBB_Control_State;
     int16_t FSBB_IL_Setpoint;
+
+    uint16_t vl_ref;
+
 #ifdef FORCE_DUTY_CICLE
     uint16_t duty_cicle_vin;
     uint16_t duty_cicle_vout;

@@ -78,6 +78,9 @@ QEvt const im_evt_skiip_2_heart_beat = QEVT_INITIALIZER(SKIIP2_HEART_BEAT_SIG);
 //${CPU1::Immutable_Events::FSBB::im_evt_update_measure} .....................
 QEvt const im_evt_update_measure = QEVT_INITIALIZER(UPDATE_MEASURE_SIG);
 
+//${CPU1::Immutable_Events::FSBB::im_evt_init_skiip_can} .....................
+QEvt const im_evt_init_skiip_can = QEVT_INITIALIZER(INIT_SKIIP_CAN_SIG);
+
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
 #ifdef DUALCORE

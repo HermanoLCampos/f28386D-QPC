@@ -23,6 +23,13 @@ typedef struct{
     uint16_t sbc_muxout;
     uint16_t FSBB_IL_Setpoint;
 
+    uint32_t V_L;
+    uint16_t P_COMP;
+    uint16_t I_COMP;
+    uint16_t D_VIN;
+    uint16_t D_VOUT;
+
+
 }CPU1_CM_Message_t;
 
 

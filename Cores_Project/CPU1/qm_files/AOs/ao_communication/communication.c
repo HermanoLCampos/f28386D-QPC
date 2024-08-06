@@ -107,7 +107,6 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
 
             QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super),&im_evt_init_complete, (void *) 0 );
 
-            Communication_skiip_can_open_config(me);
             status_ = Q_TRAN(&Communication_Operation);
             break;
         }
@@ -178,6 +177,12 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_Communication::Communication::SM::Operation::UPDATE_MEASURE_REQUEST}
         case UPDATE_MEASURE_REQUEST_SIG: {
             Communication_update_measure_request(me,e);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_Communication::Communication::SM::Operation::INIT_SKIIP_CAN}
+        case INIT_SKIIP_CAN_SIG: {
+            Communication_skiip_can_open_config(me);
             status_ = Q_HANDLED();
             break;
         }

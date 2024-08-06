@@ -17,6 +17,8 @@
 #include "cla1_shared_memory.h"
 #include "cpu1_cm_memory_shared.h"
 
+#include "modulink.h"
+
 //
 // cla1Isr1 - CLA1 ISR 1
 //
@@ -54,6 +56,7 @@ __interrupt void cla1Isr1()
 //#define HALL2_CURRENT_LOW_LIMIT_CHECK ???/HALL2_CURRENT_BIT_FACTOR+HALL2_CURRENT_BIT_OFFSET
 //#define HALL2_CURRENT_HIGH_LIMIT_CHECK ???/HALL2_CURRENT_BIT_FACTOR+HALL2_CURRENT_BIT_OFFSET
 
+
 #define SKIIP1_CURRENT_LOW_LIMIT_CHECK      ((uint16_t)(SKIIP1_CURRENT_BIT_OFFSET-CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP1_CURRENT_BIT_FACTOR))
 #define SKIIP1_CURRENT_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP1_CURRENT_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP1_CURRENT_BIT_FACTOR))
 
@@ -61,8 +64,9 @@ __interrupt void cla1Isr1()
 
 #define SKIIP1_TEMERATURE_HIGH_LIMIT_CHECK  ((uint16_t)(SKIIP1_TEMP_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_TEMPERATURE/SKIIP1_TEMP_BIT_FACTOR))
 
-#define SKIIP2_CURRENT_LOW_LIMIT_CHECK      ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET-CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
-#define SKIIP2_CURRENT_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
+//values inverted
+#define SKIIP2_CURRENT_LOW_LIMIT_CHECK      ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
+#define SKIIP2_CURRENT_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP2_CURRENT_BIT_OFFSET-CRITICAL_LIMIT_SKIIP_CURRENT/SKIIP2_CURRENT_BIT_FACTOR))
 
 #define SKIIP2_VOLTAGE_HIGH_LIMIT_CHECK     ((uint16_t)(SKIIP2_VOLTAGE_BIT_OFFSET+CRITICAL_LIMIT_SKIIP_VOLTAGE/SKIIP2_VOLTAGE_BIT_FACTOR))
 
@@ -70,6 +74,14 @@ __interrupt void cla1Isr1()
 
 
 uint16_t analog_fault_counter = 0;
+//float teste = 0;
+
+//uint16_t count_timer = 0;
+//uint16_t index_test;
+//uint16_t vl_m[1024];
+//uint16_t d_vin[1024];
+//uint16_t d_vout[1024];
+//uint16_t i_l_m[1024];
 
 #pragma DATA_SECTION(CPU1_CM_Message , "MSGRAM_CPU_TO_CM")
 CPU1_CM_Message_t CPU1_CM_Message;
@@ -89,6 +101,15 @@ __interrupt void cla1Isr2()
     uint16_t skiip2_voltage_adc_val     = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP);
     uint16_t skiip2_temperature_adc_val = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE);
 
+//    count_timer++;
+//    if(count_timer>10){
+//        count_timer = 0;
+//        index_test = (index_test+1)%1024;
+//        vl_m[index_test] = CLA2CPU_Message.V_L;
+//        d_vin[index_test] = CLA2CPU_Message.D_Vin;
+//        d_vout[index_test] = CLA2CPU_Message.D_Vout;
+//        i_l_m[index_test] = CLA2CPU_Message.I_L;
+//    }
 
     if(
         (skiip1_current_adc_val      > SKIIP1_CURRENT_HIGH_LIMIT_CHECK)       ||
@@ -113,6 +134,7 @@ __interrupt void cla1Isr2()
 
             analog_faults->faults.skiip2_overcurrent = (skiip2_current_adc_val      > SKIIP2_CURRENT_HIGH_LIMIT_CHECK) ||
                                                        (skiip2_current_adc_val      < SKIIP2_CURRENT_LOW_LIMIT_CHECK );
+//            teste = skiip2_current_adc_val;
             analog_faults->faults.skiip2_overvoltage = (skiip2_voltage_adc_val      > SKIIP2_VOLTAGE_HIGH_LIMIT_CHECK);
             analog_faults->faults.skiip2_overheat    = (skiip2_temperature_adc_val  > SKIIP2_TEMERATURE_HIGH_LIMIT_CHECK);
 
@@ -134,6 +156,14 @@ __interrupt void cla1Isr2()
     CPU1_CM_Message.skiip2_current   = CLA2CPU_Message.skiip2_current;
     CPU1_CM_Message.skiip2_temp      = CLA2CPU_Message.skiip2_temp;
     CPU1_CM_Message.skiip2_voltage   = CLA2CPU_Message.skiip2_voltage;
+
+
+
+    CPU1_CM_Message.D_VIN  = CLA2CPU_Message.D_Vin*1000.0f;
+    CPU1_CM_Message.D_VOUT = CLA2CPU_Message.D_Vout*1000.0f;
+    CPU1_CM_Message.I_COMP = (CLA2CPU_Message.I_COMP+100.0f)*10;
+    CPU1_CM_Message.P_COMP = (CLA2CPU_Message.P_COMP+100.0f)*10;
+    CPU1_CM_Message.V_L    = (CLA2CPU_Message.V_L+10)*1000;
 
     // Clear Interrupt Flag
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP11);

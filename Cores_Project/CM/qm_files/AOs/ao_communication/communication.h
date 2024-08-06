@@ -49,6 +49,7 @@ typedef struct {
     OC_CAN can_inst[OC_CAN_NUM_OF_INST];
     System_Public_Data_t sys_data;
     QTimeEvt time_evt_can_periodic_message;
+    QTimeEvt time_evt_can_periodic_message_control;
 } Communication;
 
 // public:
@@ -56,8 +57,8 @@ void Communication_ipc_process_msg(Communication * const me,
     QEvt const * const e);
 void Communication_can_process_msg(Communication * const me,
     QEvt const * const e);
-void Communication_Can_Periodic_Msg(Communication * const me,
-    QEvt const * const e);
+void Communication_Can_Periodic_Msg(Communication * const me);
+void Communication_Can_Periodic_Msg_Control(Communication * const me);
 
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);

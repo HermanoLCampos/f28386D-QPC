@@ -123,12 +123,36 @@ extern "C"
 #define GD_HB_2_EPWMB_PIN_CONFIG GPIO_5_EPWM3B
 
 //
-// EPWM12 -> FO_HB_1 Pinmux
+// EPWM8 -> FO_HB_1 Pinmux
 //
+//
+// EPWM8A - GPIO Settings
+//
+#define GPIO_PIN_EPWM8A 14
+#define FO_HB_1_EPWMA_GPIO 14
+#define FO_HB_1_EPWMA_PIN_CONFIG GPIO_14_EPWM8A
+//
+// EPWM8B - GPIO Settings
+//
+#define GPIO_PIN_EPWM8B 15
+#define FO_HB_1_EPWMB_GPIO 15
+#define FO_HB_1_EPWMB_PIN_CONFIG GPIO_15_EPWM8B
 
 //
-// EPWM8 -> FO_HB_2 Pinmux
+// EPWM12 -> FO_HB_2 Pinmux
 //
+//
+// EPWM12A - GPIO Settings
+//
+#define GPIO_PIN_EPWM12A 22
+#define FO_HB_2_EPWMA_GPIO 22
+#define FO_HB_2_EPWMA_PIN_CONFIG GPIO_22_EPWM12A
+//
+// EPWM12B - GPIO Settings
+//
+#define GPIO_PIN_EPWM12B 23
+#define FO_HB_2_EPWMB_GPIO 23
+#define FO_HB_2_EPWMB_PIN_CONFIG GPIO_23_EPWM12B
 
 //
 // EPWM1 -> Sample_Timer Pinmux
@@ -550,7 +574,7 @@ void myCLA0_init();
 #define GD_HB_2_TZB_ACTION EPWM_TZ_ACTION_HIGH
 #define GD_HB_2_OSHT_SOURCES EPWM_TZ_SIGNAL_OSHT1
 #define GD_HB_2_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
-#define FO_HB_1_BASE EPWM12_BASE
+#define FO_HB_1_BASE EPWM8_BASE
 #define FO_HB_1_TBPRD 50000
 #define FO_HB_1_COUNTER_MODE EPWM_COUNTER_MODE_UP_DOWN
 #define FO_HB_1_TBPHS 0
@@ -563,7 +587,7 @@ void myCLA0_init();
 #define FO_HB_1_TZA_ACTION EPWM_TZ_ACTION_LOW
 #define FO_HB_1_TZB_ACTION EPWM_TZ_ACTION_HIGH
 #define FO_HB_1_INTERRUPT_SOURCE EPWM_INT_TBCTR_PERIOD
-#define FO_HB_2_BASE EPWM8_BASE
+#define FO_HB_2_BASE EPWM12_BASE
 #define FO_HB_2_TBPRD 50000
 #define FO_HB_2_COUNTER_MODE EPWM_COUNTER_MODE_UP_DOWN
 #define FO_HB_2_TBPHS 0
@@ -790,12 +814,12 @@ extern __interrupt void INT_CAN_PUBLIC_1_ISR(void);
 extern __interrupt void INT_GD_HB_2_ISR(void);
 
 // Interrupt Settings for INT_FO_HB_1
-#define INT_FO_HB_1 INT_EPWM12
+#define INT_FO_HB_1 INT_EPWM8
 #define INT_FO_HB_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP3
 extern __interrupt void INT_FO_HB_1_ISR(void);
 
 // Interrupt Settings for INT_FO_HB_2
-#define INT_FO_HB_2 INT_EPWM8
+#define INT_FO_HB_2 INT_EPWM12
 #define INT_FO_HB_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP3
 extern __interrupt void INT_FO_HB_2_ISR(void);
 

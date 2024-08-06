@@ -15,7 +15,7 @@
 #define SKIIP1_TEMP_BIT_FACTOR     (10.5f*((3.0f*34.7f/10.0f)/65536.0f))
 #define SKIIP1_VOLTAGE_BIT_FACTOR  ((1000.0f/7.5f)*((3.0f*34.7f/10.0f)/65536.0f))
 
-#define SKIIP2_CURRENT_BIT_FACTOR  ((1000.0f/1.85f)*((3.0f/0.35f)/32768.0f))
+#define SKIIP2_CURRENT_BIT_FACTOR  ((-1.0f)*((1000.0f/1.85f)*((3.0f/0.35f)/32768.0f)))
 #define SKIIP2_TEMP_BIT_FACTOR     ((10.5f)*((3.0f*34.7f/10.0f)/65536.0f))
 #define SKIIP2_VOLTAGE_BIT_FACTOR  ((1000.0f/7.5f)*((3.0f*34.7f/10.0f)/65536.0f))
 

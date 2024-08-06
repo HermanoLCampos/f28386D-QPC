@@ -44,6 +44,7 @@ float applyIIRFilter(IIRFilter *filter, float input) {
 
 float PID_Control_Exe(PID_Control_t *PID_Data){
 
+//    PID_Data->P_Component            = -PID_Data->Kp*PID_Data->Measure;
     PID_Data->P_Component            = PID_Data->Kp*PID_Data->Error;
     PID_Data->I_Component           += CONTROL_PERIOD_SEC*(PID_Data->Ki*0.5f*(PID_Data->Error+PID_Data->Error_Prev) - PID_Data->BackCalculation);
     PID_Data->D_Component            = (2*PID_Data->Kd*(PID_Data->Error-PID_Data->Error_Prev)+(2.0f*PID_Data->Tau-CONTROL_PERIOD_SEC)*PID_Data->D_Component)/(2*PID_Data->Tau+(CONTROL_PERIOD_SEC));
@@ -91,16 +92,16 @@ __interrupt void Cla1Task1 ( void )
 //    __mdebugstop();
 
 
-    hall1_current_fp  = HALL1_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall1_current_filter , (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_HALL1_CURRENT         )) - HALL1_CURRENT_BIT_OFFSET  );
-    hall2_current_fp  = HALL2_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall2_current_filter , (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT         )) - HALL2_CURRENT_BIT_OFFSET  );
+    hall1_current_fp  = HALL1_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall1_current_filter , (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_HALL1_CURRENT          ) - HALL1_CURRENT_BIT_OFFSET  ) );
+    hall2_current_fp  = HALL2_CURRENT_BIT_FACTOR  * (applyIIRFilter(&hall2_current_filter , (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT          ) - HALL2_CURRENT_BIT_OFFSET  ) );
 
-    skiip1_current_fp = SKIIP1_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT        )) - SKIIP1_CURRENT_BIT_OFFSET );
-    skiip1_temp_fp    = SKIIP1_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip1_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP           )) - SKIIP1_TEMP_BIT_OFFSET    );
-    skiip1_voltage_fp = SKIIP1_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip1_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE)) - SKIIP1_VOLTAGE_BIT_OFFSET );
+    skiip1_current_fp = SKIIP1_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT         ) - SKIIP1_CURRENT_BIT_OFFSET ) );
+    skiip1_temp_fp    = SKIIP1_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip1_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP            ) - SKIIP1_TEMP_BIT_OFFSET    ) );
+    skiip1_voltage_fp = SKIIP1_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip1_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE ) - SKIIP1_VOLTAGE_BIT_OFFSET ) );
 
-    skiip2_current_fp = SKIIP2_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip2_current_filter, (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT        )) - SKIIP2_CURRENT_BIT_OFFSET );
-    skiip2_temp_fp    = SKIIP2_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip2_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP           )) - SKIIP2_TEMP_BIT_OFFSET    );
-    skiip2_voltage_fp = SKIIP2_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE)) - SKIIP2_VOLTAGE_BIT_OFFSET );
+    skiip2_current_fp = SKIIP2_CURRENT_BIT_FACTOR * (applyIIRFilter(&skiip2_current_filter, (float32_t) ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT         ) - SKIIP2_CURRENT_BIT_OFFSET ) );
+    skiip2_temp_fp    = SKIIP2_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip2_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP            ) - SKIIP2_TEMP_BIT_OFFSET    ) );
+    skiip2_voltage_fp = SKIIP2_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE ) - SKIIP2_VOLTAGE_BIT_OFFSET ) );
 
 //    // Teste Vitao
 //
@@ -112,15 +113,15 @@ __interrupt void Cla1Task1 ( void )
 //    //IL
 //    skiip1_current_fp = (0.1f*200.0f)*(SKIIP1_CURRENT_BIT_FACTOR * applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT        ) - SKIIP1_CURRENT_BIT_OFFSET ) - (float32_t)1.58);
 
-    CLA2CPU_Message.hall1_current   = hall1_current_fp;
-    CLA2CPU_Message.hall2_current   = hall2_current_fp;
-    CLA2CPU_Message.skiip1_current  = skiip1_current_fp;
-    CLA2CPU_Message.skiip1_temp     = skiip1_temp_fp;
-    CLA2CPU_Message.skiip1_voltage  = skiip1_voltage_fp;
+    CLA2CPU_Message.hall1_current   = hall1_current_fp*10;
+    CLA2CPU_Message.hall2_current   = hall2_current_fp*10;
+    CLA2CPU_Message.skiip1_current  = skiip1_current_fp*10;
+    CLA2CPU_Message.skiip1_temp     = skiip1_temp_fp*10;
+    CLA2CPU_Message.skiip1_voltage  = skiip1_voltage_fp*10;
 
-    CLA2CPU_Message.skiip2_current  = skiip2_current_fp;
-    CLA2CPU_Message.skiip2_temp     = skiip2_temp_fp;
-    CLA2CPU_Message.skiip2_voltage  = skiip2_voltage_fp;
+    CLA2CPU_Message.skiip2_current  = skiip2_current_fp*10;
+    CLA2CPU_Message.skiip2_temp     = skiip2_temp_fp*10;
+    CLA2CPU_Message.skiip2_voltage  = skiip2_voltage_fp*10;
 
     CLA2CPU_Message.sbc_muxout      = ADC_readResult(myADCD_RESULT_BASE, myADCD_SBC_MUXOUT);
 
@@ -136,6 +137,8 @@ PID_Control_t FSBB_IL_PID_Control;
 #ifdef PI_CONTROL
 PID_Control_t FSBB_IL_PID_Control_mvp;
 #endif
+
+//uint16_t Vout[2048],Vin[2048],D_Vout[2048],D_Vin[2048],I_L[2048], index_control;
 
 __interrupt void Cla1Task2 ( void )
 {
@@ -212,24 +215,31 @@ __interrupt void Cla1Task2 ( void )
 
     FSBB_IL_PID_Control.Min_Lim              = -skiip2_voltage_fp;
     FSBB_IL_PID_Control.Max_Lim              =  skiip1_voltage_fp;
-    FSBB_IL_PID_Control.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip1_current_fp;
+    FSBB_IL_PID_Control.Measure = skiip2_current_fp;
+    FSBB_IL_PID_Control.Error   = CPU2CLA_Message.FSBB_IL_Setpoint - skiip2_current_fp;
 
     vl_ref = PID_Control_Exe( &FSBB_IL_PID_Control );
+//    vl_ref = (CPU2CLA_Message.vl_ref)*0.01f;
 
-    if( skiip1_voltage_fp < VIN_MIN){
-        duty_cicle_switch_vin = 0;
-        duty_cicle_switch_vout= 0;
-    }else
-    if(vl_ref < (skiip1_voltage_fp-skiip2_voltage_fp)){
+//    if( skiip1_voltage_fp < VIN_MIN){
+//        duty_cicle_switch_vin = 0;
+//        duty_cicle_switch_vout= 0;
+//    }else
+    if(vl_ref < (skiip1_voltage_fp*MAX_DUTY_CICLE_VIN_SWITCH-skiip2_voltage_fp*MAX_DUTY_CICLE_VOUT_SWITCH)){
         //Buck Mode
         duty_cicle_switch_vout = MAX_DUTY_CICLE_VOUT_SWITCH; //
-        duty_cicle_switch_vin  = ( vl_ref + skiip2_voltage_fp )/skiip1_voltage_fp;
+        duty_cicle_switch_vin  = (skiip2_voltage_fp*MAX_DUTY_CICLE_VOUT_SWITCH + vl_ref )/skiip1_voltage_fp;
     }else{
         //Boost Mode
         duty_cicle_switch_vin = MAX_DUTY_CICLE_VIN_SWITCH;
-        duty_cicle_switch_vout = ( skiip1_voltage_fp - vl_ref )/skiip2_voltage_fp;
+        duty_cicle_switch_vout = ( skiip1_voltage_fp*MAX_DUTY_CICLE_VIN_SWITCH - vl_ref )/skiip2_voltage_fp;
     }
 
+    CLA2CPU_Message.V_L    = vl_ref;
+    CLA2CPU_Message.D_Vin = duty_cicle_switch_vin;
+    CLA2CPU_Message.D_Vout = duty_cicle_switch_vout;
+    CLA2CPU_Message.I_COMP = FSBB_IL_PID_Control.I_Component;
+    CLA2CPU_Message.P_COMP = FSBB_IL_PID_Control.P_Component;
 #endif
 
 #ifdef PI_CONTROL
@@ -250,16 +260,34 @@ __interrupt void Cla1Task2 ( void )
         duty_cicle_switch_vout = 1.0f-(duty_to_mod+BUCK_BOOST_FACTOR)/(1.0f+BUCK_BOOST_FACTOR);
     }
 
+    CLA2CPU_Message.V_L    = duty_to_mod;
+    CLA2CPU_Message.D_Vin = duty_cicle_switch_vin;
+    CLA2CPU_Message.D_Vout = duty_cicle_switch_vout;
+    CLA2CPU_Message.I_COMP = FSBB_IL_PID_Control_mvp.I_Component;
+    CLA2CPU_Message.P_COMP = FSBB_IL_PID_Control_mvp.P_Component;
+
 #endif
 
 #ifdef FORCE_DUTY_CICLE
     duty_cicle_switch_vin = CPU2CLA_Message.duty_cicle_vin*( 0.01f );
     duty_cicle_switch_vout = CPU2CLA_Message.duty_cicle_vout*( 0.01f );
+    CLA2CPU_Message.D_Vin = duty_cicle_switch_vin;
+    CLA2CPU_Message.D_Vout = duty_cicle_switch_vout;
 #endif
 
     }else{
         duty_cicle_switch_vin  = MIN_OFF_DUTY_CICLE_VIN;
         duty_cicle_switch_vout = MIN_OFF_DUTY_CICLE_VOUT;
+
+#ifdef FLC_CONTROL
+        FSBB_IL_PID_Control.I_Component = 0;
+        FSBB_IL_PID_Control.Error_Prev = 0;
+#endif
+
+#ifdef PI_CONTROL
+        FSBB_IL_PID_Control_mvp.I_Component = -1;
+#endif
+
     }
 
 
@@ -293,6 +321,19 @@ __interrupt void Cla1Task2 ( void )
     EPWM_setCounterCompareValue(GD_HB_2_BASE, EPWM_COUNTER_COMPARE_B, counter_comp-EPWM_DEAD_TIME_COUNT);
     EPWM_setCounterCompareValue(FO_HB_2_BASE, EPWM_COUNTER_COMPARE_A, counter_comp);
     EPWM_setCounterCompareValue(FO_HB_2_BASE, EPWM_COUNTER_COMPARE_B, counter_comp-EPWM_DEAD_TIME_COUNT);
+
+//    Vout[index_control] = skiip2_voltage_fp;
+//    Vin[index_control] = skiip1_voltage_fp;
+//    D_Vin[index_control] = duty_cicle_switch_vin*1000;
+//    D_Vout[index_control] = duty_cicle_switch_vout*1000;
+//    I_L[index_control] = skiip1_current_fp;
+//    index_control = index_control % 2048;
+
+//    CLA2CPU_Message.D_Vin  = duty_cicle_switch_vin*1000;
+//    CLA2CPU_Message.D_Vout = duty_cicle_switch_vout*1000;
+//    CLA2CPU_Message.I_L    = skiip1_current_fp*1000;
+
+
 
     EPWM_clearEventTriggerInterruptFlag(GD_HB_1_BASE);
 
@@ -367,8 +408,10 @@ __interrupt void Cla1Task8 ( void )
 
     // Inductor Current Control
 
-    FSBB_IL_PID_Control.Kp                   = 0.01421;
-    FSBB_IL_PID_Control.Ki                   = 0.08160;
+    FSBB_IL_PID_Control.Kp                   = 0.014;
+    FSBB_IL_PID_Control.Ki                   = 0.1421;
+//    FSBB_IL_PID_Control.Kp                   = 0.1;
+//    FSBB_IL_PID_Control.Ki                   = 0.08;
     FSBB_IL_PID_Control.Kd                   = 0.00000;
     FSBB_IL_PID_Control.Tau                  = 0.50000;
     FSBB_IL_PID_Control.Ktt                  = 0.5;
@@ -380,8 +423,8 @@ __interrupt void Cla1Task8 ( void )
 
     FSBB_IL_PID_Control.BackCalculation = 0;
 
-    FSBB_IL_PID_Control.Min_Lim              = 0;
-    FSBB_IL_PID_Control.Max_Lim              = 0;
+    FSBB_IL_PID_Control.Min_Lim              = -40;
+    FSBB_IL_PID_Control.Max_Lim              = 40;
 
     FSBB_IL_PID_Control.Error_Prev           =0;
 
@@ -407,5 +450,7 @@ __interrupt void Cla1Task8 ( void )
 
     FSBB_IL_PID_Control_mvp.Error_Prev           =0;
 #endif
+
+//    index_control = 0;
 
 }

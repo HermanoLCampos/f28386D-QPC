@@ -66,6 +66,7 @@ void FSBB_Control_Change_Control_State(FSBB_Control * const me,
     uint16_t control_state);
 void FSBB_Control_Open_Contactors(FSBB_Control * const me,
     QEvt const * const e);
+bool FSBB_Control_Check_Skiip_Error_IO(FSBB_Control * const me);
 
 // protected:
 QState FSBB_Control_initial(FSBB_Control * const me, void const * const par);

@@ -119,6 +119,11 @@ QState Communication_Start(Communication * const me, QEvt const * const e) {
             (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
             (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
+
+            QTimeEvt_armX(&me->time_evt_can_periodic_message_control,
+            (uint16_t) ((CAN_PERIODIC_MSG_CONTROL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+            (uint16_t) ((CAN_PERIODIC_MSG_CONTROL_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            );
             status_ = Q_TRAN(&Communication_Operation);
             break;
         }
@@ -192,7 +197,13 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE}
         case CAN_PERIODIC_MESSAGE_SIG: {
-            Communication_Can_Periodic_Msg(me,e);
+            Communication_Can_Periodic_Msg(me);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE_CONTROL}
+        case CAN_PERIODIC_MESSAGE_CONTROL_SIG: {
+            Communication_Can_Periodic_Msg_Control(me);
             status_ = Q_HANDLED();
             break;
         }
@@ -222,6 +233,10 @@ void ao_communication_ctor(const QActive  * const pAO) {
     QTimeEvt_ctorX( &me->time_evt_can_periodic_message,
                     &me->super,
                     CAN_PERIODIC_MESSAGE_SIG, 0U);
+
+    QTimeEvt_ctorX( &me->time_evt_can_periodic_message_control,
+                    &me->super,
+                    CAN_PERIODIC_MESSAGE_CONTROL_SIG, 0U);
 
     // Orthogonal Components
 

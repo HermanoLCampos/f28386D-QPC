@@ -393,6 +393,8 @@ OC_CAN_receive_msg(me,e);
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Open_Contactors::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Check_Skiip_Error_IO}-->
+     <operation name="Check_Skiip_Error_IO" type="bool" visibility="0x00" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::initial}-->
@@ -425,7 +427,12 @@ FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
 CPU2CLA_Message.task_1_watchdog_request = 0;
 CPU2CLA_Message.task_2_watchdog_request = 0;
 
-QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);</entry>
+QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
+(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+</entry>
+       <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE" target="../../3/10">
         <action>QTimeEvt_armX(
@@ -456,13 +463,28 @@ QTimeEvt_armX(
     &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-);</action>
+);
+
+QACTIVE_POST(p_ao_communication, &amp;im_evt_init_skiip_can ,(void *)0);
+</action>
         <tran_glyph conn="8,30,3,3,24,-16,22">
          <action box="0,-2,10,2"/>
         </tran_glyph>
        </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}-->
+       <tran trig="CHECK_PARAMS">
+        <action>if(
+    !FSBB_Control_Check_Skiip_Error_IO(me)
+){
+    QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);
+}</action>
+        <tran_glyph conn="8,32,3,-1,14">
+         <action box="0,-2,13,2"/>
+        </tran_glyph>
+       </tran>
        <state_glyph node="8,24,20,12">
         <entry box="1,2,6,2"/>
+        <exit box="1,4,6,2"/>
        </state_glyph>
       </state>
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
@@ -553,17 +575,17 @@ AO_Evt_Change_Setpoint_t const * Evt_Change_Setpoint =  Q_EVT_CAST(AO_Evt_Change
 
 switch(Evt_Change_Setpoint-&gt;data.setpoint_id){
 case IL_CURRENT_SETPOINT:
-    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value;
     CPU2CLA_Message.FSBB_IL_Setpoint = me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id];
     break;
 case IO_CURRENT_SETPOINT:
-    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value;
     break;
 case POWER_SETPOINT:
-    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value*0.1f;
+    me-&gt;setpoints[Evt_Change_Setpoint-&gt;data.setpoint_id] = Evt_Change_Setpoint-&gt;data.setpoint_value;
     break;
 default:
-    
+    // Invalid Setpoint
     break;
 }</action>
         <tran_glyph conn="36,46,3,-1,22">
@@ -692,7 +714,7 @@ default:
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_SKIIP1_FALTS,UPDATE_SKIIP~}-->
        <tran trig="UPDATE_SKIIP1_FALTS,UPDATE_SKIIP2_FALTS">
         <tran_glyph conn="36,62,3,-1,22">
-         <action box="0,-2,10,2"/>
+         <action box="0,-2,17,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
@@ -1001,8 +1023,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID].super) ,&amp;im_evt_in
 QASM_DISPATCH( &amp;(me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID]  .super) ,&amp;im_evt_init_complete, (void *) 0 );
 
 QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID].super),&amp;im_evt_init_complete, (void *) 0 );
-
-Communication_skiip_can_open_config(me);</action>
+</action>
         <tran_glyph conn="8,32,3,3,28">
          <action box="0,-2,14,2"/>
         </tran_glyph>
@@ -1067,6 +1088,13 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
         <action>Communication_update_measure_request(me,e);</action>
         <tran_glyph conn="36,48,3,-1,22">
          <action box="0,-2,23,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::INIT_SKIIP_CAN}-->
+       <tran trig="INIT_SKIIP_CAN">
+        <action>Communication_skiip_can_open_config(me);</action>
+        <tran_glyph conn="36,46,3,-1,22">
+         <action box="0,-2,16,2"/>
         </tran_glyph>
        </tran>
        <state_glyph node="36,4,38,50"/>
@@ -1145,6 +1173,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     CHECK_PARAMS_SIG,
 
     UPDATE_MEASURE_REQUEST_SIG,
+    INIT_SKIIP_CAN_SIG,
     UPDATE_MEASURE_SIG,
 
 
@@ -1304,6 +1333,10 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     <!--${CPU1::Immutable_Events::FSBB::im_evt_update_measure}-->
     <attribute name="im_evt_update_measure" type="QEvt const" visibility="0x00" properties="0x00">
      <code>= QEVT_INITIALIZER(UPDATE_MEASURE_SIG);</code>
+    </attribute>
+    <!--${CPU1::Immutable_Events::FSBB::im_evt_init_skiip_can}-->
+    <attribute name="im_evt_init_skiip_can" type="QEvt const" visibility="0x00" properties="0x00">
+     <code>= QEVT_INITIALIZER(INIT_SKIIP_CAN_SIG);</code>
     </attribute>
    </package>
    <!--${CPU1::Immutable_Events::Communication}-->
@@ -1701,6 +1734,8 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
      <attribute name="sys_data" type="System_Public_Data_t" visibility="0x02" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::time_evt_can_periodic_message}-->
      <attribute name="time_evt_can_periodic_message" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::time_evt_can_periodic_message_co~}-->
+     <attribute name="time_evt_can_periodic_message_control" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::ipc_process_msg}-->
      <operation name="ipc_process_msg" type="void" visibility="0x00" properties="0x00">
       <!--${CM::AOs::AO_Communication::Communication::ipc_process_msg::e}-->
@@ -1712,10 +1747,9 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU2_CM_ID  ] , &amp;me-&gt;super, OC_IP
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CM::AOs::AO_Communication::Communication::Can_Periodic_Msg}-->
-     <operation name="Can_Periodic_Msg" type="void" visibility="0x00" properties="0x00">
-      <!--${CM::AOs::AO_Communication::Communication::Can_Periodic_Msg::e}-->
-      <parameter name="e" type="QEvt const * const"/>
-     </operation>
+     <operation name="Can_Periodic_Msg" type="void" visibility="0x00" properties="0x00"/>
+     <!--${CM::AOs::AO_Communication::Communication::Can_Periodic_Msg_Control}-->
+     <operation name="Can_Periodic_Msg_Control" type="void" visibility="0x00" properties="0x00"/>
      <!--${CM::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CM::AOs::AO_Communication::Communication::SM::initial}-->
@@ -1776,6 +1810,11 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[OC_CAN_CAN_PUBLIC_ID].super) , &amp;im_evt_
 QTimeEvt_armX(&amp;me-&gt;time_evt_can_periodic_message,
 (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
 (uint16_t) ((CAN_PERIODIC_MSG_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+QTimeEvt_armX(&amp;me-&gt;time_evt_can_periodic_message_control,
+(uint16_t) ((CAN_PERIODIC_MSG_CONTROL_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+(uint16_t) ((CAN_PERIODIC_MSG_CONTROL_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );</action>
         <tran_glyph conn="8,32,3,3,28">
          <action box="0,-2,14,2"/>
@@ -1843,8 +1882,15 @@ me-&gt;sys_data.fsbb_data = fsbb_public_data-&gt;data;</action>
        </tran>
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE}-->
        <tran trig="CAN_PERIODIC_MESSAGE">
-        <action>Communication_Can_Periodic_Msg(me,e);</action>
+        <action>Communication_Can_Periodic_Msg(me);</action>
         <tran_glyph conn="36,36,3,-1,18">
+         <action box="0,-2,20,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CM::AOs::AO_Communication::Communication::SM::Operation::CAN_PERIODIC_MESSAGE_CONTROL}-->
+       <tran trig="CAN_PERIODIC_MESSAGE_CONTROL">
+        <action>Communication_Can_Periodic_Msg_Control(me);</action>
+        <tran_glyph conn="36,38,3,-1,18">
          <action box="0,-2,20,2"/>
         </tran_glyph>
        </tran>
@@ -1875,6 +1921,10 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Communication_initial));
 QTimeEvt_ctorX( &amp;me-&gt;time_evt_can_periodic_message,
                 &amp;me-&gt;super,
                 CAN_PERIODIC_MESSAGE_SIG, 0U);
+
+QTimeEvt_ctorX( &amp;me-&gt;time_evt_can_periodic_message_control,
+                &amp;me-&gt;super,
+                CAN_PERIODIC_MESSAGE_CONTROL_SIG, 0U);
 
 // Orthogonal Components
 
@@ -1908,6 +1958,7 @@ me-&gt;sys_data = aux;</code>
     INIT_COMPLETE_SIG,
     UPDATE_FSBB_DATA_SIG,
     CAN_PERIODIC_MESSAGE_SIG,
+    CAN_PERIODIC_MESSAGE_CONTROL_SIG,
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -2416,7 +2467,7 @@ me-&gt;sys_data = aux;</code>
     <!--${Shared::Types::Setpoint_Data_t::setpoint_id}-->
     <attribute name="setpoint_id" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${Shared::Types::Setpoint_Data_t::setpoint_value}-->
-    <attribute name="setpoint_value" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <attribute name="setpoint_value" type="int16_t" visibility="0x02" properties="0x00"/>
    </class>
    <!--${Shared::Types::Skiip_CAN_Faults_t}-->
    <class name="Skiip_CAN_Faults_t">
@@ -2662,11 +2713,11 @@ in payload the message</documentation>
    <package name="CRITICAL_LIMITS" stereotype="0x00">
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_CURRENT" type="" visibility="0x03" properties="0x00">
-     <code>1500</code>
+     <code>200</code>
     </attribute>
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_VOLTAGE" type="" visibility="0x03" properties="0x00">
-     <code>1000</code>
+     <code>500</code>
     </attribute>
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_TEMPERATURE" type="" visibility="0x03" properties="0x00">
@@ -2727,6 +2778,10 @@ in payload the message</documentation>
     <attribute name="SKIIP_HEARTBEAT_TIMEOUT_MS" type="" visibility="0x03" properties="0x00">
      <code>2000</code>
     </attribute>
+    <!--${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_CONTROL_TIME_MS}-->
+    <attribute name="CAN_PERIODIC_MSG_CONTROL_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>10</code>
+    </attribute>
    </package>
    <!--${Shared::Macros::CONDITIONAL_LIMITS}-->
    <package name="CONDITIONAL_LIMITS" stereotype="0x00">
@@ -2767,7 +2822,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VIN_SWITCH}-->
     <attribute name="MIN_DUTY_CICLE_VIN_SWITCH" type="" visibility="0x03" properties="0x00">
-     <code>0</code>
+     <code>0.01f</code>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VIN_SWITCH}-->
     <attribute name="MAX_DUTY_CICLE_VIN_SWITCH" type="" visibility="0x03" properties="0x00">
@@ -2775,7 +2830,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VOUT_SWITCH}-->
     <attribute name="MIN_DUTY_CICLE_VOUT_SWITCH" type="" visibility="0x03" properties="0x00">
-     <code>0</code>
+     <code>0.01f</code>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VOUT_SWITCH}-->
     <attribute name="MAX_DUTY_CICLE_VOUT_SWITCH" type="" visibility="0x03" properties="0x00">
@@ -2783,7 +2838,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::EPWM_DEAD_TIME_COUNT}-->
     <attribute name="EPWM_DEAD_TIME_COUNT" type="" visibility="0x03" properties="0x00">
-     <code>600</code>
+     <code>1</code>
     </attribute>
     <!--${Shared::Macros::CONTROL_MACROS::EPWM_PRD}-->
     <attribute name="EPWM_PRD" type="" visibility="0x03" properties="0x00">

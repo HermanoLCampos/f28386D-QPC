@@ -118,7 +118,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
             ((Setpoint_Data_t *) &((OC_Evt_Communication_Message_t *) msg_received)->msg.payload)->setpoint_id = decoded_sig;
 
             decoded_sig = CAN_SIG_DECODE(MODULINK_CAN_MSG_IHM_SETPOINTS_1_VPU, CAN_SIG_IHM_SETPOINT_REQUESTED_VPU, Evt_CAN_MSG->Data);
-            ((Setpoint_Data_t *) &((OC_Evt_Communication_Message_t *) msg_received)->msg.payload)->setpoint_value = decoded_sig*100.0;
+            ((Setpoint_Data_t *) &((OC_Evt_Communication_Message_t *) msg_received)->msg.payload)->setpoint_value = decoded_sig;
 
             buffer_index = buffer_index + msg_received->message_size + 2;
             msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);

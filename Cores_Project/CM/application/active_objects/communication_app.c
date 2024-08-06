@@ -106,8 +106,7 @@ void Communication_can_process_msg(Communication * const me,
     }
 }
 
-void Communication_Can_Periodic_Msg(Communication * const me,
-                                    QEvt const * const e){
+void Communication_Can_Periodic_Msg(Communication * const me){
     OC_Evt_CAN_Send_Message_t evt_can_msg = {
         .super = {
             .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
@@ -132,25 +131,27 @@ void Communication_Can_Periodic_Msg(Communication * const me,
         msg_payload->CAN_SIG_VPU_SKIIP1_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip1_overcurrent );
         msg_payload->CAN_SIG_VPU_SKIIP1_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERHEAT , me->sys_data.fsbb_data.faults.skiip1_overheat );
         msg_payload->CAN_SIG_VPU_SKIIP1_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip1_overvoltage );
+        msg_payload->CAN_SIG_VPU_SKIIP1_CARDIAC_ARRREST  = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP1_CARDIAC_ARRREST, me->sys_data.fsbb_data.faults.skiip1_cardiac_arrest);
         msg_payload->CAN_SIG_VPU_SKIIP2_ERROR            = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_ERROR , me->sys_data.fsbb_data.faults.skiip2_error );
         msg_payload->CAN_SIG_VPU_SKIIP2_HALT             = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_HALT , me->sys_data.fsbb_data.faults.skiip2_halt );
         msg_payload->CAN_SIG_VPU_SKIIP2_OVERCURRENT      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERCURRENT , me->sys_data.fsbb_data.faults.skiip2_overcurrent );
         msg_payload->CAN_SIG_VPU_SKIIP2_OVERHEAT         = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERHEAT , me->sys_data.fsbb_data.faults.skiip2_overheat );
         msg_payload->CAN_SIG_VPU_SKIIP2_OVERVOLTAGE      = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_OVERVOLTAGE , me->sys_data.fsbb_data.faults.skiip2_overvoltage );
+        msg_payload->CAN_SIG_VPU_SKIIP2_CARDIAC_ARRREST  = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_FAULTS_1, CAN_SIG_VPU_SKIIP2_CARDIAC_ARRREST, me->sys_data.fsbb_data.faults.skiip2_cardiac_arrest);
 
         QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
     }
 
-    {
-        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_MEASURES_1_INDEX;
-        MODULINK_CAN_MSG_VPU_MEASURES_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_MEASURES_1_t *) evt_can_msg.Data;
-        msg_payload->CAN_SIG_VPU_SKIIP_1_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_CURRENT, CPU1_CM_Message->skiip1_current );
-        msg_payload->CAN_SIG_VPU_SKIIP_1_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_VOLTAGE, CPU1_CM_Message->skiip1_voltage );
-        msg_payload->CAN_SIG_VPU_SKIIP_2_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_CURRENT, CPU1_CM_Message->skiip2_current );
-        msg_payload->CAN_SIG_VPU_SKIIP_2_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_VOLTAGE, CPU1_CM_Message->skiip2_voltage );
-
-        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
-    }
+//    {
+//        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_MEASURES_1_INDEX;
+//        MODULINK_CAN_MSG_VPU_MEASURES_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_MEASURES_1_t *) evt_can_msg.Data;
+//        msg_payload->CAN_SIG_VPU_SKIIP_1_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_CURRENT, CPU1_CM_Message->skiip1_current );
+//        msg_payload->CAN_SIG_VPU_SKIIP_1_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_VOLTAGE, CPU1_CM_Message->skiip1_voltage );
+//        msg_payload->CAN_SIG_VPU_SKIIP_2_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_CURRENT, CPU1_CM_Message->skiip2_current );
+//        msg_payload->CAN_SIG_VPU_SKIIP_2_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_VOLTAGE, CPU1_CM_Message->skiip2_voltage );
+//
+//        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+//    }
 
     {
         evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_SETPOINTS_1_INDEX;
@@ -165,6 +166,45 @@ void Communication_Can_Periodic_Msg(Communication * const me,
 //    CPU1_CM_Message;
 
 }
+
+void Communication_Can_Periodic_Msg_Control(Communication * const me){
+    OC_Evt_CAN_Send_Message_t evt_can_msg = {
+        .super = {
+            .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
+            .ID = OC_CAN_CAN_PUBLIC_ID,
+        },
+        .Message_Box_ID = 0,
+        .Data = {0},
+    };
+
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_MEASURES_1_INDEX;
+        MODULINK_CAN_MSG_VPU_MEASURES_1_t * msg_payload = (MODULINK_CAN_MSG_VPU_MEASURES_1_t *) evt_can_msg.Data;
+        msg_payload->CAN_SIG_VPU_SKIIP_1_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_CURRENT, (CPU1_CM_Message->skiip1_current*0.1f) );
+        msg_payload->CAN_SIG_VPU_SKIIP_1_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_1_VOLTAGE, (CPU1_CM_Message->skiip1_voltage*0.1f) );
+        msg_payload->CAN_SIG_VPU_SKIIP_2_CURRENT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_CURRENT, (CPU1_CM_Message->skiip2_current*0.1f) );
+        msg_payload->CAN_SIG_VPU_SKIIP_2_VOLTAGE = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_1 , CAN_SIG_VPU_SKIIP_2_VOLTAGE, (CPU1_CM_Message->skiip2_voltage*0.1f) );
+
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+
+
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_VPU_MEASURES_2_INDEX;
+        MODULINK_CAN_MSG_VPU_MEASURES_2_t * msg_payload = (MODULINK_CAN_MSG_VPU_MEASURES_2_t *) evt_can_msg.Data;
+
+        msg_payload->CAN_SIG_VPU_D_VIN  = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_2 , CAN_SIG_VPU_D_VIN , (CPU1_CM_Message->D_VIN*0.001      ) );
+        msg_payload->CAN_SIG_VPU_D_VOUT = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_2 , CAN_SIG_VPU_D_VOUT, (CPU1_CM_Message->D_VOUT*0.001     ) );
+        msg_payload->CAN_SIG_VPU_I_COMP = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_2 , CAN_SIG_VPU_I_COMP, (CPU1_CM_Message->I_COMP*0.1-100.0f) );
+        msg_payload->CAN_SIG_VPU_P_COMP = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_2 , CAN_SIG_VPU_P_COMP, (CPU1_CM_Message->P_COMP*0.1-100.0f) );
+        msg_payload->CAN_SIG_VPU_VL     = CAN_SIG_ENCODE(MODULINK_CAN_MSG_VPU_MEASURES_2 , CAN_SIG_VPU_VL    , (CPU1_CM_Message->V_L*0.001-10.0f  ) );
+
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+
+}
+
+
 
 static void Communication_send_default_message(Communication_Message_t * com_message, const com_tag_t * const com_tag){
     if(com_message->message_size==0){ //Imutable Event

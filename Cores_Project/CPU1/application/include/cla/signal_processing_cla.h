@@ -44,6 +44,8 @@ typedef struct{
 
     float BackCalculation;
     float Error;
+    float Setpoint;
+    float Measure;
 
     float Ktt;
 

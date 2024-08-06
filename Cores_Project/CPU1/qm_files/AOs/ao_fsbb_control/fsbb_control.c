@@ -82,7 +82,17 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
             CPU2CLA_Message.task_1_watchdog_request = 0;
             CPU2CLA_Message.task_2_watchdog_request = 0;
 
-            QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
+            QTimeEvt_armX(&me->time_evt_check_params,
+            (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+            (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start}
+        case Q_EXIT_SIG: {
+            QTimeEvt_disarm(&me->time_evt_check_params);
             status_ = Q_HANDLED();
             break;
         }
@@ -117,7 +127,20 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
             );
+
+            QACTIVE_POST(p_ao_communication, &im_evt_init_skiip_can ,(void *)0);
+
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}
+        case CHECK_PARAMS_SIG: {
+            if(
+                !FSBB_Control_Check_Skiip_Error_IO(me)
+            ){
+                QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
+            }
+            status_ = Q_HANDLED();
             break;
         }
         default: {
@@ -216,17 +239,17 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
 
             switch(Evt_Change_Setpoint->data.setpoint_id){
             case IL_CURRENT_SETPOINT:
-                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value*0.1f;
+                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value;
                 CPU2CLA_Message.FSBB_IL_Setpoint = me->setpoints[Evt_Change_Setpoint->data.setpoint_id];
                 break;
             case IO_CURRENT_SETPOINT:
-                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value*0.1f;
+                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value;
                 break;
             case POWER_SETPOINT:
-                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value*0.1f;
+                me->setpoints[Evt_Change_Setpoint->data.setpoint_id] = Evt_Change_Setpoint->data.setpoint_value;
                 break;
             default:
-
+                // Invalid Setpoint
                 break;
             }
             status_ = Q_HANDLED();

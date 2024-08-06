@@ -191,7 +191,7 @@ typedef struct {
 typedef struct {
 // private:
     uint16_t setpoint_id;
-    uint16_t setpoint_value;
+    int16_t setpoint_value;
 } Setpoint_Data_t;
 
 //${Shared::Types::Skiip_CAN_Faults_t} .......................................
@@ -419,10 +419,10 @@ typedef struct {
 #define OC_CAN_MSG_BUFFER_SIZE 512
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT} ...........
-#define CRITICAL_LIMIT_SKIIP_CURRENT 1500
+#define CRITICAL_LIMIT_SKIIP_CURRENT 200
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE} ...........
-#define CRITICAL_LIMIT_SKIIP_VOLTAGE 1000
+#define CRITICAL_LIMIT_SKIIP_VOLTAGE 500
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE} .......
 #define CRITICAL_LIMIT_SKIIP_TEMPERATURE 90
@@ -466,6 +466,9 @@ typedef struct {
 //${Shared::Macros::TIME_MACROS::SKIIP_HEARTBEAT_TIMEOUT_MS} .................
 #define SKIIP_HEARTBEAT_TIMEOUT_MS 2000
 
+//${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_CONTROL_TIME_MS} ...........
+#define CAN_PERIODIC_MSG_CONTROL_TIME_MS 10
+
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
 
@@ -491,19 +494,19 @@ typedef struct {
 #define MIN_OFF_DUTY_CICLE_VOUT 0
 
 //${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VIN_SWITCH} ...............
-#define MIN_DUTY_CICLE_VIN_SWITCH 0
+#define MIN_DUTY_CICLE_VIN_SWITCH 0.01f
 
 //${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VIN_SWITCH} ...............
 #define MAX_DUTY_CICLE_VIN_SWITCH 1
 
 //${Shared::Macros::CONTROL_MACROS::MIN_DUTY_CICLE_VOUT_SWITCH} ..............
-#define MIN_DUTY_CICLE_VOUT_SWITCH 0
+#define MIN_DUTY_CICLE_VOUT_SWITCH 0.01f
 
 //${Shared::Macros::CONTROL_MACROS::MAX_DUTY_CICLE_VOUT_SWITCH} ..............
 #define MAX_DUTY_CICLE_VOUT_SWITCH 1
 
 //${Shared::Macros::CONTROL_MACROS::EPWM_DEAD_TIME_COUNT} ....................
-#define EPWM_DEAD_TIME_COUNT 600
+#define EPWM_DEAD_TIME_COUNT 1
 
 //${Shared::Macros::CONTROL_MACROS::EPWM_PRD} ................................
 #define EPWM_PRD 50000
@@ -648,6 +651,7 @@ enum private_signals {
     CHECK_PARAMS_SIG,
 
     UPDATE_MEASURE_REQUEST_SIG,
+    INIT_SKIIP_CAN_SIG,
     UPDATE_MEASURE_SIG,
 
 
@@ -773,6 +777,9 @@ extern QEvt const im_evt_skiip_2_heart_beat;
 
 //${CPU1::Immutable_Events::FSBB::im_evt_update_measure} .....................
 extern QEvt const im_evt_update_measure;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_init_skiip_can} .....................
+extern QEvt const im_evt_init_skiip_can;
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 extern OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST];
