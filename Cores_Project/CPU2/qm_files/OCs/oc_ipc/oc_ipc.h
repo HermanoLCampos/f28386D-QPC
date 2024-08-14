@@ -45,8 +45,6 @@ typedef struct {
 // private:
     QActive * owner;
     uint16_t id;
-
-// public:
     Communication_Message_t msg_buffer[BSP_IPC_BUFFER_SIZE];
     uint16_t n_msg_received;
     uint16_t fault_cont;

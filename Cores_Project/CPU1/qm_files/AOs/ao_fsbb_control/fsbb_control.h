@@ -33,6 +33,9 @@
 
 #include "main_qm.h"
 
+// Orthogonal Component
+#include "OCs/oc_spi/oc_spi.h"
+
 //$declare${CPU1::AOs::AO_FSBB_Control} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //${CPU1::AOs::AO_FSBB_Control::FSBB_Control} ................................
@@ -57,7 +60,7 @@ typedef struct {
     Skiip_CAN_Faults_t skiip2_faults;
 } FSBB_Control;
 
-// public:
+// private:
 void FSBB_Control_Start_Precharge(FSBB_Control * const me,
     QEvt const * const e);
 void FSBB_Control_Finish_Precharge(FSBB_Control * const me,

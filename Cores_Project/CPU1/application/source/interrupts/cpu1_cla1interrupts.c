@@ -94,12 +94,12 @@ __interrupt void cla1Isr2()
     uint16_t hall2_current_adc_val      = ADC_readResult(myADCA_RESULT_BASE, myADCA_HALL2_CURRENT);
 
     uint16_t skiip1_current_adc_val     = ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT);
-    uint16_t skiip1_voltage_adc_val     = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP);
-    uint16_t skiip1_temperature_adc_val = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE);
+    uint16_t skiip1_voltage_adc_val     = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE);
+    uint16_t skiip1_temperature_adc_val = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP1_TEMP);
 
     uint16_t skiip2_current_adc_val     = ADC_readResult(myADCC_RESULT_BASE, myADCC_SKIIP2_CURRENT);
-    uint16_t skiip2_voltage_adc_val     = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP);
-    uint16_t skiip2_temperature_adc_val = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE);
+    uint16_t skiip2_voltage_adc_val     = ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE);
+    uint16_t skiip2_temperature_adc_val = ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP);
 
 //    count_timer++;
 //    if(count_timer>10){

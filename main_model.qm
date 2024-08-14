@@ -4,6 +4,60 @@
  <framework name="qpc"/>
  <!--${OCs}-->
  <package name="OCs" stereotype="0x00">
+  <!--${OCs::OC_BASE}-->
+  <package name="OC_BASE" stereotype="0x00">
+   <!--${OCs::OC_BASE::OC_BASE}-->
+   <class name="OC_BASE" superclass="qpc::QHsm">
+    <!--${OCs::OC_BASE::OC_BASE::owner}-->
+    <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_BASE::OC_BASE::id}-->
+    <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_BASE::OC_BASE::ctor}-->
+    <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_BASE::OC_BASE::ctor::owner}-->
+     <parameter name="owner" type="QActive * const"/>
+     <!--${OCs::OC_BASE::OC_BASE::ctor::id}-->
+     <parameter name="id" type="uint16_t"/>
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_BASE_initial));
+me-&gt;owner = owner;
+me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_BASE::OC_BASE::SM}-->
+    <statechart properties="0x00">
+     <!--${OCs::OC_BASE::OC_BASE::SM::initial}-->
+     <initial target="../1">
+      <initial_glyph conn="4,8,5,3,4">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${OCs::OC_BASE::OC_BASE::SM::Waiting_QF}-->
+     <state name="Waiting_QF">
+      <!--${OCs::OC_BASE::OC_BASE::SM::Waiting_QF::RUNNING_QF}-->
+      <tran trig="RUNNING_QF" target="../../2">
+       <tran_glyph conn="8,10,3,0,10,14">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,4,20,12"/>
+     </state>
+     <!--${OCs::OC_BASE::OC_BASE::SM::Start}-->
+     <state name="Start">
+      <!--${OCs::OC_BASE::OC_BASE::SM::Start::INIT_COMPLETE}-->
+      <tran trig="INIT_COMPLETE" target="../../3">
+       <tran_glyph conn="8,30,3,3,28">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,24,20,12"/>
+     </state>
+     <!--${OCs::OC_BASE::OC_BASE::SM::Operation}-->
+     <state name="Operation">
+      <state_glyph node="36,4,54,46"/>
+     </state>
+     <state_diagram size="100,80"/>
+    </statechart>
+   </class>
+  </package>
   <!--${OCs::OC_IPC}-->
   <package name="OC_IPC" stereotype="0x00">
    <!--${OCs::OC_IPC::OC_IPC}-->
@@ -13,11 +67,11 @@
     <!--${OCs::OC_IPC::OC_IPC::id}-->
     <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::msg_buffer[BSP_IPC_BUFFER_SIZE]}-->
-    <attribute name="msg_buffer[BSP_IPC_BUFFER_SIZE]" type="Communication_Message_t" visibility="0x00" properties="0x00"/>
+    <attribute name="msg_buffer[BSP_IPC_BUFFER_SIZE]" type="Communication_Message_t" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::n_msg_received}-->
-    <attribute name="n_msg_received" type="uint16_t" visibility="0x00" properties="0x00"/>
+    <attribute name="n_msg_received" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::fault_cont}-->
-    <attribute name="fault_cont" type="uint16_t" visibility="0x00" properties="0x00"/>
+    <attribute name="fault_cont" type="uint16_t" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_IPC::OC_IPC::ctor}-->
     <operation name="ctor" type="void" visibility="0x00" properties="0x00">
      <!--${OCs::OC_IPC::OC_IPC::ctor::owner}-->
@@ -308,6 +362,211 @@ OC_CAN_receive_msg(me,e);
     </statechart>
    </class>
   </package>
+  <!--${OCs::OC_SPI}-->
+  <package name="OC_SPI" stereotype="0x00">
+   <!--${OCs::OC_SPI::OC_SPI}-->
+   <class name="OC_SPI" superclass="qpc::QHsm">
+    <!--${OCs::OC_SPI::OC_SPI::owner}-->
+    <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::id}-->
+    <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::queue_handler}-->
+    <attribute name="queue_handler" type="QueueHandle_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::queue_storage[10]}-->
+    <attribute name="queue_storage[10]" type="SPI_Message_t" visibility="0x02" properties="0x00">
+     <code>= {0};</code>
+    </attribute>
+    <!--${OCs::OC_SPI::OC_SPI::queue_buffer}-->
+    <attribute name="queue_buffer" type="StaticQueue_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::last_message_sended}-->
+    <attribute name="last_message_sended" type="SPI_Message_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::message_request}-->
+    <attribute name="message_request" type="SPI_Message_t" visibility="0x00" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::message_response}-->
+    <attribute name="message_response" type="uint16_t" visibility="0x00" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::ctor}-->
+    <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_SPI::OC_SPI::ctor::owner}-->
+     <parameter name="owner" type="QActive * const"/>
+     <!--${OCs::OC_SPI::OC_SPI::ctor::id}-->
+     <parameter name="id" type="uint16_t"/>
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_SPI_initial));
+me-&gt;owner = owner;
+me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_SPI::OC_SPI::local_queue_start}-->
+    <operation name="local_queue_start" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::local_queue_send}-->
+    <operation name="local_queue_send" type="uint16_t" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_SPI::OC_SPI::local_queue_send::data}-->
+     <parameter name="data" type="SPI_Message_t const * "/>
+    </operation>
+    <!--${OCs::OC_SPI::OC_SPI::local_queue_receive}-->
+    <operation name="local_queue_receive" type="uint16_t" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_SPI::OC_SPI::local_queue_rece~::data}-->
+     <parameter name="data" type="SPI_Message_t *"/>
+    </operation>
+    <!--${OCs::OC_SPI::OC_SPI::spi_send_message}-->
+    <operation name="spi_send_message" type="void" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_SPI::OC_SPI::spi_send_message::message}-->
+     <parameter name="message" type="SPI_Message_t"/>
+    </operation>
+    <!--${OCs::OC_SPI::OC_SPI::spi_receive_message}-->
+    <operation name="spi_receive_message" type="void" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_SPI::OC_SPI::SM}-->
+    <statechart properties="0x00">
+     <!--${OCs::OC_SPI::OC_SPI::SM::initial}-->
+     <initial target="../1">
+      <initial_glyph conn="4,8,5,3,4">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${OCs::OC_SPI::OC_SPI::SM::Waiting_QF}-->
+     <state name="Waiting_QF">
+      <entry>//BSP_BKPT;</entry>
+      <!--${OCs::OC_SPI::OC_SPI::SM::Waiting_QF::RUNNING_QF}-->
+      <tran trig="RUNNING_QF" target="../../2">
+       <tran_glyph conn="8,10,3,0,10,14">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,4,20,12">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <!--${OCs::OC_SPI::OC_SPI::SM::Start}-->
+     <state name="Start">
+      <entry>//BSP_BKPT;
+OC_SPI_local_queue_start(me);</entry>
+      <!--${OCs::OC_SPI::OC_SPI::SM::Start::INIT_COMPLETE}-->
+      <tran trig="INIT_COMPLETE" target="../../3">
+       <action>// MAX Config</action>
+       <tran_glyph conn="8,30,3,3,28">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,24,20,12">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <!--${OCs::OC_SPI::OC_SPI::SM::Operation}-->
+     <state name="Operation">
+      <entry>//BSP_BKPT;</entry>
+      <!--${OCs::OC_SPI::OC_SPI::SM::Operation::initial}-->
+      <initial target="../1">
+       <initial_glyph conn="40,16,5,3,6">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Request}-->
+      <state name="Waiting_Request">
+       <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Request::SPI_SEND_MSG}-->
+       <tran trig="SPI_SEND_MSG" target="../../2">
+        <action>OC_Evt_SPI_Message_t const * message = Q_EVT_CAST(OC_Evt_SPI_Message_t);
+OC_SPI_spi_send_message(me, message-&gt;message);</action>
+        <tran_glyph conn="46,18,3,3,22">
+         <action box="0,-2,14,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="46,12,16,10"/>
+      </state>
+      <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response}-->
+      <state name="Waiting_Response">
+       <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED}-->
+       <tran trig="SPI_MSG_RECEIVED">
+        <action>OC_SPI_spi_receive_message(me);</action>
+        <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED::[else]}-->
+        <choice target="../../../1">
+         <guard brief="else"/>
+         <choice_glyph conn="90,20,4,2,6,-30,-4">
+          <action box="-4,4,10,2"/>
+         </choice_glyph>
+        </choice>
+        <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED::[OC_SPI_local_queue_receive(me,&~}-->
+        <choice target="../..">
+         <guard>OC_SPI_local_queue_receive( me , &amp;me-&gt;last_message_sended )</guard>
+         <action>OC_SPI_spi_send_message(me, me-&gt;last_message_sended);</action>
+         <choice_glyph conn="90,20,4,1,-4,-6">
+          <action box="-3,-6,5,2"/>
+         </choice_glyph>
+        </choice>
+        <tran_glyph conn="68,20,3,-1,22">
+         <action box="0,-2,16,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_SEND_MSG}-->
+       <tran trig="SPI_SEND_MSG">
+        <action>
+OC_Evt_SPI_Message_t const * message = Q_EVT_CAST(OC_Evt_SPI_Message_t);
+OC_SPI_local_queue_send(me, &amp;(message-&gt;message) );</action>
+        <tran_glyph conn="68,16,3,-1,14">
+         <action box="0,-2,13,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="68,12,16,10"/>
+      </state>
+      <state_glyph node="36,4,60,30">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <state_diagram size="130,90"/>
+    </statechart>
+   </class>
+  </package>
+  <!--${OCs::OC_MAX31865}-->
+  <package name="OC_MAX31865" stereotype="0x00">
+   <!--${OCs::OC_MAX31865::OC_MAX31865}-->
+   <class name="OC_MAX31865" superclass="qpc::QHsm">
+    <!--${OCs::OC_MAX31865::OC_MAX31865::owner}-->
+    <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::id}-->
+    <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::ctor}-->
+    <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::ctor::owner}-->
+     <parameter name="owner" type="QActive * const"/>
+     <!--${OCs::OC_MAX31865::OC_MAX31865::ctor::id}-->
+     <parameter name="id" type="uint16_t"/>
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_BASE_initial));
+me-&gt;owner = owner;
+me-&gt;id = id;</code>
+    </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::SM}-->
+    <statechart properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::SM::initial}-->
+     <initial target="../1">
+      <initial_glyph conn="4,8,5,3,4">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Waiting_QF}-->
+     <state name="Waiting_QF">
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Waiting_QF::RUNNING_QF}-->
+      <tran trig="RUNNING_QF" target="../../2">
+       <tran_glyph conn="8,10,3,0,10,14">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,4,20,12"/>
+     </state>
+     <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Start}-->
+     <state name="Start">
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Start::INIT_COMPLETE}-->
+      <tran trig="INIT_COMPLETE" target="../../3">
+       <tran_glyph conn="8,30,3,3,28">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="8,24,20,12"/>
+     </state>
+     <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation}-->
+     <state name="Operation">
+      <state_glyph node="36,4,54,46"/>
+     </state>
+     <state_diagram size="100,80"/>
+    </statechart>
+   </class>
+  </package>
   <!--${OCs::Signals}-->
   <package name="Signals" stereotype="0x00">
    <!--${OCs::Signals::OC_IPC_SIGNALS}-->
@@ -328,6 +587,12 @@ OC_CAN_receive_msg(me,e);
     CAN_PASSIVE_ERROR_SIG,\
     CAN_BUS_OFF_SIG,\
     CAN_ERROR_CLEAR_SIG</code>
+   </attribute>
+   <!--${OCs::Signals::OC_SPI_SIGNALS}-->
+   <attribute name="OC_SPI_SIGNALS" type="" visibility="0x03" properties="0x00">
+    <code>\
+    SPI_SEND_MSG_SIG,\
+    SPI_MSG_RECEIVED_SIG</code>
    </attribute>
   </package>
  </package>
@@ -374,27 +639,27 @@ OC_CAN_receive_msg(me,e);
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip2_faults}-->
      <attribute name="skiip2_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
-     <operation name="Start_Precharge" type="void" visibility="0x00" properties="0x00">
+     <operation name="Start_Precharge" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Finish_Precharge}-->
-     <operation name="Finish_Precharge" type="void" visibility="0x00" properties="0x00">
+     <operation name="Finish_Precharge" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Finish_Precharge::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Change_Control_State}-->
-     <operation name="Change_Control_State" type="void" visibility="0x00" properties="0x00">
+     <operation name="Change_Control_State" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Change_Control_S~::control_state}-->
       <parameter name="control_state" type="uint16_t"/>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Open_Contactors}-->
-     <operation name="Open_Contactors" type="void" visibility="0x00" properties="0x00">
+     <operation name="Open_Contactors" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Open_Contactors::e}-->
       <parameter name="e" type="QEvt const * const"/>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Check_Skiip_Error_IO}-->
-     <operation name="Check_Skiip_Error_IO" type="bool" visibility="0x00" properties="0x00"/>
+     <operation name="Check_Skiip_Error_IO" type="bool" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::initial}-->
@@ -430,8 +695,7 @@ CPU2CLA_Message.task_2_watchdog_request = 0;
 QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
 (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
 (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
-);
-</entry>
+);</entry>
        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
        <tran trig="INIT_COMPLETE" target="../../3/10">
@@ -473,8 +737,11 @@ QACTIVE_POST(p_ao_communication, &amp;im_evt_init_skiip_can ,(void *)0);
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}-->
        <tran trig="CHECK_PARAMS">
-        <action>if(
-    !FSBB_Control_Check_Skiip_Error_IO(me)
+        <action>#define warning_here 1
+#define warning_here 2
+if(
+    //!FSBB_Control_Check_Skiip_Error_IO(me)
+    1
 ){
     QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);
 }</action>
@@ -912,7 +1179,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
          <exit box="1,4,6,2"/>
         </state_glyph>
        </state>
-       <state_glyph node="36,4,108,72"/>
+       <state_glyph node="36,4,108,80"/>
       </state>
       <state_diagram size="156,124"/>
      </statechart>
@@ -932,6 +1199,8 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
       <code>// Active Objects
 FSBB_Control * const me = (FSBB_Control *) pAO;
 QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));
+
+// Orthogonal Components
 
 // Time Events
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params             , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
@@ -1183,6 +1452,9 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     // IPC OC Signals
     OC_IPC_SIGNALS,
 
+    // SPI IC Signals
+    OC_SPI_SIGNALS,
+
 
     MAX_PRIVATE_SIG,
 };</code>
@@ -1278,6 +1550,16 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
 };</code>
     </attribute>
    </package>
+   <!--${CPU1::OC_enum::SPI}-->
+   <package name="SPI" stereotype="0x00">
+    <!--${CPU1::OC_enum::SPI::spi_named}-->
+    <attribute name="spi_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_SPI_RTD_SPI_ID,
+    OC_SPI_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
   </package>
   <!--${CPU1::Immutable_Events}-->
   <package name="Immutable_Events" stereotype="0x00">
@@ -1294,6 +1576,27 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
    </package>
    <!--${CPU1::Immutable_Events::FSBB}-->
    <package name="FSBB" stereotype="0x00">
+    <!--${CPU1::Immutable_Events::FSBB::SPI}-->
+    <package name="SPI" stereotype="0x00">
+     <!--${CPU1::Immutable_Events::FSBB::SPI::im_evt_spi_send_message[OC_SPI_N~}-->
+     <attribute name="im_evt_spi_send_message[OC_SPI_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_SPI_RTD_SPI_ID] = {
+        .super = QEVT_INITIALIZER(SPI_SEND_MSG_SIG),
+        .ID = OC_SPI_RTD_SPI_ID,
+    }
+};</code>
+     </attribute>
+     <!--${CPU1::Immutable_Events::FSBB::SPI::im_evt_spi_receive_message[OC_SP~}-->
+     <attribute name="im_evt_spi_receive_message[OC_SPI_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_SPI_RTD_SPI_ID] = {
+        .super = QEVT_INITIALIZER(SPI_MSG_RECEIVED_SIG),
+        .ID = OC_SPI_RTD_SPI_ID,
+    }
+};</code>
+     </attribute>
+    </package>
     <!--${CPU1::Immutable_Events::FSBB::im_evt_precharge_start}-->
     <attribute name="im_evt_precharge_start" type="QEvt const" visibility="0x00" properties="0x00">
      <code>= QEVT_INITIALIZER(PRECHARGE_START_SIG);</code>
@@ -2448,6 +2751,19 @@ me-&gt;sys_data = aux;</code>
   </package>
   <!--${Shared::Types}-->
   <package name="Types" stereotype="0x00">
+   <!--${Shared::Types::OCs}-->
+   <package name="OCs" stereotype="0x00">
+    <!--${Shared::Types::OCs::SPI}-->
+    <package name="SPI" stereotype="0x00">
+     <!--${Shared::Types::OCs::SPI::SPI_Message_t}-->
+     <class name="SPI_Message_t">
+      <!--${Shared::Types::OCs::SPI::SPI_Message_t::chipselect_io}-->
+      <attribute name="chipselect_io" type="uint16_t" visibility="0x00" properties="0x00"/>
+      <!--${Shared::Types::OCs::SPI::SPI_Message_t::message_to_send}-->
+      <attribute name="message_to_send" type="uint16_t" visibility="0x00" properties="0x00"/>
+     </class>
+    </package>
+   </package>
    <!--${Shared::Types::com_payload}-->
    <class name="com_payload">
     <!--${Shared::Types::com_payload::data[MAX_SIG_PAYLOAD]}-->
@@ -2645,6 +2961,14 @@ me-&gt;sys_data = aux;</code>
      <!--${Shared::Event_Types::OC::OC_Evt_Communica~::msg}-->
      <attribute name="msg" type="Communication_Message_t" visibility="0x00" properties="0x00"/>
     </class>
+    <!--${Shared::Event_Types::OC::SPI}-->
+    <package name="SPI" stereotype="0x00">
+     <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_t}-->
+     <class name="OC_Evt_SPI_Message_t" superclass="Shared::Event_Types::OC::OC_Evt">
+      <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Messa~::message}-->
+      <attribute name="message" type="SPI_Message_t" visibility="0x00" properties="0x00"/>
+     </class>
+    </package>
    </package>
    <!--${Shared::Event_Types::AO}-->
    <package name="AO" stereotype="0x00">
@@ -2957,6 +3281,9 @@ $define${CPU1::AOs::AO_Communication}
 
 #include &quot;main_qm.h&quot;
 
+// Orthogonal Component
+#include &quot;OCs/oc_spi/oc_spi.h&quot;
+
 $declare${CPU1::AOs::AO_FSBB_Control}
 
 #endif</text>
@@ -2964,6 +3291,8 @@ $declare${CPU1::AOs::AO_FSBB_Control}
        <!--${.::Cores_Project::CPU1::qm_files::AOs::ao_fsbb_control::fsbb_control.c}-->
        <file name="fsbb_control.c">
         <text>#include &quot;./fsbb_control.h&quot;
+
+Q_DEFINE_THIS_FILE
 
 $define${CPU1::AOs::AO_FSBB_Control}</text>
        </file>
@@ -3011,6 +3340,26 @@ $declare${OCs::OC_CAN}
         <text>#include &quot;./oc_can.h&quot;
 
 $define${OCs::OC_CAN}</text>
+       </file>
+      </directory>
+      <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_spi}-->
+      <directory name="oc_spi">
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_spi::oc_spi.h}-->
+       <file name="oc_spi.h">
+        <text>#ifndef OC_SPI_RTD_H_
+#define OC_SPI_RTD_H_
+
+#include &quot;main_qm.h&quot;
+
+$declare${OCs::OC_SPI}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_spi::oc_spi.c}-->
+       <file name="oc_spi.c">
+        <text>#include &quot;./oc_spi.h&quot;
+
+$define${OCs::OC_SPI}</text>
        </file>
       </directory>
      </directory>

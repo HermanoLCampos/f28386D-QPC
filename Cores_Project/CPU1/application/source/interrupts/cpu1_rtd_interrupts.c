@@ -40,6 +40,10 @@ __interrupt void INT_RTD_SPI_RX_ISR(void){
 
     data_received = max31865_read_message(RTD_SPI_BASE, &RTD_Semaphore);
 
+    //Send Message to AO
+
+//    BSP_BKPT;
+
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP6);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

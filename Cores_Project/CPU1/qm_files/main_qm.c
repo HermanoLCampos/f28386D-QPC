@@ -48,6 +48,22 @@ QEvt const im_evt_running_qf = QEVT_INITIALIZER(RUNNING_QF_SIG);
 //${CPU1::Immutable_Events::General::im_evt_init_complete} ...................
 QEvt const im_evt_init_complete = QEVT_INITIALIZER(INIT_COMPLETE_SIG);
 
+//${CPU1::Immutable_Events::FSBB::SPI::im_evt_spi_send_message[OC_SPI_N~} ....
+OC_Evt const im_evt_spi_send_message[OC_SPI_NUM_OF_INST] ={
+    [OC_SPI_RTD_SPI_ID] = {
+        .super = QEVT_INITIALIZER(SPI_SEND_MSG_SIG),
+        .ID = OC_SPI_RTD_SPI_ID,
+    }
+};
+
+//${CPU1::Immutable_Events::FSBB::SPI::im_evt_spi_receive_message[OC_SP~} ....
+OC_Evt const im_evt_spi_receive_message[OC_SPI_NUM_OF_INST] ={
+    [OC_SPI_RTD_SPI_ID] = {
+        .super = QEVT_INITIALIZER(SPI_MSG_RECEIVED_SIG),
+        .ID = OC_SPI_RTD_SPI_ID,
+    }
+};
+
 //${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
 QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
 

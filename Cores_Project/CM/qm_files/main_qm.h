@@ -172,6 +172,13 @@ enum fsbb_measures {
     NUM_OF_FSBB_MEASURES,
 };
 
+//${Shared::Types::OCs::SPI::SPI_Message_t} ..................................
+typedef struct {
+// public:
+    uint16_t chipselect_io;
+    uint16_t message_to_send;
+} SPI_Message_t;
+
 //${Shared::Types::com_payload} ..............................................
 typedef struct {
 // public:
@@ -340,6 +347,15 @@ typedef struct {
 // public:
     Communication_Message_t msg;
 } OC_Evt_Communication_Message_t;
+
+//${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_t} ......................
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    SPI_Message_t message;
+} OC_Evt_SPI_Message_t;
 
 //${Shared::Event_Types::AO::AO_Evt_Change_Setpoint_t} .......................
 typedef struct {
@@ -605,6 +621,11 @@ typedef struct {
     CAN_PASSIVE_ERROR_SIG,\
     CAN_BUS_OFF_SIG,\
     CAN_ERROR_CLEAR_SIG
+
+//${OCs::Signals::OC_SPI_SIGNALS} ............................................
+#define OC_SPI_SIGNALS \
+    SPI_SEND_MSG_SIG,\
+    SPI_MSG_RECEIVED_SIG
 //$enddecl${OCs::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$declare${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

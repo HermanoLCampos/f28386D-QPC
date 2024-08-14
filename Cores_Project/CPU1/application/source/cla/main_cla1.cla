@@ -261,7 +261,7 @@ __interrupt void Cla1Task2 ( void )
     }
 
     CLA2CPU_Message.V_L    = duty_to_mod;
-    CLA2CPU_Message.D_Vin = duty_cicle_switch_vin;
+    CLA2CPU_Message.D_Vin  = duty_cicle_switch_vin;
     CLA2CPU_Message.D_Vout = duty_cicle_switch_vout;
     CLA2CPU_Message.I_COMP = FSBB_IL_PID_Control_mvp.I_Component;
     CLA2CPU_Message.P_COMP = FSBB_IL_PID_Control_mvp.P_Component;

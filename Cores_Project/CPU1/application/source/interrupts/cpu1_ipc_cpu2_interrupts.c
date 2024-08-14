@@ -29,7 +29,7 @@ __interrupt void IPC_CPU2_ISR1(){
 //    BSP_BKPT;
 #ifdef DUALCORE
     QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CPU1_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
-else
+#else
     BSP_BKPT;
 #endif
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

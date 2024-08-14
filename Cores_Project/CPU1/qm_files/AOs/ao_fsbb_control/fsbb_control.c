@@ -30,6 +30,8 @@
 //$endhead${.::Cores_Project::CPU1::qm_files::AOs::ao_fsbb_control::fsbb_control.c} 
 #include "./fsbb_control.h"
 
+Q_DEFINE_THIS_FILE
+
 //$skip${QP_VERSION} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 // Check for the minimum required QP version
 #if (QP_VERSION < 730U) || (QP_VERSION != ((QP_RELEASE^4294967295U) % 0x3E8U))
@@ -86,7 +88,6 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
             (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
             (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
-
             status_ = Q_HANDLED();
             break;
         }
@@ -135,8 +136,11 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}
         case CHECK_PARAMS_SIG: {
+            #define warning_here 1
+            #define warning_here 2
             if(
-                !FSBB_Control_Check_Skiip_Error_IO(me)
+                //!FSBB_Control_Check_Skiip_Error_IO(me)
+                1
             ){
                 QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
             }
@@ -664,6 +668,8 @@ void ao_fsbb_control_ctor(const QActive  * const pAO) {
     // Active Objects
     FSBB_Control * const me = (FSBB_Control *) pAO;
     QActive_ctor(&me->super, Q_STATE_CAST(&FSBB_Control_initial));
+
+    // Orthogonal Components
 
     // Time Events
     QTimeEvt_ctorX(&me->time_evt_check_params             , &me->super        , CHECK_PARAMS_SIG, 0U);

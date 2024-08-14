@@ -344,10 +344,10 @@ epwm3.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_UP_CMPA     = "EPWM_AQ_OU
 epwm3.epwmActionQualifier_EPWM_AQ_OUTPUT_A_ON_TIMEBASE_DOWN_CMPA   = "EPWM_AQ_OUTPUT_HIGH";
 epwm3.epwmCounterCompare_cmpA                                      = 601;
 epwm3.epwmActionQualifier_EPWM_AQ_OUTPUT_B_continuousSwForceAction = "EPWM_AQ_SW_OUTPUT_HIGH";
-epwm3.epwmInt.enableInterrupt                                      = true;
 epwm3.epwm.$assign                                                 = "EPWM8";
 epwm3.epwm.epwm_aPin.$assign                                       = "GPIO14";
 epwm3.epwm.epwm_bPin.$assign                                       = "GPIO15";
+epwm3.epwmInt.enableInterrupt                                      = true;
 
 epwm4.$name                                                        = "FO_HB_2";
 epwm4.epwmTimebase_hsClockDiv                                      = "EPWM_HSCLOCK_DIVIDER_1";
