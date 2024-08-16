@@ -94,6 +94,9 @@
 //${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_CONTROL_TIME_MS} ...........
 #define CAN_PERIODIC_MSG_CONTROL_TIME_MS 10
 
+//${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~} ..........
+#define MEASURE_TEMPERATURE_PERIOD_TIME_MS 10000
+
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
 

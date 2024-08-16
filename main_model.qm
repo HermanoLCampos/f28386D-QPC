@@ -404,7 +404,7 @@ me-&gt;id = id;</code>
     <!--${OCs::OC_SPI::OC_SPI::local_queue_receive}-->
     <operation name="local_queue_receive" type="uint16_t" visibility="0x02" properties="0x00">
      <!--${OCs::OC_SPI::OC_SPI::local_queue_rece~::data}-->
-     <parameter name="data" type="SPI_Message_t *"/>
+     <parameter name="data" type="SPI_Message_t * const"/>
     </operation>
     <!--${OCs::OC_SPI::OC_SPI::spi_send_message}-->
     <operation name="spi_send_message" type="void" visibility="0x02" properties="0x00">
@@ -474,7 +474,8 @@ OC_SPI_spi_send_message(me, message-&gt;message);</action>
       <state name="Waiting_Response">
        <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED}-->
        <tran trig="SPI_MSG_RECEIVED">
-        <action>OC_SPI_spi_receive_message(me);</action>
+        <action>
+OC_SPI_spi_receive_message(me);</action>
         <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED::[else]}-->
         <choice target="../../../1">
          <guard brief="else"/>
@@ -496,8 +497,7 @@ OC_SPI_spi_send_message(me, message-&gt;message);</action>
        </tran>
        <!--${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_SEND_MSG}-->
        <tran trig="SPI_SEND_MSG">
-        <action>
-OC_Evt_SPI_Message_t const * message = Q_EVT_CAST(OC_Evt_SPI_Message_t);
+        <action>OC_Evt_SPI_Message_t const * message = Q_EVT_CAST(OC_Evt_SPI_Message_t);
 OC_SPI_local_queue_send(me, &amp;(message-&gt;message) );</action>
         <tran_glyph conn="68,16,3,-1,14">
          <action box="0,-2,13,2"/>
@@ -521,16 +521,66 @@ OC_SPI_local_queue_send(me, &amp;(message-&gt;message) );</action>
     <attribute name="owner" type="QActive *" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_MAX31865::OC_MAX31865::id}-->
     <attribute name="id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::chip_select}-->
+    <attribute name="chip_select" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::config}-->
+    <attribute name="config" type="max31865_config_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::queue_handler}-->
+    <attribute name="queue_handler" type="QueueHandle_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::queue_storage[10]}-->
+    <attribute name="queue_storage[10]" type="uint16_t" visibility="0x02" properties="0x00">
+     <code>= {0};</code>
+    </attribute>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::queue_buffer}-->
+    <attribute name="queue_buffer" type="StaticQueue_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::current_measure_id}-->
+    <attribute name="current_measure_id" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::spi_read_status}-->
+    <attribute name="spi_read_status" type="uint16_t" visibility="0x02" properties="0x00">
+     <code> = 0b00;</code>
+    </attribute>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::measure_read_id}-->
+    <attribute name="measure_read_id" type="uint16_t" visibility="0x00" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::measure_read_value}-->
+    <attribute name="measure_read_value" type="RTD_measure_t" visibility="0x00" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::measure_threshold_fault}-->
+    <attribute name="measure_threshold_fault" type="uint16_t" visibility="0x00" properties="0x00"/>
     <!--${OCs::OC_MAX31865::OC_MAX31865::ctor}-->
     <operation name="ctor" type="void" visibility="0x00" properties="0x00">
      <!--${OCs::OC_MAX31865::OC_MAX31865::ctor::owner}-->
      <parameter name="owner" type="QActive * const"/>
      <!--${OCs::OC_MAX31865::OC_MAX31865::ctor::id}-->
      <parameter name="id" type="uint16_t"/>
-     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_BASE_initial));
+     <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_MAX31865_initial));
 me-&gt;owner = owner;
-me-&gt;id = id;</code>
+me-&gt;id = id;    </code>
     </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_start}-->
+    <operation name="local_queue_start" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_send}-->
+    <operation name="local_queue_send" type="uint16_t" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_send::data}-->
+     <parameter name="data" type="uint16_t const * "/>
+    </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_receive}-->
+    <operation name="local_queue_receive" type="uint16_t" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_rece~::data}-->
+     <parameter name="data" type="uint16_t * const"/>
+    </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::spi_receive_message}-->
+    <operation name="spi_receive_message" type="void" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::spi_receive_mess~::spi_message}-->
+     <parameter name="spi_message" type="SPI_Message_Response_t"/>
+    </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::spi_read_request}-->
+    <operation name="spi_read_request" type="void" visibility="0x02" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::spi_one_shot_request}-->
+    <operation name="spi_one_shot_request" type="void" visibility="0x02" properties="0x00">
+     <!--${OCs::OC_MAX31865::OC_MAX31865::spi_one_shot_req~::measure_id}-->
+     <parameter name="measure_id" type="uint16_t"/>
+    </operation>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::max_config}-->
+    <operation name="max_config" type="void" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_MAX31865::OC_MAX31865::SM}-->
     <statechart properties="0x00">
      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::initial}-->
@@ -551,21 +601,143 @@ me-&gt;id = id;</code>
      </state>
      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Start}-->
      <state name="Start">
+      <entry>OC_MAX31865_local_queue_start(me);</entry>
       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Start::INIT_COMPLETE}-->
       <tran trig="INIT_COMPLETE" target="../../3">
-       <tran_glyph conn="8,30,3,3,28">
+       <tran_glyph conn="8,30,3,3,32">
         <action box="0,-2,10,2"/>
        </tran_glyph>
       </tran>
-      <state_glyph node="8,24,20,12"/>
+      <state_glyph node="8,24,20,12">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
      </state>
      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation}-->
      <state name="Operation">
-      <state_glyph node="36,4,54,46"/>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::initial}-->
+      <initial target="../3">
+       <action>//BSP_BKPT;
+OC_MAX31865_max_config(me);</action>
+       <initial_glyph conn="56,16,5,3,6">
+        <action box="0,-2,10,2"/>
+       </initial_glyph>
+      </initial>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::MAX31865_SPI_RESPONSE}-->
+      <tran trig="MAX31865_SPI_RESPONSE">
+       <action>//BSP_BKPT;</action>
+       <tran_glyph conn="40,36,3,-1,22">
+        <action box="0,-2,21,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::MAX31865_REQUEST_TEMPERATURE}-->
+      <tran trig="MAX31865_REQUEST_TEMPERATURE">
+       <action>OC_Evt_MAX31865_Temperature_Request_t const * message = Q_EVT_CAST(OC_Evt_MAX31865_Temperature_Request_t);
+OC_MAX31865_local_queue_send(me, &amp;(message-&gt;temperature_id) );</action>
+       <tran_glyph conn="40,34,3,-1,22">
+        <action box="0,-2,22,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Request}-->
+      <state name="Waiting_Request">
+       <entry>//BSP_BKPT;</entry>
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Request::MAX31865_REQUEST_TEMPERATURE}-->
+       <tran trig="MAX31865_REQUEST_TEMPERATURE" target="../../4">
+        <action>OC_Evt_MAX31865_Temperature_Request_t const * message = Q_EVT_CAST(OC_Evt_MAX31865_Temperature_Request_t);
+OC_MAX31865_spi_one_shot_request(
+    me,
+    message-&gt;temperature_id
+);</action>
+        <tran_glyph conn="62,18,3,3,26">
+         <action box="0,-2,15,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="62,12,18,12">
+        <entry box="1,2,6,2"/>
+       </state_glyph>
+      </state>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}-->
+      <state name="Waiting_Measure">
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_READ_FINISH}-->
+       <tran trig="MAX31865_READ_FINISH" target="../../5">
+        <action>BSP_BKPT;
+
+me-&gt;measure_read_value.data = 0;
+
+OC_MAX31865_spi_read_request(
+    me
+);</action>
+        <tran_glyph conn="88,16,3,1,24,18,-6">
+         <action box="0,-2,16,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="88,12,18,12"/>
+      </state>
+      <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}-->
+      <state name="Waiting_SPI">
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_READ_FINISH}-->
+       <tran trig="MAX31865_SPI_READ_FINISH">
+        <action>//BSP_BKPT;
+
+me-&gt;spi_read_status = 0;
+me-&gt;measure_read_id = me-&gt;current_measure_id;</action>
+        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_REA~::[//ReadFromQueueOC_MAX31865_loca~}-->
+        <choice target="../../../4">
+         <guard>// Read From Queue
+OC_MAX31865_local_queue_receive( me , &amp;me-&gt;current_measure_id )</guard>
+         <action>BSP_BKPT;
+OC_MAX31865_spi_one_shot_request(
+    me,
+    me-&gt;current_measure_id
+);
+</action>
+         <choice_glyph conn="84,28,4,3,-6,4">
+          <action box="1,0,10,2"/>
+         </choice_glyph>
+        </choice>
+        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_REA~::[else]}-->
+        <choice target="../../../3">
+         <guard brief="else">// Read From queue</guard>
+         <choice_glyph conn="84,28,5,2,-18,-4">
+          <action box="-12,-2,5,2"/>
+         </choice_glyph>
+        </choice>
+        <tran_glyph conn="106,38,1,-1,-22,-10">
+         <action box="-11,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_RESPONSE}-->
+       <tran trig="MAX31865_SPI_RESPONSE">
+        <action>OC_Evt_SPI_Message_Response_t const * response = Q_EVT_CAST(OC_Evt_SPI_Message_Response_t);
+
+OC_MAX31865_spi_receive_message(
+    me,
+    response-&gt;response
+);
+
+if(me-&gt;spi_read_status == 0b11){
+    QACTIVE_POST( me-&gt;owner , &amp;im_evt_max31865_spi_read_finish[me-&gt;id].super , (void *)0);
+}</action>
+        <tran_glyph conn="106,36,1,-1,-14">
+         <action box="-11,-2,10,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="88,30,18,14"/>
+      </state>
+      <state_glyph node="40,4,80,46"/>
      </state>
-     <state_diagram size="100,80"/>
+     <state_diagram size="156,78"/>
     </statechart>
    </class>
+   <!--${OCs::OC_MAX31865::mux_select}-->
+   <attribute name="mux_select" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+    OC_MAX31865_MUX0 = 0U,
+    OC_MAX31865_MUX1 = 1U,
+    OC_MAX31865_MUX2 = 2U,
+    OC_MAX31865_MUX3 = 3U,
+    OC_MAX31865_NUM_OF_MUX,
+};</code>
+   </attribute>
   </package>
   <!--${OCs::Signals}-->
   <package name="Signals" stereotype="0x00">
@@ -594,6 +766,14 @@ me-&gt;id = id;</code>
     SPI_SEND_MSG_SIG,\
     SPI_MSG_RECEIVED_SIG</code>
    </attribute>
+   <!--${OCs::Signals::OC_MAX31865_SIGNALS}-->
+   <attribute name="OC_MAX31865_SIGNALS" type="" visibility="0x03" properties="0x00">
+    <code>\
+    MAX31865_REQUEST_TEMPERATURE_SIG,\
+    MAX31865_SPI_RESPONSE_SIG,\
+    MAX31865_READ_FINISH_SIG,\
+    MAX31865_SPI_READ_FINISH_SIG</code>
+   </attribute>
   </package>
  </package>
  <!--${CPU1}-->
@@ -610,6 +790,10 @@ me-&gt;id = id;</code>
  - EPWM4
  - GPIOs:
   -  PTD</documentation>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::spi_inst[OC_SPI_NUM_OF_INST]}-->
+     <attribute name="spi_inst[OC_SPI_NUM_OF_INST]" type="OC_SPI" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::max31865_inst[OC_MAX31865_NUM_OF~}-->
+     <attribute name="max31865_inst[OC_MAX31865_NUM_OF_INST]" type="OC_MAX31865" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::setpoints[NUM_OF_SETPOINTS]}-->
      <attribute name="setpoints[NUM_OF_SETPOINTS]" type="float" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_check_params}-->
@@ -638,6 +822,8 @@ me-&gt;id = id;</code>
      <attribute name="skiip1_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip2_faults}-->
      <attribute name="skiip2_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_update_temperature_requ~}-->
+     <attribute name="time_evt_update_temperature_request" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
      <operation name="Start_Precharge" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
@@ -660,6 +846,13 @@ me-&gt;id = id;</code>
      </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Check_Skiip_Error_IO}-->
      <operation name="Check_Skiip_Error_IO" type="bool" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::MAX_Request_Temperature}-->
+     <operation name="MAX_Request_Temperature" type="void" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::MAX_Update_Temperature}-->
+     <operation name="MAX_Update_Temperature" type="void" visibility="0x02" properties="0x00">
+      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::MAX_Update_Tempe~::e}-->
+      <parameter name="e" type="QEvt const * const"/>
+     </operation>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::initial}-->
@@ -672,7 +865,15 @@ me-&gt;id = id;</code>
       <state name="Waiting_QF">
        <documentation>Waiting for QF start states,
 temporary state to waiting the kernel.</documentation>
-       <entry>QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
+       <entry>
+// Init Orthogonal Components
+
+QASM_INIT( &amp;(me-&gt;spi_inst[OC_SPI_RTD_SPI_ID]    .super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) , (void *)0, (void *)0 );
+QASM_INIT( &amp;(me-&gt;max31865_inst[OC_MAX31865_B_ID].super) , (void *)0, (void *)0 );
+
+
+QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_running_qf,(void *)0);</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF::RUNNING_QF}-->
        <tran trig="RUNNING_QF" target="../../2">
         <tran_glyph conn="8,10,3,0,10,14">
@@ -695,10 +896,14 @@ CPU2CLA_Message.task_2_watchdog_request = 0;
 QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
 (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
 (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
-);</entry>
+);
+
+QASM_DISPATCH( &amp;(me-&gt;spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_B_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );</entry>
        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
-       <tran trig="INIT_COMPLETE" target="../../3/10">
+       <tran trig="INIT_COMPLETE" target="../../3/15">
         <action>QTimeEvt_armX(
     &amp;me-&gt;time_evt_cla_watchdog,
     (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -718,6 +923,12 @@ QTimeEvt_armX(
 );
 
 QTimeEvt_armX(
+    &amp;me-&gt;time_evt_update_temperature_request,
+    (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+);
+
+QTimeEvt_armX(
     &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
@@ -728,6 +939,10 @@ QTimeEvt_armX(
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
     (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
 );
+
+QASM_DISPATCH( &amp;(me-&gt;spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&amp;im_evt_init_complete, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_B_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
 
 QACTIVE_POST(p_ao_communication, &amp;im_evt_init_skiip_can ,(void *)0);
 </action>
@@ -757,7 +972,7 @@ if(
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
       <state name="Operation">
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
-       <tran trig="RESET" target="../10">
+       <tran trig="RESET" target="../15">
         <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
 
 QTimeEvt_rearm(
@@ -773,7 +988,7 @@ QTimeEvt_rearm(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
-       <tran trig="SET_FAULT" target="../14">
+       <tran trig="SET_FAULT" target="../19">
         <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
 switch(Evt_Set_Fault-&gt;fault_id){
 case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
@@ -895,7 +1110,7 @@ QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}-->
-       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../14">
+       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../19">
         <action>switch(e-&gt;sig){
 case EMERGENCY_SHUTDOWN_SIG:
     me-&gt;faults.emergency_shutdown = 1;
@@ -917,7 +1132,7 @@ default:
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}-->
-       <tran trig="SET_MULTIPLE_FAULTS" target="../14">
+       <tran trig="SET_MULTIPLE_FAULTS" target="../19">
         <action>AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
 
 typedef union{
@@ -981,7 +1196,65 @@ default:
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_SKIIP1_FALTS,UPDATE_SKIIP~}-->
        <tran trig="UPDATE_SKIIP1_FALTS,UPDATE_SKIIP2_FALTS">
         <tran_glyph conn="36,62,3,-1,22">
+         <action box="0,-2,20,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SPI_SEND_MSG}-->
+       <tran trig="SPI_SEND_MSG">
+        <action>uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
+if(id&gt;OC_SPI_NUM_OF_INST) system_assert(__FILE__,0);
+
+QASM_DISPATCH( &amp;(me-&gt;spi_inst[id].super) ,e, (void *) 0 );</action>
+        <tran_glyph conn="36,68,3,-1,22">
+         <action box="0,-2,12,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SPI_MSG_RECEIVED}-->
+       <tran trig="SPI_MSG_RECEIVED">
+        <action>uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
+if(id&gt;OC_SPI_NUM_OF_INST) system_assert(__FILE__,0);
+
+QASM_DISPATCH( &amp;(me-&gt;spi_inst[id].super) ,e, (void *) 0 );
+
+OC_Evt_SPI_Message_Response_t spi_response;
+
+spi_response.response.message_sended = me-&gt;spi_inst[id].message_request;
+spi_response.response.response = me-&gt;spi_inst[id].message_response;
+
+for(uint16_t max_index = 0; max_index &lt; OC_MAX31865_NUM_OF_INST ; max_index++){
+    if(me-&gt;max31865_inst[max_index].chip_select == spi_response.response.message_sended.chipselect_io){
+        spi_response.super = im_evt_max31865_spi_response[max_index];
+        QASM_DISPATCH( &amp;(me-&gt;max31865_inst[max_index].super.super) , &amp;spi_response.super.super , (void *) 0 );
+        break;
+    }
+}</action>
+        <tran_glyph conn="36,70,3,-1,22">
          <action box="0,-2,17,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_REQUEST_TEMPERATURE}-->
+       <tran trig="MAX31865_REQUEST_TEMPERATURE">
+        <action>FSBB_Control_MAX_Request_Temperature(me);</action>
+        <tran_glyph conn="36,74,3,-1,32">
+         <action box="0,-2,32,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_READ_FINISH}-->
+       <tran trig="MAX31865_READ_FINISH">
+        <action>
+uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
+if(id&gt;OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
+
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
+        <tran_glyph conn="36,76,3,-1,32">
+         <action box="0,-2,25,2"/>
+        </tran_glyph>
+       </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_SPI_READ_FINISH}-->
+       <tran trig="MAX31865_SPI_READ_FINISH">
+        <action>FSBB_Control_MAX_Update_Temperature(me,e);</action>
+        <tran_glyph conn="36,78,3,-1,32">
+         <action box="0,-2,27,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
@@ -989,7 +1262,7 @@ default:
         <documentation>this state waits the command to charge the  capacitors.</documentation>
         <entry>//BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
-        <tran trig="PRECHARGE_START" target="../../11">
+        <tran trig="PRECHARGE_START" target="../../16">
          <action>//BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
@@ -1028,7 +1301,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
-        <tran trig="PRECHARGE_FINISH" target="../../12">
+        <tran trig="PRECHARGE_FINISH" target="../../17">
          <action>FSBB_Control_Finish_Precharge(me,e);</action>
          <tran_glyph conn="84,20,3,1,22,14,-2">
           <action box="0,-2,16,2"/>
@@ -1044,7 +1317,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         <documentation>waiting the command to start the control</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
-        <tran trig="START_CONTROL" target="../../13">
+        <tran trig="START_CONTROL" target="../../18">
          <tran_glyph conn="84,38,3,3,32">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -1058,7 +1331,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
-        <tran trig="STOP_CONTROL" target="../../16">
+        <tran trig="STOP_CONTROL" target="../../21">
          <tran_glyph conn="116,36,3,1,22,18,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -1076,7 +1349,7 @@ FSBB_Control_Open_Contactors(me,e);
 
 //BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
-        <tran trig="CLEAR_FAULT" target="../../10">
+        <tran trig="CLEAR_FAULT" target="../../15">
          <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
 FSBB_Control_faults_t aux = {0};
 me-&gt;faults = aux;
@@ -1121,7 +1394,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../12">
+         <choice target="../../../17">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_OPEN</guard>
           <choice_glyph conn="89,54,5,3,-7,-14,2">
            <action box="-5,0,4,2"/>
@@ -1164,7 +1437,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../15">
+         <choice target="../../../20">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
           <choice_glyph conn="120,56,5,1,-16">
            <action box="-4,0,4,2"/>
@@ -1202,16 +1475,34 @@ QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;FSBB_Control_initial));
 
 // Orthogonal Components
 
+OC_SPI_ctor(&amp;me-&gt;spi_inst[OC_SPI_RTD_SPI_ID],
+            &amp;me-&gt;super,
+            OC_SPI_RTD_SPI_ID);
+
+OC_MAX31865_ctor(&amp;me-&gt;max31865_inst[OC_MAX31865_A_ID],
+                 &amp;me-&gt;super,
+                 OC_MAX31865_A_ID
+                 );
+
+OC_MAX31865_ctor(&amp;me-&gt;max31865_inst[OC_MAX31865_B_ID],
+                 &amp;me-&gt;super,
+                 OC_MAX31865_B_ID
+                 );
+
 // Time Events
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params             , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog             , &amp;me-&gt;super        , CHECK_CLA_WATCHDOG_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle                   , &amp;me-&gt;super        , SETTLE_TIMEOUT_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status            , &amp;me-&gt;super        , REPORT_STATUS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params              , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog              , &amp;me-&gt;super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle                    , &amp;me-&gt;super        , SETTLE_TIMEOUT_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status             , &amp;me-&gt;super        , REPORT_STATUS_SIG, 0U);
 
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip1_heartbeat_timeout , &amp;me-&gt;super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout , &amp;me-&gt;super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip1_heartbeat_timeout  , &amp;me-&gt;super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout  , &amp;me-&gt;super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
 
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request   , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request    , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
+
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_temperature_request, &amp;me-&gt;super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
+
+
 
 // Vars
 AO_Evt_Set_Multiple_Faults_t aux = {0};
@@ -1452,9 +1743,12 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     // IPC OC Signals
     OC_IPC_SIGNALS,
 
-    // SPI IC Signals
+    // SPI OC Signals
     OC_SPI_SIGNALS,
 
+    // NAX OC Signals
+
+    OC_MAX31865_SIGNALS,
 
     MAX_PRIVATE_SIG,
 };</code>
@@ -1560,6 +1854,17 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
 };</code>
     </attribute>
    </package>
+   <!--${CPU1::OC_enum::MAX31865}-->
+   <package name="MAX31865" stereotype="0x00">
+    <!--${CPU1::OC_enum::MAX31865::max31865_named}-->
+    <attribute name="max31865_named" type="enum" visibility="0x04" properties="0x00">
+     <code>{
+    OC_MAX31865_A_ID,
+    OC_MAX31865_B_ID,
+    OC_MAX31865_NUM_OF_INST,
+};</code>
+    </attribute>
+   </package>
   </package>
   <!--${CPU1::Immutable_Events}-->
   <package name="Immutable_Events" stereotype="0x00">
@@ -1594,6 +1899,61 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
         .super = QEVT_INITIALIZER(SPI_MSG_RECEIVED_SIG),
         .ID = OC_SPI_RTD_SPI_ID,
     }
+};</code>
+     </attribute>
+    </package>
+    <!--${CPU1::Immutable_Events::FSBB::MAX31865}-->
+    <package name="MAX31865" stereotype="0x00">
+     <!--${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_request_temperat~}-->
+     <attribute name="im_evt_max31865_request_temperature[OC_MAX31865_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_REQUEST_TEMPERATURE_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_REQUEST_TEMPERATURE_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};</code>
+     </attribute>
+     <!--${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_spi_response[OC_~}-->
+     <attribute name="im_evt_max31865_spi_response[OC_MAX31865_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_RESPONSE_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_RESPONSE_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};</code>
+     </attribute>
+     <!--${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_read_finish[OC_M~}-->
+     <attribute name="im_evt_max31865_read_finish[OC_MAX31865_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_READ_FINISH_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_READ_FINISH_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};</code>
+     </attribute>
+     <!--${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_spi_read_finish[~}-->
+     <attribute name="im_evt_max31865_spi_read_finish[OC_MAX31865_NUM_OF_INST]" type="OC_Evt const" visibility="0x00" properties="0x00">
+      <code>={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_READ_FINISH_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_READ_FINISH_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
 };</code>
      </attribute>
     </package>
@@ -2745,6 +3105,17 @@ me-&gt;sys_data = aux;</code>
     FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE,
     FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE,
     FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE,
+
+    FSBB_MEASURE_RTDA1_TEMPERATURE,
+    FSBB_MEASURE_RTDA2_TEMPERATURE,
+    FSBB_MEASURE_RTDA3_TEMPERATURE,
+    FSBB_MEASURE_RTDA4_TEMPERATURE,
+
+    FSBB_MEASURE_RTDB1_TEMPERATURE,
+    FSBB_MEASURE_RTDB2_TEMPERATURE,
+    FSBB_MEASURE_RTDB3_TEMPERATURE,
+    FSBB_MEASURE_RTDB4_TEMPERATURE,
+
     NUM_OF_FSBB_MEASURES,
 };</code>
    </attribute>
@@ -2762,7 +3133,16 @@ me-&gt;sys_data = aux;</code>
       <!--${Shared::Types::OCs::SPI::SPI_Message_t::message_to_send}-->
       <attribute name="message_to_send" type="uint16_t" visibility="0x00" properties="0x00"/>
      </class>
+     <!--${Shared::Types::OCs::SPI::SPI_Message_Response_t}-->
+     <class name="SPI_Message_Response_t">
+      <!--${Shared::Types::OCs::SPI::SPI_Message_Resp~::message_sended}-->
+      <attribute name="message_sended" type="SPI_Message_t" visibility="0x00" properties="0x00"/>
+      <!--${Shared::Types::OCs::SPI::SPI_Message_Resp~::response}-->
+      <attribute name="response" type="uint16_t" visibility="0x00" properties="0x00"/>
+     </class>
     </package>
+    <!--${Shared::Types::OCs::MAX31865}-->
+    <package name="MAX31865" stereotype="0x00"/>
    </package>
    <!--${Shared::Types::com_payload}-->
    <class name="com_payload">
@@ -2968,6 +3348,19 @@ me-&gt;sys_data = aux;</code>
       <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Messa~::message}-->
       <attribute name="message" type="SPI_Message_t" visibility="0x00" properties="0x00"/>
      </class>
+     <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_Response_t}-->
+     <class name="OC_Evt_SPI_Message_Response_t" superclass="Shared::Event_Types::OC::OC_Evt">
+      <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Messa~::response}-->
+      <attribute name="response" type="SPI_Message_Response_t" visibility="0x00" properties="0x00"/>
+     </class>
+    </package>
+    <!--${Shared::Event_Types::OC::MAX31865}-->
+    <package name="MAX31865" stereotype="0x00">
+     <!--${Shared::Event_Types::OC::MAX31865::OC_Evt_MAX31865_Temperature_Requ~}-->
+     <class name="OC_Evt_MAX31865_Temperature_Request_t" superclass="Shared::Event_Types::OC::OC_Evt">
+      <!--${Shared::Event_Types::OC::MAX31865::OC_Evt_MAX31865_~::temperature_id}-->
+      <attribute name="temperature_id" type="uint16_t" visibility="0x00" properties="0x00"/>
+     </class>
     </package>
    </package>
    <!--${Shared::Event_Types::AO}-->
@@ -3105,6 +3498,10 @@ in payload the message</documentation>
     <!--${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_CONTROL_TIME_MS}-->
     <attribute name="CAN_PERIODIC_MSG_CONTROL_TIME_MS" type="" visibility="0x03" properties="0x00">
      <code>10</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~}-->
+    <attribute name="MEASURE_TEMPERATURE_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
+     <code>10000</code>
     </attribute>
    </package>
    <!--${Shared::Macros::CONDITIONAL_LIMITS}-->
@@ -3283,6 +3680,7 @@ $define${CPU1::AOs::AO_Communication}
 
 // Orthogonal Component
 #include &quot;OCs/oc_spi/oc_spi.h&quot;
+#include &quot;OCs/oc_max31865/oc_max31865.h&quot;
 
 $declare${CPU1::AOs::AO_FSBB_Control}
 
@@ -3360,6 +3758,28 @@ $declare${OCs::OC_SPI}
         <text>#include &quot;./oc_spi.h&quot;
 
 $define${OCs::OC_SPI}</text>
+       </file>
+      </directory>
+      <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_max31865}-->
+      <directory name="oc_max31865">
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_max31865::oc_max31865.h}-->
+       <file name="oc_max31865.h">
+        <text>#ifndef OC_MAX31865_H_
+#define OC_MAX31865_H_
+
+#include &quot;main_qm.h&quot;
+
+#include &quot;max31865/max31865.h&quot;
+
+$declare${OCs::OC_MAX31865}
+
+#endif</text>
+       </file>
+       <!--${.::Cores_Project::CPU1::qm_files::OCs::oc_max31865::oc_max31865.c}-->
+       <file name="oc_max31865.c">
+        <text>#include &quot;./oc_max31865.h&quot;
+
+$define${OCs::OC_MAX31865}</text>
        </file>
       </directory>
      </directory>

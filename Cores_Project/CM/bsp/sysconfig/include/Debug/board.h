@@ -309,6 +309,10 @@ extern "C"
 // GPIO56 - GPIO Settings
 //
 #define SBC_FCCU1_GPIO_PIN_CONFIG GPIO_56_GPIO56
+//
+// GPIO10 - GPIO Settings
+//
+#define myGPIO0_GPIO_PIN_CONFIG GPIO_10_GPIO10
 
 //
 // I2CA -> I2C_RTC Pinmux
@@ -696,6 +700,8 @@ void SBC_FS1B_init();
 void SBC_FCCU0_init();
 #define SBC_FCCU1 56
 void SBC_FCCU1_init();
+#define myGPIO0 10
+void myGPIO0_init();
 
 //*****************************************************************************
 //
@@ -717,6 +723,9 @@ void I2C_RTC_init();
 #define RTD_DRDYA_Input_XBar_SOURCE 40
 #define RTD_DRDYA_Input_XBar_INPUT XBAR_INPUT4
 void RTD_DRDYA_Input_XBar_init();
+#define RTD_DRDYB_Input_XBar_SOURCE 41
+#define RTD_DRDYB_Input_XBar_INPUT XBAR_INPUT5
+void RTD_DRDYB_Input_XBar_init();
 
 //*****************************************************************************
 //
@@ -828,6 +837,11 @@ extern __interrupt void INT_FO_HB_2_ISR(void);
 #define INT_RTD_DRDYA_XINT_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
 extern __interrupt void INT_RTD_DRDYA_XINT_ISR(void);
 
+// Interrupt Settings for INT_RTD_DRDYB_XINT
+#define INT_RTD_DRDYB_XINT INT_XINT2
+#define INT_RTD_DRDYB_XINT_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
+extern __interrupt void INT_RTD_DRDYB_XINT_ISR(void);
+
 // Interrupt Settings for INT_RTD_SPI_RX
 #define INT_RTD_SPI_RX INT_SPIA_RX
 #define INT_RTD_SPI_RX_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP6
@@ -882,6 +896,9 @@ void SD_SPI_init();
 #define RTD_DRDYA_XINT GPIO_INT_XINT1
 #define RTD_DRDYA_XINT_TYPE GPIO_INT_TYPE_FALLING_EDGE
 void RTD_DRDYA_XINT_init();
+#define RTD_DRDYB_XINT GPIO_INT_XINT2
+#define RTD_DRDYB_XINT_TYPE GPIO_INT_TYPE_FALLING_EDGE
+void RTD_DRDYB_XINT_init();
 
 //*****************************************************************************
 //

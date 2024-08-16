@@ -63,7 +63,7 @@ uint16_t OC_SPI_local_queue_start(OC_SPI * const me);
 uint16_t OC_SPI_local_queue_send(OC_SPI * const me,
     SPI_Message_t const *  data);
 uint16_t OC_SPI_local_queue_receive(OC_SPI * const me,
-    SPI_Message_t * data);
+    SPI_Message_t * const data);
 void OC_SPI_spi_send_message(OC_SPI * const me,
     SPI_Message_t message);
 void OC_SPI_spi_receive_message(OC_SPI * const me);

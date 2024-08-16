@@ -153,6 +153,7 @@ QState OC_SPI_Waiting_Response(OC_SPI * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED}
         case SPI_MSG_RECEIVED_SIG: {
+
             OC_SPI_spi_receive_message(me);
             //${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_MSG_RECEIVED::[OC_SPI_local_queue_receive(me,&~}
             if (OC_SPI_local_queue_receive( me , &me->last_message_sended )) {
@@ -167,7 +168,6 @@ QState OC_SPI_Waiting_Response(OC_SPI * const me, QEvt const * const e) {
         }
         //${OCs::OC_SPI::OC_SPI::SM::Operation::Waiting_Response::SPI_SEND_MSG}
         case SPI_SEND_MSG_SIG: {
-
             OC_Evt_SPI_Message_t const * message = Q_EVT_CAST(OC_Evt_SPI_Message_t);
             OC_SPI_local_queue_send(me, &(message->message) );
             status_ = Q_HANDLED();

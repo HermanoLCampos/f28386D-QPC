@@ -35,6 +35,7 @@
 
 // Orthogonal Component
 #include "OCs/oc_spi/oc_spi.h"
+#include "OCs/oc_max31865/oc_max31865.h"
 
 //$declare${CPU1::AOs::AO_FSBB_Control} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -44,6 +45,8 @@ typedef struct {
     QActive super;
 
 // private:
+    OC_SPI spi_inst[OC_SPI_NUM_OF_INST];
+    OC_MAX31865 max31865_inst[OC_MAX31865_NUM_OF_INST];
     float setpoints[NUM_OF_SETPOINTS];
     QTimeEvt time_evt_check_params;
     QTimeEvt time_evt_cla_watchdog;
@@ -58,6 +61,7 @@ typedef struct {
     QTimeEvt time_evt_skiip2_heartbeat_timeout;
     Skiip_CAN_Faults_t skiip1_faults;
     Skiip_CAN_Faults_t skiip2_faults;
+    QTimeEvt time_evt_update_temperature_request;
 } FSBB_Control;
 
 // private:
@@ -70,6 +74,9 @@ void FSBB_Control_Change_Control_State(FSBB_Control * const me,
 void FSBB_Control_Open_Contactors(FSBB_Control * const me,
     QEvt const * const e);
 bool FSBB_Control_Check_Skiip_Error_IO(FSBB_Control * const me);
+void FSBB_Control_MAX_Request_Temperature(FSBB_Control * const me);
+void FSBB_Control_MAX_Update_Temperature(FSBB_Control * const me,
+    QEvt const * const e);
 
 // protected:
 QState FSBB_Control_initial(FSBB_Control * const me, void const * const par);

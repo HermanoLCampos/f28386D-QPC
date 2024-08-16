@@ -169,6 +169,17 @@ enum fsbb_measures {
     FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE,
     FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE,
     FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE,
+
+    FSBB_MEASURE_RTDA1_TEMPERATURE,
+    FSBB_MEASURE_RTDA2_TEMPERATURE,
+    FSBB_MEASURE_RTDA3_TEMPERATURE,
+    FSBB_MEASURE_RTDA4_TEMPERATURE,
+
+    FSBB_MEASURE_RTDB1_TEMPERATURE,
+    FSBB_MEASURE_RTDB2_TEMPERATURE,
+    FSBB_MEASURE_RTDB3_TEMPERATURE,
+    FSBB_MEASURE_RTDB4_TEMPERATURE,
+
     NUM_OF_FSBB_MEASURES,
 };
 
@@ -178,6 +189,13 @@ typedef struct {
     uint16_t chipselect_io;
     uint16_t message_to_send;
 } SPI_Message_t;
+
+//${Shared::Types::OCs::SPI::SPI_Message_Response_t} .........................
+typedef struct {
+// public:
+    SPI_Message_t message_sended;
+    uint16_t response;
+} SPI_Message_Response_t;
 
 //${Shared::Types::com_payload} ..............................................
 typedef struct {
@@ -357,6 +375,24 @@ typedef struct {
     SPI_Message_t message;
 } OC_Evt_SPI_Message_t;
 
+//${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_Response_t} .............
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    SPI_Message_Response_t response;
+} OC_Evt_SPI_Message_Response_t;
+
+//${Shared::Event_Types::OC::MAX31865::OC_Evt_MAX31865_Temperature_Requ~} ....
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    uint16_t temperature_id;
+} OC_Evt_MAX31865_Temperature_Request_t;
+
 //${Shared::Event_Types::AO::AO_Evt_Change_Setpoint_t} .......................
 typedef struct {
 // protected:
@@ -483,6 +519,9 @@ typedef struct {
 
 //${Shared::Macros::TIME_MACROS::CAN_PERIODIC_MSG_CONTROL_TIME_MS} ...........
 #define CAN_PERIODIC_MSG_CONTROL_TIME_MS 10
+
+//${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~} ..........
+#define MEASURE_TEMPERATURE_PERIOD_TIME_MS 10000
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
@@ -626,6 +665,13 @@ typedef struct {
 #define OC_SPI_SIGNALS \
     SPI_SEND_MSG_SIG,\
     SPI_MSG_RECEIVED_SIG
+
+//${OCs::Signals::OC_MAX31865_SIGNALS} .......................................
+#define OC_MAX31865_SIGNALS \
+    MAX31865_REQUEST_TEMPERATURE_SIG,\
+    MAX31865_SPI_RESPONSE_SIG,\
+    MAX31865_READ_FINISH_SIG,\
+    MAX31865_SPI_READ_FINISH_SIG
 //$enddecl${OCs::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$declare${CPU2::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

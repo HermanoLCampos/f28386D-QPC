@@ -8,12 +8,10 @@
 #include "cpu1_interrupts.h"
 #include "board.h"
 
-#include "max31865/max31865.h"
-
 __interrupt void INT_RTD_DRDYA_XINT_ISR(void){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    BSP_BKPT;
+    QACTIVE_POST_FROM_ISR( p_ao_fsbb_control, &(im_evt_max31865_read_finish[OC_MAX31865_A_ID].super) , &xHigherPriorityTaskWoken ,(void *) 0 );
 
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -22,27 +20,20 @@ __interrupt void INT_RTD_DRDYA_XINT_ISR(void){
 __interrupt void INT_RTD_DRDYB_XINT_ISR(void){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    BSP_BKPT;
+    QACTIVE_POST_FROM_ISR( p_ao_fsbb_control, &(im_evt_max31865_read_finish[OC_MAX31865_B_ID].super) , &xHigherPriorityTaskWoken ,(void *) 0 );
 
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-max31865_semaphore_t RTD_Semaphore = {
-    .chip_select_requested = 0x00,
-    .register_requested = 0xFF,
-};
 
 uint16_t data_received = 0;
 
 __interrupt void INT_RTD_SPI_RX_ISR(void){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    data_received = max31865_read_message(RTD_SPI_BASE, &RTD_Semaphore);
-
     //Send Message to AO
-
-//    BSP_BKPT;
+    QACTIVE_POST_FROM_ISR( p_ao_fsbb_control, &(im_evt_spi_receive_message[OC_SPI_RTD_SPI_ID].super) , &xHigherPriorityTaskWoken ,(void *) 0 );
 
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP6);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

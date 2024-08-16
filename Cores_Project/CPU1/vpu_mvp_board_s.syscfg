@@ -65,10 +65,12 @@ const gpio35           = gpio.addInstance();
 const gpio36           = gpio.addInstance();
 const gpio37           = gpio.addInstance();
 const gpio38           = gpio.addInstance();
+const gpio39           = gpio.addInstance();
 const i2c              = scripting.addModule("/driverlib/i2c.js", {}, false);
 const i2c1             = i2c.addInstance();
 const inputxbar_input  = scripting.addModule("/driverlib/inputxbar_input.js", {}, false);
 const inputxbar_input1 = inputxbar_input.addInstance();
+const inputxbar_input2 = inputxbar_input.addInstance();
 const memcfg           = scripting.addModule("/driverlib/memcfg.js");
 const spi              = scripting.addModule("/driverlib/spi.js", {}, false);
 const spi1             = spi.addInstance();
@@ -461,8 +463,13 @@ gpio11.xint.enableInt            = true;
 gpio11.xint.registerInterrupts   = true;
 gpio11.xint.xInt.enableInterrupt = true;
 
-gpio12.$name           = "RTD_DRDYB";
-gpio12.gpioPin.$assign = "GPIO41";
+gpio12.$name                     = "RTD_DRDYB";
+gpio12.useInterrupt              = true;
+gpio12.gpioPin.$assign           = "GPIO41";
+gpio12.xint.xintNum              = "GPIO_INT_XINT2";
+gpio12.xint.enableInt            = true;
+gpio12.xint.registerInterrupts   = true;
+gpio12.xint.xInt.enableInterrupt = true;
 
 gpio13.$name             = "GD_EN1";
 gpio13.direction         = "GPIO_DIR_MODE_OUT";
@@ -566,6 +573,8 @@ gpio37.gpioPin.$assign = "GPIO57";
 gpio38.$name           = "SBC_FCCU1";
 gpio38.gpioPin.$assign = "GPIO56";
 
+gpio39.$name = "myGPIO0";
+
 i2c1.$name                  = "I2C_RTC";
 i2c1.duty                   = "I2C_DUTYCYCLE_50";
 i2c1.bitCount               = "I2C_BITCOUNT_8";
@@ -582,6 +591,10 @@ i2c1.sclQual.padConfig      = "STD";
 gpio11.xint.inputxbar          = inputxbar_input1;
 inputxbar_input1.inputxbarGpio = "GPIO40";
 inputxbar_input1.$name         = "RTD_DRDYA_Input_XBar";
+
+gpio12.xint.inputxbar          = inputxbar_input2;
+inputxbar_input2.inputxbarGpio = "GPIO41";
+inputxbar_input2.$name         = "RTD_DRDYB_Input_XBar";
 
 memcfg.init_MEMCFG_SECT_MSGCPUTOCPU1 = true;
 memcfg.init_MEMCFG_SECT_MSGCPUTOCM0  = true;
@@ -600,6 +613,7 @@ spi1.mode                     = "SPI_MODE_CONTROLLER";
 spi1.registerInterrupts       = true;
 spi1.enabledInterrupts        = ["SPI_INT_RX_DATA_TX_EMPTY"];
 spi1.useFifo                  = false;
+spi1.emulationMode            = "SPI_EMULATION_STOP_AFTER_TRANSMIT";
 spi1.spi.$assign              = "SPIA";
 spi1.spi.spi_picoPin.$assign  = "GPIO32";
 spi1.spi.spi_pociPin.$assign  = "GPIO33";
@@ -697,3 +711,10 @@ CMD1.userSection[2].$name                  = "freertos_heap_mem";
 CMD1.userSection[2].sectionName            = ".freertosHeap";
 CMD1.userSection[2].sectionMemory          = ["RAMLS0_4"];
 scripting.suppress("Memcfg module must be enabled for complete error checking\\.", CMD1, "sectionMemory_cpuToCla1MsgRAM");
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+gpio39.gpioPin.$suggestSolution = "GPIO10";

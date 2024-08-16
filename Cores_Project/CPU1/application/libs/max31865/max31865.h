@@ -110,17 +110,24 @@ typedef struct{
     uint16_t max_register:8;
 }max31865_data_send_t;
 
+
 typedef struct{
-    uint16_t register_requested;
-    uint16_t chip_select_requested;
-}max31865_semaphore_t;
+    uint16_t lsb:7;
+    uint16_t msb:8;
+    uint16_t reserverd:1;
+}two_byte_data_t;
 
-void max31865_start_semaphore(max31865_semaphore_t * semaphore);
-uint16_t max31865_send_message(uint32_t spi_base, uint16_t chip_select_gpio, max31865_registers_t max_31865_register, uint16_t max_31865_data, max31865_semaphore_t * semaphore);
-uint16_t max31865_write_config(uint32_t spi_base, uint16_t chip_select_gpio, max31865_config_t config_data, max31865_semaphore_t * semaphore);
+typedef union{
+    uint16_t data;
+    two_byte_data_t two_byte_data;
+}RTD_measure_t;
 
-// Put this function on SPI Interrupt
-uint16_t max31865_read_message(uint32_t spi_base, max31865_semaphore_t * semaphore);
+//void max31865_start_semaphore(max31865_semaphore_t * semaphore);
+//void max31865_send_message(uint32_t spi_base, uint16_t chip_select_gpio, max31865_registers_t max_31865_register, uint16_t max_31865_data);
+//uint16_t max31865_write_config(uint32_t spi_base, uint16_t chip_select_gpio, max31865_config_t config_data);
+//
+//// Put this function on SPI Interrupt
+//uint16_t max31865_read_message(uint32_t spi_base, max31865_semaphore_t * semaphore);
 
 
 #endif /* APPLICATION_LIBS_MAX31865_MAX31865_H_ */

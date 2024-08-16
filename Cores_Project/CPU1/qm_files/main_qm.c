@@ -64,6 +64,54 @@ OC_Evt const im_evt_spi_receive_message[OC_SPI_NUM_OF_INST] ={
     }
 };
 
+//${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_request_temperat~}
+OC_Evt const im_evt_max31865_request_temperature[OC_MAX31865_NUM_OF_INST] ={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_REQUEST_TEMPERATURE_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_REQUEST_TEMPERATURE_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};
+
+//${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_spi_response[OC_~}
+OC_Evt const im_evt_max31865_spi_response[OC_MAX31865_NUM_OF_INST] ={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_RESPONSE_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_RESPONSE_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};
+
+//${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_read_finish[OC_M~}
+OC_Evt const im_evt_max31865_read_finish[OC_MAX31865_NUM_OF_INST] ={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_READ_FINISH_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_READ_FINISH_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};
+
+//${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_spi_read_finish[~}
+OC_Evt const im_evt_max31865_spi_read_finish[OC_MAX31865_NUM_OF_INST] ={
+    [OC_MAX31865_A_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_READ_FINISH_SIG),
+        .ID = OC_MAX31865_A_ID,
+    },
+    [OC_MAX31865_B_ID] = {
+        .super = QEVT_INITIALIZER(MAX31865_SPI_READ_FINISH_SIG),
+        .ID = OC_MAX31865_B_ID,
+    },
+};
+
 //${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
 QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
 

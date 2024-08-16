@@ -73,13 +73,13 @@ uint16_t OC_SPI_local_queue_send(OC_SPI * const me,
     return (uint16_t) err;
 }
 uint16_t OC_SPI_local_queue_receive(OC_SPI * const me,
-                                    SPI_Message_t * data){
+                                    SPI_Message_t * const data){
 
     BaseType_t err;
 
     err = xQueueReceive(
         me->queue_handler,  // Queue Handler
-        &data,              // Pointer to place the received messsage
+        data,              // Pointer to place the received messsage
         0U                  // Must be zero to nonbloking system
     );
 

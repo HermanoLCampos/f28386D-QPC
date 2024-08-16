@@ -55,6 +55,14 @@ QState FSBB_Control_Waiting_QF(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Waiting_QF}
         case Q_ENTRY_SIG: {
+
+            // Init Orthogonal Components
+
+            QASM_INIT( &(me->spi_inst[OC_SPI_RTD_SPI_ID]    .super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->max31865_inst[OC_MAX31865_A_ID].super) , (void *)0, (void *)0 );
+            QASM_INIT( &(me->max31865_inst[OC_MAX31865_B_ID].super) , (void *)0, (void *)0 );
+
+
             QACTIVE_POST(&me->super,&im_evt_running_qf,(void *)0);
             status_ = Q_HANDLED();
             break;
@@ -88,6 +96,10 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
             (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
             (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
+
+            QASM_DISPATCH( &(me->spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->max31865_inst[OC_MAX31865_A_ID].super) ,&im_evt_running_qf, (void *) 0 );
+            QASM_DISPATCH( &(me->max31865_inst[OC_MAX31865_B_ID].super) ,&im_evt_running_qf, (void *) 0 );
             status_ = Q_HANDLED();
             break;
         }
@@ -118,6 +130,12 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
             );
 
             QTimeEvt_armX(
+                &me->time_evt_update_temperature_request,
+                (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+
+            QTimeEvt_armX(
                 &me->time_evt_skiip1_heartbeat_timeout,
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
@@ -128,6 +146,10 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
                 (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
             );
+
+            QASM_DISPATCH( &(me->spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&im_evt_init_complete, (void *) 0 );
+            QASM_DISPATCH( &(me->max31865_inst[OC_MAX31865_A_ID].super) ,&im_evt_init_complete, (void *) 0 );
+            QASM_DISPATCH( &(me->max31865_inst[OC_MAX31865_B_ID].super) ,&im_evt_init_complete, (void *) 0 );
 
             QACTIVE_POST(p_ao_communication, &im_evt_init_skiip_can ,(void *)0);
 
@@ -379,6 +401,59 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_SKIIP1_FALTS,UPDATE_SKIIP~}
         case UPDATE_SKIIP1_FALTS_SIG: // intentionally fall through
         case UPDATE_SKIIP2_FALTS_SIG: {
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SPI_SEND_MSG}
+        case SPI_SEND_MSG_SIG: {
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_SPI_NUM_OF_INST) system_assert(__FILE__,0);
+
+            QASM_DISPATCH( &(me->spi_inst[id].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SPI_MSG_RECEIVED}
+        case SPI_MSG_RECEIVED_SIG: {
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_SPI_NUM_OF_INST) system_assert(__FILE__,0);
+
+            QASM_DISPATCH( &(me->spi_inst[id].super) ,e, (void *) 0 );
+
+            OC_Evt_SPI_Message_Response_t spi_response;
+
+            spi_response.response.message_sended = me->spi_inst[id].message_request;
+            spi_response.response.response = me->spi_inst[id].message_response;
+
+            for(uint16_t max_index = 0; max_index < OC_MAX31865_NUM_OF_INST ; max_index++){
+                if(me->max31865_inst[max_index].chip_select == spi_response.response.message_sended.chipselect_io){
+                    spi_response.super = im_evt_max31865_spi_response[max_index];
+                    QASM_DISPATCH( &(me->max31865_inst[max_index].super.super) , &spi_response.super.super , (void *) 0 );
+                    break;
+                }
+            }
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_REQUEST_TEMPERATURE}
+        case MAX31865_REQUEST_TEMPERATURE_SIG: {
+            FSBB_Control_MAX_Request_Temperature(me);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_READ_FINISH}
+        case MAX31865_READ_FINISH_SIG: {
+
+            uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
+            if(id>OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
+
+            QASM_DISPATCH( &(me->max31865_inst[id].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_SPI_READ_FINISH}
+        case MAX31865_SPI_READ_FINISH_SIG: {
+            FSBB_Control_MAX_Update_Temperature(me,e);
             status_ = Q_HANDLED();
             break;
         }
@@ -671,16 +746,34 @@ void ao_fsbb_control_ctor(const QActive  * const pAO) {
 
     // Orthogonal Components
 
+    OC_SPI_ctor(&me->spi_inst[OC_SPI_RTD_SPI_ID],
+                &me->super,
+                OC_SPI_RTD_SPI_ID);
+
+    OC_MAX31865_ctor(&me->max31865_inst[OC_MAX31865_A_ID],
+                     &me->super,
+                     OC_MAX31865_A_ID
+                     );
+
+    OC_MAX31865_ctor(&me->max31865_inst[OC_MAX31865_B_ID],
+                     &me->super,
+                     OC_MAX31865_B_ID
+                     );
+
     // Time Events
-    QTimeEvt_ctorX(&me->time_evt_check_params             , &me->super        , CHECK_PARAMS_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_cla_watchdog             , &me->super        , CHECK_CLA_WATCHDOG_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_settle                   , &me->super        , SETTLE_TIMEOUT_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_report_status            , &me->super        , REPORT_STATUS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_check_params              , &me->super        , CHECK_PARAMS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_cla_watchdog              , &me->super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_settle                    , &me->super        , SETTLE_TIMEOUT_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_report_status             , &me->super        , REPORT_STATUS_SIG, 0U);
 
-    QTimeEvt_ctorX(&me->time_evt_skiip1_heartbeat_timeout , &me->super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
-    QTimeEvt_ctorX(&me->time_evt_skiip2_heartbeat_timeout , &me->super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+    QTimeEvt_ctorX(&me->time_evt_skiip1_heartbeat_timeout  , &me->super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+    QTimeEvt_ctorX(&me->time_evt_skiip2_heartbeat_timeout  , &me->super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
 
-    QTimeEvt_ctorX(&me->time_evt_update_measure_request   , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_update_measure_request    , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
+
+    QTimeEvt_ctorX(&me->time_evt_update_temperature_request, &me->super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
+
+
 
     // Vars
     AO_Evt_Set_Multiple_Faults_t aux = {0};
