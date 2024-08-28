@@ -103,15 +103,8 @@ __interrupt void Cla1Task1 ( void )
     skiip2_temp_fp    = SKIIP2_TEMP_BIT_FACTOR    * (applyIIRFilter(&skiip2_temp_filter   , (float32_t) ADC_readResult(myADCD_RESULT_BASE, myADCD_SKIIP2_TEMP            ) - SKIIP2_TEMP_BIT_OFFSET    ) );
     skiip2_voltage_fp = SKIIP2_VOLTAGE_BIT_FACTOR * (applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE ) - SKIIP2_VOLTAGE_BIT_OFFSET ) );
 
-//    // Teste Vitao
-//
-//    //Vbatt
-//    skiip1_voltage_fp = 5*SKIIP1_VOLTAGE_BIT_FACTOR * applyIIRFilter(&skiip1_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP1_DC_LINK_VOLTAGE) - SKIIP1_VOLTAGE_BIT_OFFSET );
-//    //Vout
-//    skiip2_voltage_fp = 5*SKIIP2_VOLTAGE_BIT_FACTOR * applyIIRFilter(&skiip2_voltage_filter, (float32_t) ADC_readResult(myADCB_RESULT_BASE, myADCB_SKIIP2_DC_LINK_VOLTAGE) - SKIIP2_VOLTAGE_BIT_OFFSET );
-//
-//    //IL
-//    skiip1_current_fp = (0.1f*200.0f)*(SKIIP1_CURRENT_BIT_FACTOR * applyIIRFilter(&skiip1_current_filter, (float32_t) ADC_readResult(myADCA_RESULT_BASE, myADCA_SKIIP1_CURRENT        ) - SKIIP1_CURRENT_BIT_OFFSET ) - (float32_t)1.58);
+
+
 
     CLA2CPU_Message.hall1_current   = hall1_current_fp*10;
     CLA2CPU_Message.hall2_current   = hall2_current_fp*10;

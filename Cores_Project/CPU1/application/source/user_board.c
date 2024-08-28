@@ -74,40 +74,40 @@ void user_msg_box_init(){
     for(i_msg = 1; i_msg< DBC_SKIIP_CAN_MAX_MSG; i_msg++){
         // Declare the Message Objects
         CAN_setupMessageObject(
-            CAN_SKIIP_BASE,                                     //Base
-            i_msg,                                              // MailBox Number
-            dbc_skiip_can_messages_proprieties[i_msg].msg_id,   // Message ID
-            CAN_MSG_FRAME_STD,                                  // Standard ID
-            dbc_skiip_can_messages_proprieties[i_msg].msgType,  // Message Type
-           ~dbc_skiip_can_messages_proprieties[i_msg].mask,     // Message Mask
-            dbc_skiip_can_messages_proprieties[i_msg].flags,    // Message Flags
-            dbc_skiip_can_messages_proprieties[i_msg].dlc       // Message DLC
+            CAN_SKIIP_BASE,                                         //Base
+            i_msg,                                                  // MailBox Number
+            dbc_skiip_can_messages_proprieties[i_msg].msg_id,       // Message ID
+            dbc_skiip_can_messages_proprieties[i_msg].frame_type,   // Standard ID
+            dbc_skiip_can_messages_proprieties[i_msg].msg_type,     // Message Type
+           ~dbc_skiip_can_messages_proprieties[i_msg].mask,         // Message Mask
+            dbc_skiip_can_messages_proprieties[i_msg].flags,        // Message Flags
+            dbc_skiip_can_messages_proprieties[i_msg].dlc           // Message DLC
         );
     }
 
     i_msg = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX;
     CAN_setupMessageObject(
-        CAN_SKIIP_BASE,                                     //Base
-        i_msg,                                              // MailBox Number
-        dbc_skiip_can_messages_proprieties[i_msg].msg_id,   // Message ID
-        CAN_MSG_FRAME_STD,                                  // Standard ID
-        dbc_skiip_can_messages_proprieties[i_msg].msgType,  // Message Type
-       ~dbc_skiip_can_messages_proprieties[i_msg].mask,     // Message Mask
+        CAN_SKIIP_BASE,                                             //Base
+        i_msg,                                                      // MailBox Number
+        dbc_skiip_can_messages_proprieties[i_msg].msg_id,           // Message ID
+        dbc_skiip_can_messages_proprieties[i_msg].frame_type,       // Standard ID
+        dbc_skiip_can_messages_proprieties[i_msg].msg_type,         // Message Type
+       ~dbc_skiip_can_messages_proprieties[i_msg].mask,             // Message Mask
         dbc_skiip_can_messages_proprieties[i_msg].flags | CAN_MSG_OBJ_TX_INT_ENABLE,    // Message Flags
-        dbc_skiip_can_messages_proprieties[i_msg].dlc       // Message DLC
+        dbc_skiip_can_messages_proprieties[i_msg].dlc               // Message DLC
     );
     BSP_CAN_init_fifo(&CAN_SKIIP_1_fifo, CAN_SKIIP_BASE, i_msg);
 
     i_msg = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX;
     CAN_setupMessageObject(
-        CAN_SKIIP_BASE,                                     //Base
-        i_msg,                                              // MailBox Number
-        dbc_skiip_can_messages_proprieties[i_msg].msg_id,   // Message ID
-        CAN_MSG_FRAME_STD,                                  // Standard ID
-        dbc_skiip_can_messages_proprieties[i_msg].msgType,  // Message Type
-       ~dbc_skiip_can_messages_proprieties[i_msg].mask,     // Message Mask
+        CAN_SKIIP_BASE,                                             //Base
+        i_msg,                                                      // MailBox Number
+        dbc_skiip_can_messages_proprieties[i_msg].msg_id,           // Message ID
+        dbc_skiip_can_messages_proprieties[i_msg].frame_type,       // Standard ID
+        dbc_skiip_can_messages_proprieties[i_msg].msg_type,         // Message Type
+       ~dbc_skiip_can_messages_proprieties[i_msg].mask,             // Message Mask
         dbc_skiip_can_messages_proprieties[i_msg].flags | CAN_MSG_OBJ_TX_INT_ENABLE,    // Message Flags
-        dbc_skiip_can_messages_proprieties[i_msg].dlc       // Message DLC
+        dbc_skiip_can_messages_proprieties[i_msg].dlc               // Message DLC
     );
     BSP_CAN_init_fifo(&CAN_SKIIP_2_fifo, CAN_SKIIP_BASE, i_msg);
 

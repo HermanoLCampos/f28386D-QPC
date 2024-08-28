@@ -49,6 +49,9 @@ void OC_MAX31865_ctor(OC_MAX31865 * const me,
     QHsm_ctor(&me->super, Q_STATE_CAST(&OC_MAX31865_initial));
     me->owner = owner;
     me->id = id;
+
+    QTimeEvt_ctorX(&me->oc_time_evt_timeout.super, me->owner, MAX31865_TIMEOUT_SIG, 0U);
+    me->oc_time_evt_timeout.ID = id;
 }
 
 //${OCs::OC_MAX31865::OC_MAX31865::SM} .......................................
@@ -161,9 +164,25 @@ QState OC_MAX31865_Waiting_Request(OC_MAX31865 * const me, QEvt const * const e)
 QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}
+        case Q_ENTRY_SIG: {
+            QTimeEvt_armX(
+                &me->oc_time_evt_timeout.super,
+                (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}
+        case Q_EXIT_SIG: {
+            QTimeEvt_disarm(&me->oc_time_evt_timeout.super);
+            status_ = Q_HANDLED();
+            break;
+        }
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_READ_FINISH}
         case MAX31865_READ_FINISH_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             me->measure_read_value.data = 0;
 
@@ -171,6 +190,23 @@ QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e)
                 me
             );
             status_ = Q_TRAN(&OC_MAX31865_Waiting_SPI);
+            break;
+        }
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_TIMEOUT}
+        case MAX31865_TIMEOUT_SIG: {
+            // Clear Interrupt
+            me->spi_read_status = 0;
+            OC_MAX31865_spi_read_request(
+                me
+            );
+
+            // Request Another Measure
+            OC_MAX31865_spi_one_shot_request(
+                me,
+                me->current_measure_id
+            );
+
+            status_ = Q_HANDLED();
             break;
         }
         default: {
@@ -185,6 +221,22 @@ QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e)
 QState OC_MAX31865_Waiting_SPI(OC_MAX31865 * const me, QEvt const * const e) {
     QState status_;
     switch (e->sig) {
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}
+        case Q_ENTRY_SIG: {
+            QTimeEvt_armX(
+                &me->oc_time_evt_timeout.super,
+                (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS))
+            );
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}
+        case Q_EXIT_SIG: {
+            QTimeEvt_disarm(&me->oc_time_evt_timeout.super);
+            status_ = Q_HANDLED();
+            break;
+        }
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_READ_FINISH}
         case MAX31865_SPI_READ_FINISH_SIG: {
             //BSP_BKPT;
@@ -195,7 +247,7 @@ QState OC_MAX31865_Waiting_SPI(OC_MAX31865 * const me, QEvt const * const e) {
             if (// Read From Queue
                 OC_MAX31865_local_queue_receive( me , &me->current_measure_id ))
             {
-                BSP_BKPT;
+                //BSP_BKPT;
                 OC_MAX31865_spi_one_shot_request(
                     me,
                     me->current_measure_id
@@ -221,6 +273,15 @@ QState OC_MAX31865_Waiting_SPI(OC_MAX31865 * const me, QEvt const * const e) {
             if(me->spi_read_status == 0b11){
                 QACTIVE_POST( me->owner , &im_evt_max31865_spi_read_finish[me->id].super , (void *)0);
             }
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_TIMEOUT}
+        case MAX31865_TIMEOUT_SIG: {
+            // Request Another Reading
+            OC_MAX31865_spi_read_request(
+                me
+            );
             status_ = Q_HANDLED();
             break;
         }

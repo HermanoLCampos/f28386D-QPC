@@ -545,6 +545,8 @@ OC_SPI_local_queue_send(me, &amp;(message-&gt;message) );</action>
     <attribute name="measure_read_value" type="RTD_measure_t" visibility="0x00" properties="0x00"/>
     <!--${OCs::OC_MAX31865::OC_MAX31865::measure_threshold_fault}-->
     <attribute name="measure_threshold_fault" type="uint16_t" visibility="0x00" properties="0x00"/>
+    <!--${OCs::OC_MAX31865::OC_MAX31865::oc_time_evt_timeout}-->
+    <attribute name="oc_time_evt_timeout" type="OC_TimeEvt" visibility="0x02" properties="0x00"/>
     <!--${OCs::OC_MAX31865::OC_MAX31865::ctor}-->
     <operation name="ctor" type="void" visibility="0x00" properties="0x00">
      <!--${OCs::OC_MAX31865::OC_MAX31865::ctor::owner}-->
@@ -553,7 +555,10 @@ OC_SPI_local_queue_send(me, &amp;(message-&gt;message) );</action>
      <parameter name="id" type="uint16_t"/>
      <code>QHsm_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;OC_MAX31865_initial));
 me-&gt;owner = owner;
-me-&gt;id = id;    </code>
+me-&gt;id = id;
+
+QTimeEvt_ctorX(&amp;me-&gt;oc_time_evt_timeout.super, me-&gt;owner, MAX31865_TIMEOUT_SIG, 0U);
+me-&gt;oc_time_evt_timeout.ID = id;</code>
     </operation>
     <!--${OCs::OC_MAX31865::OC_MAX31865::local_queue_start}-->
     <operation name="local_queue_start" type="uint16_t" visibility="0x02" properties="0x00"/>
@@ -657,9 +662,15 @@ OC_MAX31865_spi_one_shot_request(
       </state>
       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}-->
       <state name="Waiting_Measure">
+       <entry>QTimeEvt_armX(
+    &amp;me-&gt;oc_time_evt_timeout.super,
+    (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS))
+);</entry>
+       <exit>QTimeEvt_disarm(&amp;me-&gt;oc_time_evt_timeout.super);</exit>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_READ_FINISH}-->
        <tran trig="MAX31865_READ_FINISH" target="../../5">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 me-&gt;measure_read_value.data = 0;
 
@@ -670,10 +681,37 @@ OC_MAX31865_spi_read_request(
          <action box="0,-2,16,2"/>
         </tran_glyph>
        </tran>
-       <state_glyph node="88,12,18,12"/>
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_TIMEOUT}-->
+       <tran trig="MAX31865_TIMEOUT">
+        <action>// Clear Interrupt
+me-&gt;spi_read_status = 0;
+OC_MAX31865_spi_read_request(
+    me
+);
+
+// Request Another Measure
+OC_MAX31865_spi_one_shot_request(
+    me,
+    me-&gt;current_measure_id
+);
+</action>
+        <tran_glyph conn="88,18,3,-1,16">
+         <action box="0,-2,16,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="88,12,18,12">
+        <entry box="1,2,6,2"/>
+        <exit box="1,4,6,2"/>
+       </state_glyph>
       </state>
       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}-->
       <state name="Waiting_SPI">
+       <entry>QTimeEvt_armX(
+    &amp;me-&gt;oc_time_evt_timeout.super,
+    (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS))
+);</entry>
+       <exit>QTimeEvt_disarm(&amp;me-&gt;oc_time_evt_timeout.super);</exit>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_READ_FINISH}-->
        <tran trig="MAX31865_SPI_READ_FINISH">
         <action>//BSP_BKPT;
@@ -684,7 +722,7 @@ me-&gt;measure_read_id = me-&gt;current_measure_id;</action>
         <choice target="../../../4">
          <guard>// Read From Queue
 OC_MAX31865_local_queue_receive( me , &amp;me-&gt;current_measure_id )</guard>
-         <action>BSP_BKPT;
+         <action>//BSP_BKPT;
 OC_MAX31865_spi_one_shot_request(
     me,
     me-&gt;current_measure_id
@@ -702,7 +740,7 @@ OC_MAX31865_spi_one_shot_request(
          </choice_glyph>
         </choice>
         <tran_glyph conn="106,38,1,-1,-22,-10">
-         <action box="-11,-2,10,2"/>
+         <action box="-13,-2,12,2"/>
         </tran_glyph>
        </tran>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_SPI_RESPONSE}-->
@@ -718,10 +756,23 @@ if(me-&gt;spi_read_status == 0b11){
     QACTIVE_POST( me-&gt;owner , &amp;im_evt_max31865_spi_read_finish[me-&gt;id].super , (void *)0);
 }</action>
         <tran_glyph conn="106,36,1,-1,-14">
-         <action box="-11,-2,10,2"/>
+         <action box="-13,-2,12,2"/>
         </tran_glyph>
        </tran>
-       <state_glyph node="88,30,18,14"/>
+       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI::MAX31865_TIMEOUT}-->
+       <tran trig="MAX31865_TIMEOUT">
+        <action>// Request Another Reading
+OC_MAX31865_spi_read_request(
+    me
+);</action>
+        <tran_glyph conn="106,40,1,-1,-14">
+         <action box="-13,-2,13,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="88,30,18,14">
+        <entry box="1,2,6,2"/>
+        <exit box="1,4,6,2"/>
+       </state_glyph>
       </state>
       <state_glyph node="40,4,80,46"/>
      </state>
@@ -772,7 +823,8 @@ if(me-&gt;spi_read_status == 0b11){
     MAX31865_REQUEST_TEMPERATURE_SIG,\
     MAX31865_SPI_RESPONSE_SIG,\
     MAX31865_READ_FINISH_SIG,\
-    MAX31865_SPI_READ_FINISH_SIG</code>
+    MAX31865_SPI_READ_FINISH_SIG,\
+    MAX31865_TIMEOUT_SIG</code>
    </attribute>
   </package>
  </package>
@@ -903,7 +955,7 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) ,&amp;im_evt_
 QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_B_ID].super) ,&amp;im_evt_running_qf, (void *) 0 );</entry>
        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::INIT_COMPLETE}-->
-       <tran trig="INIT_COMPLETE" target="../../3/15">
+       <tran trig="INIT_COMPLETE" target="../../3/16">
         <action>QTimeEvt_armX(
     &amp;me-&gt;time_evt_cla_watchdog,
     (uint16_t) ((CHECK_CLA_WATCHDOG_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -972,7 +1024,7 @@ if(
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation}-->
       <state name="Operation">
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::RESET}-->
-       <tran trig="RESET" target="../15">
+       <tran trig="RESET" target="../16">
         <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_INIT);
 
 QTimeEvt_rearm(
@@ -988,7 +1040,7 @@ QTimeEvt_rearm(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
-       <tran trig="SET_FAULT" target="../19">
+       <tran trig="SET_FAULT" target="../20">
         <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
 switch(Evt_Set_Fault-&gt;fault_id){
 case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
@@ -1110,7 +1162,7 @@ QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}-->
-       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../19">
+       <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../20">
         <action>switch(e-&gt;sig){
 case EMERGENCY_SHUTDOWN_SIG:
     me-&gt;faults.emergency_shutdown = 1;
@@ -1132,7 +1184,7 @@ default:
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}-->
-       <tran trig="SET_MULTIPLE_FAULTS" target="../19">
+       <tran trig="SET_MULTIPLE_FAULTS" target="../20">
         <action>AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
 
 typedef union{
@@ -1257,12 +1309,24 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
          <action box="0,-2,27,2"/>
         </tran_glyph>
        </tran>
+       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_TIMEOUT}-->
+       <tran trig="MAX31865_TIMEOUT">
+        <action>//BSP_BKPT;
+
+uint16_t id = Q_EVT_CAST(OC_TimeEvt)-&gt;ID;
+if(id&gt;OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
+
+QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
+        <tran_glyph conn="36,82,3,-1,32">
+         <action box="0,-2,15,2"/>
+        </tran_glyph>
+       </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
        <state name="Uncharged">
         <documentation>this state waits the command to charge the  capacitors.</documentation>
         <entry>//BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
-        <tran trig="PRECHARGE_START" target="../../16">
+        <tran trig="PRECHARGE_START" target="../../17">
          <action>//BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
@@ -1301,7 +1365,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
-        <tran trig="PRECHARGE_FINISH" target="../../17">
+        <tran trig="PRECHARGE_FINISH" target="../../18">
          <action>FSBB_Control_Finish_Precharge(me,e);</action>
          <tran_glyph conn="84,20,3,1,22,14,-2">
           <action box="0,-2,16,2"/>
@@ -1317,7 +1381,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         <documentation>waiting the command to start the control</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
-        <tran trig="START_CONTROL" target="../../18">
+        <tran trig="START_CONTROL" target="../../19">
          <tran_glyph conn="84,38,3,3,32">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -1331,7 +1395,7 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
         <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
-        <tran trig="STOP_CONTROL" target="../../21">
+        <tran trig="STOP_CONTROL" target="../../22">
          <tran_glyph conn="116,36,3,1,22,18,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
@@ -1349,7 +1413,7 @@ FSBB_Control_Open_Contactors(me,e);
 
 //BSP_BKPT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault::CLEAR_FAULT}-->
-        <tran trig="CLEAR_FAULT" target="../../15">
+        <tran trig="CLEAR_FAULT" target="../../16">
          <action>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
 FSBB_Control_faults_t aux = {0};
 me-&gt;faults = aux;
@@ -1394,7 +1458,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_2::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../17">
+         <choice target="../../../18">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_OPEN</guard>
           <choice_glyph conn="89,54,5,3,-7,-14,2">
            <action box="-5,0,4,2"/>
@@ -1437,7 +1501,7 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
-         <choice target="../../../20">
+         <choice target="../../../21">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
           <choice_glyph conn="120,56,5,1,-16">
            <action box="-4,0,4,2"/>
@@ -3269,43 +3333,6 @@ me-&gt;sys_data = aux;</code>
      <!--${Shared::Types::Aux Types::FSBB_Measure_Upd~::measure}-->
      <attribute name="measure" type="uint16_t" visibility="0x02" properties="0x00"/>
     </class>
-    <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_Data_Decode_t}-->
-    <class name="CAN_Open_1_Byte_Data_Decode_t">
-     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::header:8}-->
-     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::object_id:16}-->
-     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::subindex:8}-->
-     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::data:8}-->
-     <attribute name="data:8" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_1_Byte_~::reserved:24}-->
-     <attribute name="reserved:24" type="uint64_t" visibility="0x02" properties="0x00"/>
-    </class>
-    <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_Data_Decode_t}-->
-    <class name="CAN_Open_2_Byte_Data_Decode_t">
-     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::header:8}-->
-     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::object_id:16}-->
-     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::subindex:8}-->
-     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::data:16}-->
-     <attribute name="data:16" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_2_Byte_~::reserved:16}-->
-     <attribute name="reserved:16" type="uint64_t" visibility="0x02" properties="0x00"/>
-    </class>
-    <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_Data_Decode_t}-->
-    <class name="CAN_Open_4_Byte_Data_Decode_t">
-     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::header:8}-->
-     <attribute name="header:8" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::object_id:16}-->
-     <attribute name="object_id:16" type="uint64_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::subindex:8}-->
-     <attribute name="subindex:8" type="uint16_t" visibility="0x02" properties="0x00"/>
-     <!--${Shared::Types::Aux Types::CAN_Open_4_Byte_~::data:32}-->
-     <attribute name="data:32" type="uint64_t" visibility="0x02" properties="0x00"/>
-    </class>
    </package>
   </package>
   <!--${Shared::Event_Types}-->
@@ -3448,6 +3475,10 @@ in payload the message</documentation>
     <attribute name="CRITICAL_LIMIT_INDUCTOR_TEMPERATURE" type="" visibility="0x03" properties="0x00">
      <code>200</code>
     </attribute>
+    <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_HALL_CURRENT}-->
+    <attribute name="CRITICAL_LIMIT_HALL_CURRENT" type="" visibility="0x03" properties="0x00">
+     <code>200</code>
+    </attribute>
    </package>
    <!--${Shared::Macros::TIME_MACROS}-->
    <package name="TIME_MACROS" stereotype="0x00">
@@ -3502,6 +3533,11 @@ in payload the message</documentation>
     <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~}-->
     <attribute name="MEASURE_TEMPERATURE_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
      <code>10000</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~}-->
+    <attribute name="MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS" type="" visibility="0x03" properties="0x00">
+     <documentation>50Hz</documentation>
+     <code>200</code>
     </attribute>
    </package>
    <!--${Shared::Macros::CONDITIONAL_LIMITS}-->

@@ -6,6 +6,7 @@
  */
 
 #include "cpu1_interrupts.h"
+#include "board.h"
 
 //
 // INT_FO_HB_1_ISR
@@ -70,3 +71,20 @@ __interrupt void INT_GD_HB_2_ISR(){
     // FreeRTOS: End of the ISR
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
+
+
+//__interrupt void INT_GD_HB_1_TZ_ISR(){
+//    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//
+//    //BreakPoint, this function shoudn't be called
+//    BSP_BKPT;
+//
+//    // Clear Interrupt Flag
+//    Interrupt_clearACKGroup(INT_GD_HB_1_TZ_INTERRUPT_ACK_GROUP);
+//
+//    // FreeRTOS: End of the ISR
+//    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//}
+
+
+

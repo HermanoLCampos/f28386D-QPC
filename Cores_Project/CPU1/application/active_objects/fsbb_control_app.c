@@ -139,7 +139,7 @@ const uint16_t rtd_measure[OC_MAX31865_NUM_OF_INST][OC_MAX31865_NUM_OF_MUX] = {
 void FSBB_Control_MAX_Request_Temperature(FSBB_Control * const me){
     OC_Evt_MAX31865_Temperature_Request_t max_temperature_request;
 
-    BSP_BKPT;
+//    BSP_BKPT;
 
     max_temperature_request.super = im_evt_max31865_request_temperature[OC_MAX31865_A_ID];
     // MAX31865A
@@ -174,9 +174,10 @@ void FSBB_Control_MAX_Update_Temperature(FSBB_Control * const me,
 
     QASM_DISPATCH( &(me->max31865_inst[id].super) ,e, (void *) 0 );
 
+//    0.0312*x -256
     me->measures[
         rtd_measure[id][me->max31865_inst[id].measure_read_id]
-    ] = (me->max31865_inst[id].measure_read_value.data);
+    ] = 0.0312f*(me->max31865_inst[id].measure_read_value.data)-256;
 
 
 }

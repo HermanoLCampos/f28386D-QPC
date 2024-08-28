@@ -457,6 +457,17 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             status_ = Q_HANDLED();
             break;
         }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_TIMEOUT}
+        case MAX31865_TIMEOUT_SIG: {
+            //BSP_BKPT;
+
+            uint16_t id = Q_EVT_CAST(OC_TimeEvt)->ID;
+            if(id>OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
+
+            QASM_DISPATCH( &(me->max31865_inst[id].super) ,e, (void *) 0 );
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&QHsm_top);
             break;

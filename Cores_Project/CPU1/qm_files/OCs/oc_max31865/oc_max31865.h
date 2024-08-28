@@ -57,6 +57,9 @@ typedef struct {
     uint16_t measure_read_id;
     RTD_measure_t measure_read_value;
     uint16_t measure_threshold_fault;
+
+// private:
+    OC_TimeEvt oc_time_evt_timeout;
 } OC_MAX31865;
 
 // public:

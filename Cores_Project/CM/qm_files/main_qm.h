@@ -290,35 +290,6 @@ typedef struct {
     uint16_t measure;
 } FSBB_Measure_Update_t;
 
-//${Shared::Types::Aux Types::CAN_Open_1_Byte_Data_Decode_t} .................
-typedef struct {
-// private:
-    uint64_t header:8;
-    uint64_t object_id:16;
-    uint16_t subindex:8;
-    uint64_t data:8;
-    uint64_t reserved:24;
-} CAN_Open_1_Byte_Data_Decode_t;
-
-//${Shared::Types::Aux Types::CAN_Open_2_Byte_Data_Decode_t} .................
-typedef struct {
-// private:
-    uint64_t header:8;
-    uint64_t object_id:16;
-    uint16_t subindex:8;
-    uint64_t data:16;
-    uint64_t reserved:16;
-} CAN_Open_2_Byte_Data_Decode_t;
-
-//${Shared::Types::Aux Types::CAN_Open_4_Byte_Data_Decode_t} .................
-typedef struct {
-// private:
-    uint64_t header:8;
-    uint64_t object_id:16;
-    uint16_t subindex:8;
-    uint64_t data:32;
-} CAN_Open_4_Byte_Data_Decode_t;
-
 //${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {
 // protected:
@@ -484,6 +455,9 @@ typedef struct {
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_INDUCTOR_TEMPERAT~} ......
 #define CRITICAL_LIMIT_INDUCTOR_TEMPERATURE 200
 
+//${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_HALL_CURRENT} ............
+#define CRITICAL_LIMIT_HALL_CURRENT 200
+
 //${Shared::Macros::TIME_MACROS::RTOS_TICK_FREQUENCY_HZ} .....................
 #define RTOS_TICK_FREQUENCY_HZ (1000.0f)
 
@@ -522,6 +496,9 @@ typedef struct {
 
 //${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~} ..........
 #define MEASURE_TEMPERATURE_PERIOD_TIME_MS 10000
+
+//${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~} ..........
+#define MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS 200
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
@@ -671,7 +648,8 @@ typedef struct {
     MAX31865_REQUEST_TEMPERATURE_SIG,\
     MAX31865_SPI_RESPONSE_SIG,\
     MAX31865_READ_FINISH_SIG,\
-    MAX31865_SPI_READ_FINISH_SIG
+    MAX31865_SPI_READ_FINISH_SIG,\
+    MAX31865_TIMEOUT_SIG
 //$enddecl${OCs::Signals} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$declare${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

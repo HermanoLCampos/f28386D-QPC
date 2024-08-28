@@ -559,9 +559,8 @@ void myCLA0_init();
 #define GD_HB_1_CMPD 0
 #define GD_HB_1_DBRED 800
 #define GD_HB_1_DBFED 800
-#define GD_HB_1_TZA_ACTION EPWM_TZ_ACTION_HIGH
-#define GD_HB_1_TZB_ACTION EPWM_TZ_ACTION_LOW
-#define GD_HB_1_OSHT_SOURCES EPWM_TZ_SIGNAL_OSHT1
+#define GD_HB_1_TZA_ACTION EPWM_TZ_ACTION_LOW
+#define GD_HB_1_TZB_ACTION EPWM_TZ_ACTION_HIGH
 #define GD_HB_1_TZ_INTERRUPT_SOURCES EPWM_TZ_INTERRUPT_OST
 #define GD_HB_1_INTERRUPT_SOURCE EPWM_INT_TBCTR_ZERO
 #define GD_HB_2_BASE EPWM3_BASE
@@ -576,7 +575,6 @@ void myCLA0_init();
 #define GD_HB_2_DBFED 520
 #define GD_HB_2_TZA_ACTION EPWM_TZ_ACTION_LOW
 #define GD_HB_2_TZB_ACTION EPWM_TZ_ACTION_HIGH
-#define GD_HB_2_OSHT_SOURCES EPWM_TZ_SIGNAL_OSHT1
 #define GD_HB_2_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
 #define FO_HB_1_BASE EPWM8_BASE
 #define FO_HB_1_TBPRD 50000
@@ -588,8 +586,8 @@ void myCLA0_init();
 #define FO_HB_1_CMPD 0
 #define FO_HB_1_DBRED 560
 #define FO_HB_1_DBFED 520
-#define FO_HB_1_TZA_ACTION EPWM_TZ_ACTION_LOW
-#define FO_HB_1_TZB_ACTION EPWM_TZ_ACTION_HIGH
+#define FO_HB_1_TZA_ACTION EPWM_TZ_ACTION_HIGH
+#define FO_HB_1_TZB_ACTION EPWM_TZ_ACTION_LOW
 #define FO_HB_1_INTERRUPT_SOURCE EPWM_INT_TBCTR_PERIOD
 #define FO_HB_2_BASE EPWM12_BASE
 #define FO_HB_2_TBPRD 50000
@@ -601,9 +599,8 @@ void myCLA0_init();
 #define FO_HB_2_CMPD 0
 #define FO_HB_2_DBRED 560
 #define FO_HB_2_DBFED 520
-#define FO_HB_2_TZA_ACTION EPWM_TZ_ACTION_LOW
-#define FO_HB_2_TZB_ACTION EPWM_TZ_ACTION_HIGH
-#define FO_HB_2_OSHT_SOURCES EPWM_TZ_SIGNAL_OSHT1
+#define FO_HB_2_TZA_ACTION EPWM_TZ_ACTION_HIGH
+#define FO_HB_2_TZB_ACTION EPWM_TZ_ACTION_LOW
 #define FO_HB_2_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
 #define Sample_Timer_BASE EPWM1_BASE
 #define Sample_Timer_TBPRD 5000
@@ -618,6 +615,15 @@ void myCLA0_init();
 #define Sample_Timer_TZA_ACTION EPWM_TZ_ACTION_HIGH_Z
 #define Sample_Timer_TZB_ACTION EPWM_TZ_ACTION_HIGH_Z
 #define Sample_Timer_INTERRUPT_SOURCE EPWM_INT_TBCTR_DISABLED
+
+//*****************************************************************************
+//
+// EPWMXBAR Configurations
+//
+//*****************************************************************************
+void myEPWMXBAR0_init();
+#define myEPWMXBAR0 XBAR_TRIP4
+#define myEPWMXBAR0_ENABLED_MUXES (XBAR_MUX04)
 
 //*****************************************************************************
 //
@@ -726,6 +732,12 @@ void RTD_DRDYA_Input_XBar_init();
 #define RTD_DRDYB_Input_XBar_SOURCE 41
 #define RTD_DRDYB_Input_XBar_INPUT XBAR_INPUT5
 void RTD_DRDYB_Input_XBar_init();
+#define Input_XBar_HALT_1_SOURCE 47
+#define Input_XBar_HALT_1_INPUT XBAR_INPUT1
+void Input_XBar_HALT_1_init();
+#define Input_XBar_HATL_2_SOURCE 42
+#define Input_XBar_HATL_2_INPUT XBAR_INPUT2
+void Input_XBar_HATL_2_init();
 
 //*****************************************************************************
 //
@@ -912,6 +924,7 @@ void	CAN_init();
 void	CLA_init();
 void	CPUTIMER_init();
 void	EPWM_init();
+void	EPWMXBAR_init();
 void	GPIO_init();
 void	I2C_init();
 void	INPUTXBAR_init();
