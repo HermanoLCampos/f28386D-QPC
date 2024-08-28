@@ -7,3 +7,6 @@
 [submodule "Submodules/dbc2h_converter"]
 	path = Submodules/dbc2h_converter
 	url = git@github.com:mon-martins/dbc2h_converter.git
+[submodule "Submodules/modulink_dbcs"]
+	path = Submodules/modulink_dbcs
+	url = git@dev.uem.com.br:ozibrido/modulink_dbcs.git
