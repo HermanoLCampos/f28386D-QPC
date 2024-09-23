@@ -52,8 +52,6 @@ typedef struct {
     QTimeEvt time_evt_cla_watchdog;
     QTimeEvt time_evt_settle;
     QTimeEvt time_evt_report_status;
-    uint16_t aux1;
-    uint16_t aux2;
     FSBB_Control_faults_t faults;
     uint16_t measures[NUM_OF_FSBB_MEASURES];
     QTimeEvt time_evt_update_measure_request;
@@ -62,6 +60,7 @@ typedef struct {
     Skiip_CAN_Faults_t skiip1_faults;
     Skiip_CAN_Faults_t skiip2_faults;
     QTimeEvt time_evt_update_temperature_request;
+    uint16_t state;
 } FSBB_Control;
 
 // private:

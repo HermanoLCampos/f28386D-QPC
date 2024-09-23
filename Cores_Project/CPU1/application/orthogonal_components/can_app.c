@@ -20,10 +20,10 @@ void OC_CAN_send_msg(OC_CAN * const me,
     QEvt const * const e){
     OC_Evt_CAN_Send_Message_t const * Evt_CAN_MSG = Q_EVT_CAST(OC_Evt_CAN_Send_Message_t);
     if(me->id == OC_CAN_CAN_SKIIP_ID){
-        if(Evt_CAN_MSG->Message_Box_ID == DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX){
+        if(Evt_CAN_MSG->Message_Box_ID == DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX){
             BSP_CAN_fifo_add_msg( &CAN_SKIIP_1_fifo , *((uint64_t *) &Evt_CAN_MSG->Data));
         }else
-        if(Evt_CAN_MSG->Message_Box_ID == DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX){
+        if(Evt_CAN_MSG->Message_Box_ID == DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX){
             BSP_CAN_fifo_add_msg( &CAN_SKIIP_2_fifo , *((uint64_t *) &Evt_CAN_MSG->Data));
         }else
             CAN_sendMessage_16bit(oc_can_base[OC_CAN_CAN_SKIIP_ID], Evt_CAN_MSG->Message_Box_ID, 8, (uint16_t *) &Evt_CAN_MSG->Data);
@@ -49,7 +49,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
 
         case DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE_FRAME_ID:
             if(
-                CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP1_HEADER, can_payload.byte_data ) == 0x80
+                CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_HEADER, can_payload.byte_data ) == 0x80
             ){
                 // Error on request
                 // 0x06020000 -> Object does not exist in the object dictionary
@@ -58,11 +58,11 @@ void OC_CAN_receive_msg(OC_CAN * const me,
                 // 0x08000000 -> General error
             }else{
                 switch(
-                    CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP1_OBJ_ID, can_payload.byte_data )
+                    CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_OBJ_ID, can_payload.byte_data )
                 ){
-                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1  , DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB):
+                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1  , DBC_SKIIP_CAN_SIG_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB):
                     if(
-                        CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP1_SUB_INDEX, can_payload.byte_data ) == 0x01
+                        CAN_GET_ENCODED_VALUE( DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1 , DBC_SKIIP_CAN_SIG_SUB_INDEX, can_payload.byte_data ) == 0x01
                     ){
                         msg_received->com_sig = COM_SIG_CAN_SKIIP_UPDATE_MEASURE;
                         msg_received->message_size = sizeof(FSBB_Measure_Update_t)/sizeof(uint16_t);
@@ -70,24 +70,24 @@ void OC_CAN_receive_msg(OC_CAN * const me,
 //                        ((FSBB_Measure_Update_t *) &msg_received->payload)->measure = ((CAN_Open_2_Byte_Data_Decode_t*) &Evt_CAN_MSG->Data)->data;
                         // little endian
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure =
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP1_DATA_BYTE_1 , can_payload.byte_data) << 0 +
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP1_DATA_BYTE_2 , can_payload.byte_data) << 8
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 0 +
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_2 , can_payload.byte_data) << 8
                         ;
                         buffer_index = buffer_index + msg_received->message_size + 2;
                         msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
                     }
                     break;
-                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1 , DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB):
+                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1 , DBC_SKIIP_CAN_SIG_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB):
                     if(
-                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP1_SUB_INDEX, can_payload.byte_data ) == 0
+                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE,DBC_SKIIP_CAN_SIG_SUB_INDEX, can_payload.byte_data ) == 0
                     ){
                         msg_received->com_sig = COM_SIG_CAN_SKIIP_UPDATE_MEASURE;
                         msg_received->message_size = sizeof(FSBB_Measure_Update_t)/sizeof(uint16_t);
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure_id = FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE;
 //                        ((FSBB_Measure_Update_t *) &msg_received->payload)->measure = ((CAN_Open_2_Byte_Data_Decode_t*) &Evt_CAN_MSG->Data)->data;
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure =
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP1_DATA_BYTE_1 , can_payload.byte_data) << 0 +
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP1_DATA_BYTE_2 , can_payload.byte_data) << 8
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 0 +
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP1_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_2 , can_payload.byte_data) << 8
                         ;
                         buffer_index = buffer_index + msg_received->message_size + 2;
                         msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
@@ -101,7 +101,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
             break;
         case DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE_FRAME_ID:
             if(
-                CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP2_HEADER, can_payload.byte_data ) == 0x80
+                CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE,DBC_SKIIP_CAN_SIG_HEADER, can_payload.byte_data ) == 0x80
             ){
                 // Error on request
                 // 0x06020000 -> Object does not exist in the object dictionary
@@ -110,35 +110,35 @@ void OC_CAN_receive_msg(OC_CAN * const me,
                 // 0x08000000 -> General error
             }else{
                 switch(
-                    CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP2_OBJ_ID, can_payload.byte_data)
+                    CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE , DBC_SKIIP_CAN_SIG_OBJ_ID, can_payload.byte_data)
                 ){
-                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB):
+                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2 , DBC_SKIIP_CAN_SIG_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB):
                     if(
-                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP2_SUB_INDEX, can_payload.byte_data ) == 1
+                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE , DBC_SKIIP_CAN_SIG_SUB_INDEX, can_payload.byte_data ) == 1
                     ){
                         msg_received->com_sig = COM_SIG_CAN_SKIIP_UPDATE_MEASURE;
                         msg_received->message_size = sizeof(FSBB_Measure_Update_t)/sizeof(uint16_t);
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure_id = FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE;
 //                        ((FSBB_Measure_Update_t *) &msg_received->payload)->measure = ((CAN_Open_2_Byte_Data_Decode_t*) &Evt_CAN_MSG->Data)->data;
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure =
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP2_DATA_BYTE_1 , can_payload.byte_data) << 0 +
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP2_DATA_BYTE_1 , can_payload.byte_data) << 8
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 0 +
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 8
                         ;
                         buffer_index = buffer_index + msg_received->message_size + 2;
                         msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
                     }
                     break;
-                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2 , DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB):
+                case CAN_GET_VALUE_BY_NAME( DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2 , DBC_SKIIP_CAN_SIG_OBJ_ID , DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB):
                     if(
-                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE,DBC_SKIIP_CAN_SIG_SKIIP2_SUB_INDEX, can_payload.byte_data ) == 0
+                        CAN_GET_DECODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE , DBC_SKIIP_CAN_SIG_SUB_INDEX, can_payload.byte_data ) == 0
                     ){
                         msg_received->com_sig = COM_SIG_CAN_SKIIP_UPDATE_MEASURE;
                         msg_received->message_size = sizeof(FSBB_Measure_Update_t)/sizeof(uint16_t);
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure_id = FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE;
 //                        ((FSBB_Measure_Update_t *) &msg_received->payload)->measure = ((CAN_Open_2_Byte_Data_Decode_t*) &Evt_CAN_MSG->Data)->data;
                         ((FSBB_Measure_Update_t *) &msg_received->payload)->measure =
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP2_DATA_BYTE_1 , can_payload.byte_data) << 0 +
-                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_SKIIP2_DATA_BYTE_1 , can_payload.byte_data) << 8
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 0 +
+                            CAN_GET_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_SKIIP2_MESSAGE, DBC_SKIIP_CAN_SIG_DATA_BYTE_1 , can_payload.byte_data) << 8
                         ;
                         buffer_index = buffer_index + msg_received->message_size + 2;
                         msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);

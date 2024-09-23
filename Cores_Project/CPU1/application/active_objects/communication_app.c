@@ -64,37 +64,39 @@ void Communication_skiip_can_open_config(Communication * const me){
     OC_Evt_CAN_Send_Message_t evt_to_send;
 
     evt_to_send.super = im_evt_can_send_msg[OC_CAN_CAN_SKIIP_ID];
-    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX;
+    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX;
 
     {
     Can_Payload_t can_payload = {0};
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_HEADER,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_HEADER,
         can_payload.byte_data ,
         0X2B
     );
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_PRODUCER_HEARTBEAT
     );
-    CAN_WRITE_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_SUB_INDEX,
+    CAN_WRITE_ENCODED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
         can_payload.byte_data,
         0x00
     );
+
     // Two Bytes data
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_DATA_BYTE_1,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_DATA_BYTE_1,
         can_payload.byte_data,
         ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) << 0 ) & 0xFF)
     );
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_DATA_BYTE_2,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_DATA_BYTE_2,
         can_payload.byte_data,
         ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) << 8 ) & 0xFF)
     );
@@ -103,37 +105,38 @@ void Communication_skiip_can_open_config(Communication * const me){
 
     QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
 
-    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX;
+    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX;
 
     {
     Can_Payload_t can_payload = {0};
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_HEADER,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_HEADER,
         can_payload.byte_data ,
         0x2B
     );
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_PRODUCER_HEARTBEAT
     );
-    CAN_WRITE_ENCODED_VALUE(DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_SUB_INDEX,
+    CAN_WRITE_ENCODED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
         can_payload.byte_data,
         0x00
     );
     // Two Bytes data
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_DATA_BYTE_1,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_DATA_BYTE_1,
         can_payload.byte_data,
         ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) << 0 ) & 0xFF)
     );
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_DATA_BYTE_2,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_DATA_BYTE_2,
         can_payload.byte_data,
         ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) << 8 ) & 0xFF)
     );
@@ -150,12 +153,12 @@ void Communication_update_measure_request(Communication * const me,
     OC_Evt_CAN_Send_Message_t evt_to_send;
 
     evt_to_send.super = im_evt_can_send_msg[OC_CAN_CAN_SKIIP_ID];
-    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX;
+    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX;
 
     Can_Payload_t can_payload = {0};
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_HEADER,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_HEADER,
         can_payload.byte_data ,
         DBC_SKIIP_CAN_VALUE_READ_DEFAULT
     );
@@ -164,17 +167,17 @@ void Communication_update_measure_request(Communication * const me,
 
     // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB
     );
 
     CAN_WRITE_ENCODED_VALUE(
-            DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-            DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_SUB_INDEX,
-            can_payload.byte_data,
-            0x01
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
+        can_payload.byte_data,
+        0x01
     );
 
     *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
@@ -182,75 +185,15 @@ void Communication_update_measure_request(Communication * const me,
 
     // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
     );
 
     CAN_WRITE_ENCODED_VALUE(
-            DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-            DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_SUB_INDEX,
-            can_payload.byte_data,
-            0x00
-    );
-
-    *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
-    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
-
-
-    // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
-
-    CAN_WRITE_NAMED_VALUE(
-       DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-       DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_OBJ_ID,
-       can_payload.byte_data,
-       DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
-   );
-
-   CAN_WRITE_ENCODED_VALUE(
-           DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1,
-           DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP1_SUB_INDEX,
-           can_payload.byte_data,
-           0x00
-   );
-
-   *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
-    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
-
-
-    // Skiip2 Measure Requirement
-
-    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX;
-
-    CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID,
-        can_payload.byte_data,
-        DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB
-    );
-
-    CAN_WRITE_ENCODED_VALUE(
-            DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-            DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_SUB_INDEX,
-            can_payload.byte_data,
-            0x01
-    );
-
-    *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
-    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
-
-    // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
-    CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID,
-        can_payload.byte_data,
-        DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
-    );
-
-    CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_SUB_INDEX,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
         can_payload.byte_data,
         0x00
     );
@@ -262,15 +205,75 @@ void Communication_update_measure_request(Communication * const me,
     // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
 
     CAN_WRITE_NAMED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_OBJ_ID,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
+        can_payload.byte_data,
+        DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
+   );
+
+   CAN_WRITE_ENCODED_VALUE(
+           DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
+           DBC_SKIIP_CAN_SIG_SUB_INDEX,
+           can_payload.byte_data,
+           0x00
+   );
+
+   *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
+    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
+
+
+    // Skiip2 Measure Requirement
+
+    evt_to_send.Message_Box_ID = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX;
+
+    CAN_WRITE_NAMED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
+        can_payload.byte_data,
+        DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_DCB
+    );
+
+    CAN_WRITE_ENCODED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
+        can_payload.byte_data,
+        0x01
+    );
+
+    *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
+    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
+
+    // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
+    CAN_WRITE_NAMED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
+        can_payload.byte_data,
+        DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_TEMPERATURE_PCB
+    );
+
+    CAN_WRITE_ENCODED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
+        can_payload.byte_data,
+        0x00
+    );
+
+    *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
+    QASM_DISPATCH( &(me->can_inst[OC_CAN_CAN_SKIIP_ID].super) ,&evt_to_send.super.super, (void *) 0 );
+
+
+    // DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
+
+    CAN_WRITE_NAMED_VALUE(
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_ERROR_STATE
     );
 
     CAN_WRITE_ENCODED_VALUE(
-        DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2,
-        DBC_SKIIP_CAN_SIG_VPU_TO_SKIIP2_SUB_INDEX,
+        DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
+        DBC_SKIIP_CAN_SIG_SUB_INDEX,
         can_payload.byte_data,
         0x00
     );

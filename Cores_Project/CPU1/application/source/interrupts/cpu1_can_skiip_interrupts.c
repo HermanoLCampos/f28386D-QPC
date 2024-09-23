@@ -129,12 +129,12 @@ __interrupt void INT_CAN_SKIIP_0_ISR(){
         break;
     }
 
-    case DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX:{
+    case DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX:{
         BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_1_fifo);
         CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
         break;
     }
-    case DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX:{
+    case DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX:{
         BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_2_fifo);
         CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
         break;

@@ -85,7 +85,7 @@ void user_msg_box_init(){
         );
     }
 
-    i_msg = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP1_INDEX;
+    i_msg = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX;
     CAN_setupMessageObject(
         CAN_SKIIP_BASE,                                             //Base
         i_msg,                                                      // MailBox Number
@@ -98,7 +98,7 @@ void user_msg_box_init(){
     );
     BSP_CAN_init_fifo(&CAN_SKIIP_1_fifo, CAN_SKIIP_BASE, i_msg);
 
-    i_msg = DBC_SKIIP_CAN_MSG_VPU_MESSAGE_SKIIP2_INDEX;
+    i_msg = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX;
     CAN_setupMessageObject(
         CAN_SKIIP_BASE,                                             //Base
         i_msg,                                                      // MailBox Number

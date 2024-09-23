@@ -29,6 +29,8 @@ typedef struct{
     uint16_t D_VIN;
     uint16_t D_VOUT;
 
+    uint16_t FSBB_Control_State;
+
 
 }CPU1_CM_Message_t;
 

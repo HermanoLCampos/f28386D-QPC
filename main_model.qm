@@ -856,10 +856,6 @@ OC_MAX31865_spi_read_request(
      <attribute name="time_evt_settle" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_report_status}-->
      <attribute name="time_evt_report_status" type="QTimeEvt" visibility="0x02" properties="0x00"/>
-     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::aux1}-->
-     <attribute name="aux1" type="uint16_t" visibility="0x02" properties="0x00"/>
-     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::aux2}-->
-     <attribute name="aux2" type="uint16_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::faults}-->
      <attribute name="faults" type="FSBB_Control_faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::measures[NUM_OF_FSBB_MEASURES]}-->
@@ -876,6 +872,8 @@ OC_MAX31865_spi_read_request(
      <attribute name="skiip2_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_update_temperature_requ~}-->
      <attribute name="time_evt_update_temperature_request" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::state}-->
+     <attribute name="state" type="uint16_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge}-->
      <operation name="Start_Precharge" type="void" visibility="0x02" properties="0x00">
       <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::Start_Precharge::e}-->
@@ -1154,6 +1152,7 @@ report_message-&gt;super.ID = OC_IPC_CPU1_CM_ID;
 report_message-&gt;msg.com_sig = COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT;
 report_message-&gt;msg.message_size = sizeof(FSBB_Control_Public_Data_t);
 report_message-&gt;msg.payload.faults = me-&gt;faults;
+report_message-&gt;msg.payload.state = me-&gt;state;
 
 QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *) 0);
 </action>
@@ -1324,7 +1323,9 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
        <state name="Uncharged">
         <documentation>this state waits the command to charge the  capacitors.</documentation>
-        <entry>//BSP_BKPT;</entry>
+        <entry>//BSP_BKPT;
+
+me-&gt;state = FSBB_INIT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
         <tran trig="PRECHARGE_START" target="../../17">
          <action>//BSP_BKPT;</action>
@@ -1340,26 +1341,26 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
        <state name="Precharge">
         <documentation>waiting the capacitors charge.</documentation>
         <entry>FSBB_Control_Start_Precharge(me,e);
-me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
-me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;
+//me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
+//me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;
 
 // Execute precharge
-QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
-(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
-);</entry>
-        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
+//QTimeEvt_armX(&amp;me-&gt;time_evt_check_params,
+//(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+//(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+//);</entry>
+        <exit>//QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
-         <action>if(
-    ((me-&gt;aux1-CLA2CPU_Message.skiip1_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH) &amp;&amp;
-    ((me-&gt;aux2-CLA2CPU_Message.skiip2_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH)
-){
-    QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_precharge_finish,(void *)0);
-}
+         <action>//if(
+//    ((me-&gt;aux1-CLA2CPU_Message.skiip1_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH) &amp;&amp;
+//    ((me-&gt;aux2-CLA2CPU_Message.skiip2_voltage) &lt; MIN_DELTA_V_PRECHARGE_FINISH)
+//){
+//    QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_precharge_finish,(void *)0);
+//}
 
-me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
-me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
+//me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
+//me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
          <tran_glyph conn="84,18,3,-1,16">
           <action box="0,-2,13,2"/>
          </tran_glyph>
@@ -1379,7 +1380,10 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}-->
        <state name="Idle">
         <documentation>waiting the command to start the control</documentation>
-        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);</entry>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+
+me-&gt;state = FSBB_READY;
+</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
         <tran trig="START_CONTROL" target="../../19">
          <tran_glyph conn="84,38,3,3,32">
@@ -1393,7 +1397,11 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}-->
        <state name="Running">
         <documentation>controlling the current, using the setpoint, passed by the CAN Network.</documentation>
-        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);</entry>
+        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);
+
+me-&gt;state = FSBB_RUNNING;
+</entry>
+        <exit>me-&gt;state = FSBB_STOPPING;</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
         <tran trig="STOP_CONTROL" target="../../22">
          <tran_glyph conn="116,36,3,1,22,18,-2">
@@ -1402,12 +1410,15 @@ me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;</action>
         </tran>
         <state_glyph node="116,30,20,12">
          <entry box="1,2,6,2"/>
+         <exit box="1,4,6,2"/>
         </state_glyph>
        </state>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault}-->
        <state name="Fault">
         <documentation>set faults,</documentation>
-        <entry>FSBB_Control_Change_Control_State(me,FSBB_CONTROL_ERROR);
+        <entry>me-&gt;state = FSBB_ERROR;
+
+FSBB_Control_Change_Control_State(me,FSBB_CONTROL_ERROR);
 
 FSBB_Control_Open_Contactors(me,e);
 
@@ -1497,7 +1508,9 @@ QTimeEvt_armX(&amp;me-&gt;time_evt_settle,
 );</entry>
         <exit>// Deactivate the time events of this State
 QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
-QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);</exit>
+QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);
+
+</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
@@ -1566,11 +1579,13 @@ QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request    , p_ao_communicati
 
 QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_temperature_request, &amp;me-&gt;super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
 
-
-
 // Vars
 AO_Evt_Set_Multiple_Faults_t aux = {0};
-me-&gt;faults = aux.faults;</code>
+me-&gt;faults = aux.faults;
+
+// State
+
+me-&gt;state = FSBB_INIT;</code>
      </operation>
     </package>
    </package>
@@ -3183,6 +3198,16 @@ me-&gt;sys_data = aux;</code>
     NUM_OF_FSBB_MEASURES,
 };</code>
    </attribute>
+   <!--${Shared::Signals::fsbb_control_state}-->
+   <attribute name="fsbb_control_state" type="enum" visibility="0x04" properties="0x00">
+    <code>{
+    FSBB_INIT,
+    FSBB_READY,
+    FSBB_RUNNING,
+    FSBB_STOPPING,
+    FSBB_ERROR,
+};</code>
+   </attribute>
   </package>
   <!--${Shared::Types}-->
   <package name="Types" stereotype="0x00">
@@ -3309,6 +3334,8 @@ me-&gt;sys_data = aux;</code>
    <class name="FSBB_Control_Public_Data_t">
     <!--${Shared::Types::FSBB_Control_Pub~::faults}-->
     <attribute name="faults" type="FSBB_Control_faults_t" visibility="0x00" properties="0x00"/>
+    <!--${Shared::Types::FSBB_Control_Pub~::state}-->
+    <attribute name="state" type="uint16_t" visibility="0x00" properties="0x00"/>
    </class>
    <!--${Shared::Types::System_Public_Data_t}-->
    <class name="System_Public_Data_t">

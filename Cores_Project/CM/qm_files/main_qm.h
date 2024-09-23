@@ -183,6 +183,15 @@ enum fsbb_measures {
     NUM_OF_FSBB_MEASURES,
 };
 
+//${Shared::Signals::fsbb_control_state} .....................................
+enum fsbb_control_state {
+    FSBB_INIT,
+    FSBB_READY,
+    FSBB_RUNNING,
+    FSBB_STOPPING,
+    FSBB_ERROR,
+};
+
 //${Shared::Types::OCs::SPI::SPI_Message_t} ..................................
 typedef struct {
 // public:
@@ -267,6 +276,7 @@ typedef struct {
 typedef struct {
 // public:
     FSBB_Control_faults_t faults;
+    uint16_t state;
 } FSBB_Control_Public_Data_t;
 
 //${Shared::Types::System_Public_Data_t} .....................................

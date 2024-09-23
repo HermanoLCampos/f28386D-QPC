@@ -308,6 +308,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             report_message->msg.com_sig = COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT;
             report_message->msg.message_size = sizeof(FSBB_Control_Public_Data_t);
             report_message->msg.payload.faults = me->faults;
+            report_message->msg.payload.state = me->state;
 
             QACTIVE_POST( p_ao_communication , &report_message->super.super , (void *) 0);
 
@@ -483,6 +484,8 @@ QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}
         case Q_ENTRY_SIG: {
             //BSP_BKPT;
+
+            me->state = FSBB_INIT;
             status_ = Q_HANDLED();
             break;
         }
@@ -507,34 +510,34 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge}
         case Q_ENTRY_SIG: {
             FSBB_Control_Start_Precharge(me,e);
-            me->aux1 = CLA2CPU_Message.skiip1_voltage;
-            me->aux2 = CLA2CPU_Message.skiip2_voltage;
+            //me->aux1 = CLA2CPU_Message.skiip1_voltage;
+            //me->aux2 = CLA2CPU_Message.skiip2_voltage;
 
             // Execute precharge
-            QTimeEvt_armX(&me->time_evt_check_params,
-            (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
-            (uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
-            );
+            //QTimeEvt_armX(&me->time_evt_check_params,
+            //(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS)),
+            //(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
+            //);
             status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge}
         case Q_EXIT_SIG: {
-            QTimeEvt_disarm(&me->time_evt_check_params);
+            //QTimeEvt_disarm(&me->time_evt_check_params);
             status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::CHECK_PARAMS}
         case CHECK_PARAMS_SIG: {
-            if(
-                ((me->aux1-CLA2CPU_Message.skiip1_voltage) < MIN_DELTA_V_PRECHARGE_FINISH) &&
-                ((me->aux2-CLA2CPU_Message.skiip2_voltage) < MIN_DELTA_V_PRECHARGE_FINISH)
-            ){
-                QACTIVE_POST(&me->super,&im_evt_precharge_finish,(void *)0);
-            }
+            //if(
+            //    ((me->aux1-CLA2CPU_Message.skiip1_voltage) < MIN_DELTA_V_PRECHARGE_FINISH) &&
+            //    ((me->aux2-CLA2CPU_Message.skiip2_voltage) < MIN_DELTA_V_PRECHARGE_FINISH)
+            //){
+            //    QACTIVE_POST(&me->super,&im_evt_precharge_finish,(void *)0);
+            //}
 
-            me->aux1 = CLA2CPU_Message.skiip1_voltage;
-            me->aux2 = CLA2CPU_Message.skiip2_voltage;
+            //me->aux1 = CLA2CPU_Message.skiip1_voltage;
+            //me->aux2 = CLA2CPU_Message.skiip2_voltage;
             status_ = Q_HANDLED();
             break;
         }
@@ -559,6 +562,9 @@ QState FSBB_Control_Idle(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle}
         case Q_ENTRY_SIG: {
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_STOPPED);
+
+            me->state = FSBB_READY;
+
             status_ = Q_HANDLED();
             break;
         }
@@ -582,6 +588,15 @@ QState FSBB_Control_Running(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}
         case Q_ENTRY_SIG: {
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_RUNNING);
+
+            me->state = FSBB_RUNNING;
+
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running}
+        case Q_EXIT_SIG: {
+            me->state = FSBB_STOPPING;
             status_ = Q_HANDLED();
             break;
         }
@@ -604,6 +619,8 @@ QState FSBB_Control_Fault(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Fault}
         case Q_ENTRY_SIG: {
+            me->state = FSBB_ERROR;
+
             FSBB_Control_Change_Control_State(me,FSBB_CONTROL_ERROR);
 
             FSBB_Control_Open_Contactors(me,e);
@@ -721,6 +738,8 @@ QState FSBB_Control_To_Idle_1(FSBB_Control * const me, QEvt const * const e) {
             // Deactivate the time events of this State
             QTimeEvt_disarm(&me->time_evt_check_params);
             QTimeEvt_disarm(&me->time_evt_settle);
+
+
             status_ = Q_HANDLED();
             break;
         }
@@ -784,10 +803,12 @@ void ao_fsbb_control_ctor(const QActive  * const pAO) {
 
     QTimeEvt_ctorX(&me->time_evt_update_temperature_request, &me->super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
 
-
-
     // Vars
     AO_Evt_Set_Multiple_Faults_t aux = {0};
     me->faults = aux.faults;
+
+    // State
+
+    me->state = FSBB_INIT;
 }
 //$enddef${CPU1::AOs::AO_FSBB_Control} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
