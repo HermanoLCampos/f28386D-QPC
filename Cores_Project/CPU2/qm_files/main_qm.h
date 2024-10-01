@@ -58,6 +58,13 @@ enum com_signals_can_public {
     COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT,
     COM_SIG_CAN_PUBLIC_RESET,
     COM_SIG_CAN_PUBLIC_CLEAR_FAULT,
+
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_FINISH,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_TIMEOUT,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_ACK,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_NACK,
+    COM_SIG_CAN_PUBLIC_SMU_ERROR,
+
     COM_SIG_CAN_PUBLIC_MAX,
     COM_SIG_CAN_PUBLIC_NOTHING = COM_SIG_CAN_PUBLIC_MAX,
 };
@@ -97,6 +104,7 @@ enum com_signals_cpu1_cm_ipc {
     COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
+    COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE,
     COM_SIG_IPC_CPU1_CM_MAX,
     COM_SIG_IPC_CPU1_CM_NOTHING = COM_SIG_IPC_CPU1_CM_MAX,
 };
@@ -111,6 +119,14 @@ enum com_signals_cm_cpu1_ipc {
     COM_SIG_IPC_CM_CPU1_CHANGE_SETPOINT,
     COM_SIG_IPC_CM_CPU1_CLEAR_FAULT,
     COM_SIG_IPC_CM_CPU1_RESET,
+
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_FINISH_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_TIMEOUT_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_ACK_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_NACK_SIG,
+
+    COM_SIG_IPC_CM_CPU1_SMU_ERROR,
+
     COM_SIG_IPC_CM_CPU1_MAX,
     COM_SIG_IPC_CM_CPU1_NOTHING = COM_SIG_IPC_CM_CPU1_MAX,
 };
@@ -270,6 +286,7 @@ typedef struct {
     uint16_t skiip2_error:1;
     uint16_t skiip1_cardiac_arrest:1;
     uint16_t skiip2_cardiac_arrest:1;
+    uint16_t smu_error:1;
 } FSBB_Control_faults_t;
 
 //${Shared::Types::FSBB_Control_Public_Data_t} ...............................
@@ -299,6 +316,13 @@ typedef struct {
     uint16_t measure_id;
     uint16_t measure;
 } FSBB_Measure_Update_t;
+
+//${Shared::Types::Aux Types::CAN_Data_t} ....................................
+typedef struct {
+// public:
+    uint16_t Message_Box_ID;
+    uint16_t Data[4];
+} CAN_Data_t;
 
 //${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {

@@ -112,12 +112,6 @@ OC_Evt const im_evt_max31865_spi_read_finish[OC_MAX31865_NUM_OF_INST] ={
     },
 };
 
-//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
-QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
-
-//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
-QEvt const im_evt_precharge_finish = QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);
-
 //${CPU1::Immutable_Events::FSBB::im_evt_start_control} ......................
 QEvt const im_evt_start_control = QEVT_INITIALIZER(START_CONTROL_SIG);
 
@@ -144,6 +138,24 @@ QEvt const im_evt_update_measure = QEVT_INITIALIZER(UPDATE_MEASURE_SIG);
 
 //${CPU1::Immutable_Events::FSBB::im_evt_init_skiip_can} .....................
 QEvt const im_evt_init_skiip_can = QEVT_INITIALIZER(INIT_SKIIP_CAN_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
+QEvt const im_evt_precharge_start = QEVT_INITIALIZER(PRECHARGE_START_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_timeout} ..................
+QEvt const im_evt_precharge_timeout = QEVT_INITIALIZER(PRECHARGE_TIMEOUT_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
+QEvt const im_evt_precharge_finish = QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_ack} ......................
+QEvt const im_evt_precharge_ack = QEVT_INITIALIZER(PRECHARGE_TIMEOUT_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_nack} .....................
+QEvt const im_evt_precharge_nack = QEVT_INITIALIZER(PRECHARGE_NACK_SIG);
+
+//${CPU1::Immutable_Events::FSBB::im_evt_smu_error} ..........................
+QEvt const im_evt_smu_error = QEVT_INITIALIZER(SMU_ERROR_SIG);
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST] ={
@@ -274,6 +286,28 @@ com_tag_t com_signals_ipc_cm_cpu1[COM_SIG_IPC_CM_CPU1_MAX] ={
         .p_ao = &p_ao_fsbb_control,
         .im_evt = &im_evt_change_setpoint,
     },
+
+    [COM_SIG_IPC_CM_CPU1_PRECHARGE_TIMEOUT_SIG] = {
+        .p_ao   = &p_ao_fsbb_control,
+        .im_evt = &im_evt_precharge_timeout
+    },
+    [COM_SIG_IPC_CM_CPU1_PRECHARGE_FINISH_SIG] = {
+        .p_ao   = &p_ao_fsbb_control,
+        .im_evt = &im_evt_precharge_finish
+    },
+    [COM_SIG_IPC_CM_CPU1_PRECHARGE_ACK_SIG] = {
+        .p_ao   = &p_ao_fsbb_control,
+        .im_evt = &im_evt_precharge_ack
+    },
+    [COM_SIG_IPC_CM_CPU1_PRECHARGE_NACK_SIG] = {
+        .p_ao   = &p_ao_fsbb_control,
+        .im_evt = &im_evt_precharge_nack
+    },
+    [COM_SIG_IPC_CM_CPU1_SMU_ERROR] = {
+        .p_ao   = &p_ao_fsbb_control,
+        .im_evt = &im_evt_smu_error
+    },
+
 };
 
 //${CPU1::Signals::com_signals_can_skiip[COM_SIG_CA~} ........................

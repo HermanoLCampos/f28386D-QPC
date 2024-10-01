@@ -59,6 +59,7 @@ void Communication_can_process_msg(Communication * const me,
     QEvt const * const e);
 void Communication_Can_Periodic_Msg(Communication * const me);
 void Communication_Can_Periodic_Msg_Control(Communication * const me);
+void Communication_start_precharge(Communication * const me);
 
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);

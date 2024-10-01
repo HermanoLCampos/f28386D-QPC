@@ -207,6 +207,11 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
             status_ = Q_HANDLED();
             break;
         }
+        //${CM::AOs::AO_Communication::Communication::SM::Operation::SMU_START_PRECHARGE}
+        case SMU_START_PRECHARGE_SIG: {
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&QHsm_top);
             break;

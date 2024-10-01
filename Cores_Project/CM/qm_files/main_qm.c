@@ -221,8 +221,77 @@ OC_Evt_Communication_Message_t const im_evt_change_setpoint = {
     }
 };
 
+//${CM::Immutable_Events::To CPU1::im_evt_precharge_finish} ..................
+OC_Evt_Communication_Message_t const im_evt_precharge_finish = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_PRECHARGE_FINISH_SIG,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_precharge_timeout} .................
+OC_Evt_Communication_Message_t const im_evt_precharge_timeout = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_PRECHARGE_TIMEOUT_SIG,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+
+//${CM::Immutable_Events::To CPU1::im_evt_precharge_ack} .....................
+OC_Evt_Communication_Message_t const im_evt_precharge_ack = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_PRECHARGE_ACK_SIG,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_precharge_nack} ....................
+OC_Evt_Communication_Message_t const im_evt_precharge_nack = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_PRECHARGE_NACK_SIG,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
+//${CM::Immutable_Events::To CPU1::im_evt_smu_error} .........................
+OC_Evt_Communication_Message_t const im_evt_smu_error = {
+    .super = {
+        .super = QEVT_INITIALIZER(IPC_SEND_MSG_SIG),
+        .ID = OC_IPC_CM_CPU1_ID,
+    },
+    .msg = {
+        .com_sig = COM_SIG_IPC_CM_CPU1_SMU_ERROR,
+        .message_size = 0,
+        .payload = {0}
+    }
+};
+
 //${CM::Immutable_Events::From CPU1::im_evt_update_fsbb_data} ................
 QEvt const im_evt_update_fsbb_data = QEVT_INITIALIZER(UPDATE_FSBB_DATA_SIG);
+
+//${CM::Immutable_Events::From CPU1::im_evt_smu_start_precharge} .............
+QEvt const im_evt_smu_start_precharge = QEVT_INITIALIZER(SMU_START_PRECHARGE_SIG);
 //$enddef${CM::Immutable_Events} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //$define${CM::Signals} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -240,6 +309,10 @@ const com_tag_t com_signals_ipc_cpu1_cm[COM_SIG_IPC_CPU1_CM_MAX] ={
     [COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT] = {
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_update_fsbb_data,
+    },
+    [COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE] = {
+        .p_ao   = &p_ao_communication,
+        .im_evt = &im_evt_smu_start_precharge,
     }
 };
 
@@ -285,6 +358,30 @@ const com_tag_t com_signals_can_public[COM_SIG_CAN_PUBLIC_MAX] ={
         .p_ao = &p_ao_communication,
         .im_evt = &im_evt_change_setpoint.super.super,
     },
+
+
+    [COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_FINISH] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_precharge_finish.super.super,
+    },
+    [COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_TIMEOUT] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_precharge_timeout.super.super,
+    },
+    [COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_ACK] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_precharge_ack.super.super,
+    },
+    [COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_NACK] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_precharge_nack.super.super,
+    },
+    [COM_SIG_CAN_PUBLIC_SMU_ERROR] = {
+        .p_ao = &p_ao_communication,
+        .im_evt = &im_evt_smu_error.super.super,
+    },
+
+
 };
 
 //${CM::Signals::com_signals_mcan[COM_SIG_MCAN_MA~} ..........................

@@ -102,8 +102,8 @@ void Communication_can_process_msg(Communication * const me,
             break;
             //Invalid ID
         }
-
     }
+
 }
 
 void Communication_Can_Periodic_Msg(Communication * const me){
@@ -250,6 +250,31 @@ void Communication_Can_Periodic_Msg_Control(Communication * const me){
 
 }
 
+void Communication_start_precharge(Communication * const me){
+
+    OC_Evt_CAN_Send_Message_t evt_can_msg = {
+        .super = {
+            .super = QEVT_INITIALIZER(CAN_SEND_MSG_SIG),
+            .ID = OC_CAN_CAN_PUBLIC_ID,
+        },
+        .Message_Box_ID = 0,
+        .Data = {0},
+    };
+
+    {
+        evt_can_msg.Message_Box_ID = MODULINK_CAN_MSG_FSBB_COMMAND_SMU_INDEX;
+
+        Can_Payload_t can_payload = {0};
+
+        CAN_WRITE_NAMED_VALUE(MODULINK_CAN_MSG_FSBB_COMMAND_SMU , MODULINK_CAN_SIG_COMMUNICATION_ID , can_payload.byte_data , MODULINK_CAN_VALUE_PRECHARGE);
+        CAN_WRITE_NAMED_VALUE(MODULINK_CAN_MSG_FSBB_COMMAND_SMU , MODULINK_CAN_SIG_PAYLOAD , can_payload.byte_data , MODULINK_CAN_VALUE_START_PRECHARGE);
+
+        *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
+
+        QASM_DISPATCH( &(me->can_inst[evt_can_msg.super.ID].super), &evt_can_msg.super.super , (void *) 0 );
+    }
+
+}
 
 
 static void Communication_send_default_message(Communication_Message_t * com_message, const com_tag_t * const com_tag){

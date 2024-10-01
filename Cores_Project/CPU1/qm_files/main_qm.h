@@ -59,6 +59,13 @@ enum com_signals_can_public {
     COM_SIG_CAN_PUBLIC_CHANGE_SETPOINT,
     COM_SIG_CAN_PUBLIC_RESET,
     COM_SIG_CAN_PUBLIC_CLEAR_FAULT,
+
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_FINISH,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_TIMEOUT,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_ACK,
+    COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_NACK,
+    COM_SIG_CAN_PUBLIC_SMU_ERROR,
+
     COM_SIG_CAN_PUBLIC_MAX,
     COM_SIG_CAN_PUBLIC_NOTHING = COM_SIG_CAN_PUBLIC_MAX,
 };
@@ -98,6 +105,7 @@ enum com_signals_cpu1_cm_ipc {
     COM_SIG_IPC_CPU1_CM_SEND_CAN_PUBLIC_MSG,
     COM_SIG_IPC_CPU1_CM_SEND_MCAN_MSG,
     COM_SIG_IPC_CPU1_CM_FSBB_STATUS_REPORT,
+    COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE,
     COM_SIG_IPC_CPU1_CM_MAX,
     COM_SIG_IPC_CPU1_CM_NOTHING = COM_SIG_IPC_CPU1_CM_MAX,
 };
@@ -112,6 +120,14 @@ enum com_signals_cm_cpu1_ipc {
     COM_SIG_IPC_CM_CPU1_CHANGE_SETPOINT,
     COM_SIG_IPC_CM_CPU1_CLEAR_FAULT,
     COM_SIG_IPC_CM_CPU1_RESET,
+
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_FINISH_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_TIMEOUT_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_ACK_SIG,
+    COM_SIG_IPC_CM_CPU1_PRECHARGE_NACK_SIG,
+
+    COM_SIG_IPC_CM_CPU1_SMU_ERROR,
+
     COM_SIG_IPC_CM_CPU1_MAX,
     COM_SIG_IPC_CM_CPU1_NOTHING = COM_SIG_IPC_CM_CPU1_MAX,
 };
@@ -271,6 +287,7 @@ typedef struct {
     uint16_t skiip2_error:1;
     uint16_t skiip1_cardiac_arrest:1;
     uint16_t skiip2_cardiac_arrest:1;
+    uint16_t smu_error:1;
 } FSBB_Control_faults_t;
 
 //${Shared::Types::FSBB_Control_Public_Data_t} ...............................
@@ -300,6 +317,13 @@ typedef struct {
     uint16_t measure_id;
     uint16_t measure;
 } FSBB_Measure_Update_t;
+
+//${Shared::Types::Aux Types::CAN_Data_t} ....................................
+typedef struct {
+// public:
+    uint16_t Message_Box_ID;
+    uint16_t Data[4];
+} CAN_Data_t;
 
 //${Shared::Event_Types::OC::OC_Evt} .........................................
 typedef struct {
@@ -681,7 +705,6 @@ enum private_signals {
 
     //FSBB Signals
     PRECHARGE_START_SIG,
-    PRECHARGE_FINISH_SIG,
     START_CONTROL_SIG,
     STOP_CONTROL_SIG,
 
@@ -709,6 +732,12 @@ enum private_signals {
     INIT_SKIIP_CAN_SIG,
     UPDATE_MEASURE_SIG,
 
+    PRECHARGE_FINISH_SIG,
+    PRECHARGE_TIMEOUT_SIG,
+    PRECHARGE_ACK_SIG,
+    PRECHARGE_NACK_SIG,
+
+    SMU_ERROR_SIG,
 
     // CAN OC Signals
     OC_CAN_SIGNALS,
@@ -840,12 +869,6 @@ extern OC_Evt const im_evt_max31865_read_finish[OC_MAX31865_NUM_OF_INST];
 //${CPU1::Immutable_Events::FSBB::MAX31865::im_evt_max31865_spi_read_finish[~}
 extern OC_Evt const im_evt_max31865_spi_read_finish[OC_MAX31865_NUM_OF_INST];
 
-//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
-extern QEvt const im_evt_precharge_start;
-
-//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
-extern QEvt const im_evt_precharge_finish;
-
 //${CPU1::Immutable_Events::FSBB::im_evt_start_control} ......................
 extern QEvt const im_evt_start_control;
 
@@ -872,6 +895,24 @@ extern QEvt const im_evt_update_measure;
 
 //${CPU1::Immutable_Events::FSBB::im_evt_init_skiip_can} .....................
 extern QEvt const im_evt_init_skiip_can;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_start} ....................
+extern QEvt const im_evt_precharge_start;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_timeout} ..................
+extern QEvt const im_evt_precharge_timeout;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_finish} ...................
+extern QEvt const im_evt_precharge_finish;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_ack} ......................
+extern QEvt const im_evt_precharge_ack;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_precharge_nack} .....................
+extern QEvt const im_evt_precharge_nack;
+
+//${CPU1::Immutable_Events::FSBB::im_evt_smu_error} ..........................
+extern QEvt const im_evt_smu_error;
 
 //${CPU1::Immutable_Events::Communication::IPC::im_evt_ipc_reset_ch[OC_IPC_NUM_O~}
 extern OC_Evt const im_evt_ipc_reset_ch[OC_IPC_NUM_OF_INST];

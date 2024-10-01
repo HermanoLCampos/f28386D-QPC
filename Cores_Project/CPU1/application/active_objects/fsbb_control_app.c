@@ -11,29 +11,29 @@
 
 void FSBB_Control_Start_Precharge(FSBB_Control * const me,
     QEvt const * const e){
-    GPIO_writePin(HSD1, 1); // Precharge Contactor
-    GPIO_writePin(HSD3, 1); // Precharge Contactor
-
-    GPIO_writePin(HSD2, 0);
-    GPIO_writePin(HSD4, 0);
+//    GPIO_writePin(HSD1, 1); // Precharge Contactor
+//    GPIO_writePin(HSD3, 1); // Precharge Contactor
+//
+//    GPIO_writePin(HSD2, 0);
+//    GPIO_writePin(HSD4, 0);
 }
 
 void FSBB_Control_Finish_Precharge(FSBB_Control * const me,
     QEvt const * const e){
-    GPIO_writePin(HSD1, 0);
-    GPIO_writePin(HSD3, 0);
-
-    GPIO_writePin(HSD2, 1);
-    GPIO_writePin(HSD4, 1);
+//    GPIO_writePin(HSD1, 0);
+//    GPIO_writePin(HSD3, 0);
+//
+//    GPIO_writePin(HSD2, 1);
+//    GPIO_writePin(HSD4, 1);
 }
 
 void FSBB_Control_Open_Contactors(FSBB_Control * const me,
     QEvt const * const e){
-    GPIO_writePin(HSD1, 0);
-    GPIO_writePin(HSD3, 0);
-
-    GPIO_writePin(HSD2, 0);
-    GPIO_writePin(HSD4, 0);
+//    GPIO_writePin(HSD1, 0);
+//    GPIO_writePin(HSD3, 0);
+//
+//    GPIO_writePin(HSD2, 0);
+//    GPIO_writePin(HSD4, 0);
 }
 
 void FSBB_Control_Change_Control_State(FSBB_Control * const me,

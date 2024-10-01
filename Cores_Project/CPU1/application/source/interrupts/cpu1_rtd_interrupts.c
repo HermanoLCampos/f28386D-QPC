@@ -11,6 +11,7 @@
 __interrupt void INT_RTD_DRDYA_XINT_ISR(void){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
+    BSP_BKPT;
     QACTIVE_POST_FROM_ISR( p_ao_fsbb_control, &(im_evt_max31865_read_finish[OC_MAX31865_A_ID].super) , &xHigherPriorityTaskWoken ,(void *) 0 );
 
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
@@ -19,6 +20,8 @@ __interrupt void INT_RTD_DRDYA_XINT_ISR(void){
 
 __interrupt void INT_RTD_DRDYB_XINT_ISR(void){
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    BSP_BKPT;
 
     QACTIVE_POST_FROM_ISR( p_ao_fsbb_control, &(im_evt_max31865_read_finish[OC_MAX31865_B_ID].super) , &xHigherPriorityTaskWoken ,(void *) 0 );
 

@@ -1,7 +1,7 @@
 /************************************************************/
 // Automatically generated C header file from CAN DBC file
 // Source file name: dbc_skiip.dbc
-// Date created: 2024-09-23
+// Date created: 2024-10-01
 /************************************************************/
 
 

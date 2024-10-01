@@ -26,6 +26,7 @@ void OC_CAN_send_msg(OC_CAN * const me,
         CAN_sendMessage(oc_can_base[OC_CAN_CAN_PUBLIC_ID], Evt_CAN_MSG->Message_Box_ID, 8, (uint8_t *) Evt_CAN_MSG->Data);
     }
 }
+
 void OC_CAN_receive_msg(OC_CAN * const me,
     QEvt const * const e){
     OC_Evt_CAN_Message_Received_t const * Evt_CAN_MSG = Q_EVT_CAST(OC_Evt_CAN_Message_Received_t);
@@ -139,6 +140,58 @@ void OC_CAN_receive_msg(OC_CAN * const me,
 
             buffer_index = buffer_index + msg_received->message_size + 2;
             msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            break;
+        }
+        case MODULINK_CAN_MSG_SMU_COMMANDS_FSBB_FRAME_ID & 0x00FFFF00:{
+            uint16_t com_id = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_COMMUNICATION_ID , can_payload.byte_data );
+
+            switch(com_id){
+                case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_PRECHARGE_TIMEOUT):
+
+                    msg_received->com_sig = COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_TIMEOUT;
+                    msg_received->message_size = 0;
+                    buffer_index = buffer_index + msg_received->message_size + 2;
+                    msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+
+                    break;
+                case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_PRECHARGE_ACK):{
+
+                    msg_received->com_sig = COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_ACK;
+                    msg_received->message_size = 0;
+                    buffer_index = buffer_index + msg_received->message_size + 2;
+                    msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+                    break;
+                }
+
+                case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_PRECHARGE_NACK):{
+
+                    msg_received->com_sig = COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_NACK;
+                    msg_received->message_size = 0;
+                    buffer_index = buffer_index + msg_received->message_size + 2;
+                    msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+                    break;
+                }
+
+                case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_PRECHARGE_DONE):{
+
+                    msg_received->com_sig = COM_SIG_CAN_PUBLIC_SMU_PRECHARGE_FINISH;
+                    msg_received->message_size = 0;
+                    buffer_index = buffer_index + msg_received->message_size + 2;
+                    msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+                    break;
+                }
+                case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_ERROR):{
+
+                    msg_received->com_sig = COM_SIG_CAN_PUBLIC_SMU_ERROR;
+                    msg_received->message_size = 0;
+                    buffer_index = buffer_index + msg_received->message_size + 2;
+                    msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+                    break;
+                }
+            }
+
+
+
             break;
         }
         default:
