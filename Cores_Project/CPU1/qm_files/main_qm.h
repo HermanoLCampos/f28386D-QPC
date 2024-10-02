@@ -237,6 +237,13 @@ typedef struct {
     com_payload payload;
 } Communication_Message_t;
 
+//${Shared::Types::Communication_Message_0_Payload_~} ........................
+typedef struct {
+// private:
+    uint16_t com_sig;
+    uint16_t message_size;
+} Communication_Message_0_Payload_t;
+
 //${Shared::Types::Setpoint_Data_t} ..........................................
 typedef struct {
 // private:
@@ -371,6 +378,18 @@ typedef struct {
 // public:
     Communication_Message_t msg;
 } OC_Evt_Communication_Message_t;
+
+//${Shared::Event_Types::OC::OC_Evt_Communication_Message_0_P~} ..............
+typedef struct {
+// protected:
+    OC_Evt super;
+
+// public:
+    Communication_Message_0_Payload_t msg;
+} OC_Evt_Communication_Message_0_Payload_t;
+
+//${Shared::Event_Types::OC::OC_Evt_IPC_No_Payload} ..........................
+typedef struct {} OC_Evt_IPC_No_Payload;
 
 //${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_t} ......................
 typedef struct {

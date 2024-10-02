@@ -209,6 +209,8 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CM::AOs::AO_Communication::Communication::SM::Operation::SMU_START_PRECHARGE}
         case SMU_START_PRECHARGE_SIG: {
+            //BSP_BKPT;
+            Communication_start_precharge(me);
             status_ = Q_HANDLED();
             break;
         }

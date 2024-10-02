@@ -56,7 +56,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
         uint16_t buffer_index = 0;
         Communication_Message_t * msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
 
-        switch(Evt_CAN_MSG->Message_ID){
+        switch(Evt_CAN_MSG->Message_ID & 0x00FFFF00){
 //===================================================================================
 //============================Treat the messages received============================
 //===================================================================================
@@ -136,6 +136,10 @@ void OC_CAN_receive_msg(OC_CAN * const me,
             ((Setpoint_Data_t *) &((OC_Evt_Communication_Message_t *) msg_received)->msg.payload)->setpoint_id = decoded_sig;
 
             decoded_sig = CAN_GET_DECODED_VALUE(MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB , MODULINK_CAN_SIG_SETPOINT_REQUESTED , can_payload.byte_data );
+            if(decoded_sig < MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB_MODULINK_CAN_SIG_SETPOINT_REQUESTED_MINIMUM )
+                decoded_sig = MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB_MODULINK_CAN_SIG_SETPOINT_REQUESTED_MINIMUM;
+            else if(decoded_sig > MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB_MODULINK_CAN_SIG_SETPOINT_REQUESTED_MAXIMUM )
+                            decoded_sig = MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB_MODULINK_CAN_SIG_SETPOINT_REQUESTED_MAXIMUM;
             ((Setpoint_Data_t *) &((OC_Evt_Communication_Message_t *) msg_received)->msg.payload)->setpoint_value = decoded_sig;
 
             buffer_index = buffer_index + msg_received->message_size + 2;
@@ -143,7 +147,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
             break;
         }
         case MODULINK_CAN_MSG_SMU_COMMANDS_FSBB_FRAME_ID & 0x00FFFF00:{
-            uint16_t com_id = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_COMMUNICATION_ID , can_payload.byte_data );
+            uint16_t com_id = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , can_payload.byte_data );
 
             switch(com_id){
                 case CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_SMU_COMMANDS_FSBB , MODULINK_CAN_SIG_PAYLOAD , MODULINK_CAN_VALUE_PRECHARGE_TIMEOUT):
@@ -188,6 +192,7 @@ void OC_CAN_receive_msg(OC_CAN * const me,
                     msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
                     break;
                 }
+
             }
 
 

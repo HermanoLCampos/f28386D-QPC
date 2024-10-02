@@ -144,7 +144,7 @@ QState OC_MAX31865_Waiting_Request(OC_MAX31865 * const me, QEvt const * const e)
         }
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Request::MAX31865_REQUEST_TEMPERATURE}
         case MAX31865_REQUEST_TEMPERATURE_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             OC_Evt_MAX31865_Temperature_Request_t const * message = Q_EVT_CAST(OC_Evt_MAX31865_Temperature_Request_t);
             OC_MAX31865_spi_one_shot_request(
@@ -168,7 +168,7 @@ QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e)
     switch (e->sig) {
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
             QTimeEvt_armX(
                 &me->oc_time_evt_timeout.super,
                 (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -185,7 +185,7 @@ QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e)
         }
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_READ_FINISH}
         case MAX31865_READ_FINISH_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             me->measure_read_value.data = 0;
 
@@ -197,7 +197,7 @@ QState OC_MAX31865_Waiting_Measure(OC_MAX31865 * const me, QEvt const * const e)
         }
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_TIMEOUT}
         case MAX31865_TIMEOUT_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             // Clear Interrupt
             me->spi_read_status = 0;
@@ -228,7 +228,7 @@ QState OC_MAX31865_Waiting_SPI(OC_MAX31865 * const me, QEvt const * const e) {
     switch (e->sig) {
         //${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}
         case Q_ENTRY_SIG: {
-            BSP_BKPT;
+            //BSP_BKPT;
 
             QTimeEvt_armX(
                 &me->oc_time_evt_timeout.super,

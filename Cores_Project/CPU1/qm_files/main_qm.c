@@ -149,7 +149,7 @@ QEvt const im_evt_precharge_timeout = QEVT_INITIALIZER(PRECHARGE_TIMEOUT_SIG);
 QEvt const im_evt_precharge_finish = QEVT_INITIALIZER(PRECHARGE_FINISH_SIG);
 
 //${CPU1::Immutable_Events::FSBB::im_evt_precharge_ack} ......................
-QEvt const im_evt_precharge_ack = QEVT_INITIALIZER(PRECHARGE_TIMEOUT_SIG);
+QEvt const im_evt_precharge_ack = QEVT_INITIALIZER(PRECHARGE_ACK_SIG);
 
 //${CPU1::Immutable_Events::FSBB::im_evt_precharge_nack} .....................
 QEvt const im_evt_precharge_nack = QEVT_INITIALIZER(PRECHARGE_NACK_SIG);

@@ -155,6 +155,7 @@ OC_IPC_send_msg(me,e);
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}-->
       <tran trig="IPC_FULL_BUS" target="../6">
+       <action>BSP_BKPT;</action>
        <tran_glyph conn="36,44,3,3,20">
         <action box="0,-2,12,2"/>
        </tran_glyph>
@@ -647,7 +648,7 @@ OC_MAX31865_local_queue_send(me, &amp;(message-&gt;temperature_id) );</action>
        <entry>//BSP_BKPT;</entry>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Request::MAX31865_REQUEST_TEMPERATURE}-->
        <tran trig="MAX31865_REQUEST_TEMPERATURE" target="../../4">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 OC_Evt_MAX31865_Temperature_Request_t const * message = Q_EVT_CAST(OC_Evt_MAX31865_Temperature_Request_t);
 OC_MAX31865_spi_one_shot_request(
@@ -664,7 +665,7 @@ OC_MAX31865_spi_one_shot_request(
       </state>
       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure}-->
       <state name="Waiting_Measure">
-       <entry>BSP_BKPT;
+       <entry>//BSP_BKPT;
 QTimeEvt_armX(
     &amp;me-&gt;oc_time_evt_timeout.super,
     (uint16_t) ((MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS)/(RTOS_TICK_PERIOD_MS)),
@@ -673,7 +674,7 @@ QTimeEvt_armX(
        <exit>QTimeEvt_disarm(&amp;me-&gt;oc_time_evt_timeout.super);</exit>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_READ_FINISH}-->
        <tran trig="MAX31865_READ_FINISH" target="../../5">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 me-&gt;measure_read_value.data = 0;
 
@@ -686,7 +687,7 @@ OC_MAX31865_spi_read_request(
        </tran>
        <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_Measure::MAX31865_TIMEOUT}-->
        <tran trig="MAX31865_TIMEOUT">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 // Clear Interrupt
 me-&gt;spi_read_status = 0;
@@ -711,7 +712,7 @@ OC_MAX31865_spi_one_shot_request(
       </state>
       <!--${OCs::OC_MAX31865::OC_MAX31865::SM::Operation::Waiting_SPI}-->
       <state name="Waiting_SPI">
-       <entry>BSP_BKPT;
+       <entry>//BSP_BKPT;
 
 QTimeEvt_armX(
     &amp;me-&gt;oc_time_evt_timeout.super,
@@ -985,17 +986,17 @@ QTimeEvt_armX(
     (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
 
-QTimeEvt_armX(
-    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
-    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-);
+//QTimeEvt_armX(
+//    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+//);
 
-QTimeEvt_armX(
-    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
-    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-);
+//QTimeEvt_armX(
+//    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+//);
 
 QASM_DISPATCH( &amp;(me-&gt;spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&amp;im_evt_init_complete, (void *) 0 );
 QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
@@ -1292,7 +1293,7 @@ for(uint16_t max_index = 0; max_index &lt; OC_MAX31865_NUM_OF_INST ; max_index++
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_REQUEST_TEMPERATURE}-->
        <tran trig="MAX31865_REQUEST_TEMPERATURE">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 FSBB_Control_MAX_Request_Temperature(me);
 </action>
@@ -1302,7 +1303,7 @@ FSBB_Control_MAX_Request_Temperature(me);
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_READ_FINISH}-->
        <tran trig="MAX31865_READ_FINISH">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 
 uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
@@ -1315,7 +1316,7 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_SPI_READ_FINISH}-->
        <tran trig="MAX31865_SPI_READ_FINISH">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 FSBB_Control_MAX_Update_Temperature(me,e);</action>
         <tran_glyph conn="36,78,3,-1,32">
@@ -1324,7 +1325,7 @@ FSBB_Control_MAX_Update_Temperature(me,e);</action>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::MAX31865_TIMEOUT}-->
        <tran trig="MAX31865_TIMEOUT">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 uint16_t id = Q_EVT_CAST(OC_TimeEvt)-&gt;ID;
 if(id&gt;OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
@@ -1361,7 +1362,9 @@ me-&gt;state = FSBB_INIT;</entry>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge}-->
        <state name="Precharge">
         <documentation>waiting the capacitors charge.</documentation>
-        <entry>//FSBB_Control_Start_Precharge(me,e);
+        <entry>//BSP_BKPT;
+
+//FSBB_Control_Start_Precharge(me,e);
 //me-&gt;aux1 = CLA2CPU_Message.skiip1_voltage;
 //me-&gt;aux2 = CLA2CPU_Message.skiip2_voltage;
 
@@ -1371,14 +1374,15 @@ me-&gt;state = FSBB_INIT;</entry>
 //(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 //);
 
-OC_Evt_Communication_Message_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_t , IPC_SEND_MSG_SIG);
+OC_Evt_Communication_Message_0_Payload_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_0_Payload_t , IPC_SEND_MSG_SIG);
 
 Evt_Msg-&gt;super.ID    = OC_IPC_CPU1_CM_ID;
 Evt_Msg-&gt;msg.com_sig = COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE;
 Evt_Msg-&gt;msg.message_size = 0;
 
 QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );</entry>
-        <exit>//QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);</exit>
+        <exit>//QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
+//BSP_BKPT;</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
          <action>//if(
@@ -1396,25 +1400,29 @@ QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );<
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_FINISH}-->
         <tran trig="PRECHARGE_FINISH" target="../../19">
-         <action>//FSBB_Control_Finish_Precharge(me,e);</action>
+         <action>//FSBB_Control_Finish_Precharge(me,e);
+//BSP_BKPT;</action>
          <tran_glyph conn="84,20,3,1,28,18,-8">
           <action box="0,-2,16,2"/>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_NACK}-->
         <tran trig="PRECHARGE_NACK" target="../../17">
+         <action>//BSP_BKPT;</action>
          <tran_glyph conn="84,22,3,1,24,8,-32,-10,-2">
           <action box="0,-2,20,2"/>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_ACK}-->
         <tran trig="PRECHARGE_ACK">
+         <action>//BSP_BKPT;</action>
          <tran_glyph conn="84,24,3,-1,18">
           <action box="0,-2,18,2"/>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_TIMEOUT}-->
         <tran trig="PRECHARGE_TIMEOUT" target="../../17">
+         <action>//BSP_BKPT;</action>
          <tran_glyph conn="104,26,1,1,-26,-8,-4">
           <action box="-20,-2,22,2"/>
          </tran_glyph>
@@ -1746,7 +1754,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}-->
        <tran trig="CAN_RECEIVE_MSG">
-        <action>//BSP_BKPT;
+        <action>BSP_BKPT;
 
 uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
 if(id&gt;OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
@@ -2160,7 +2168,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     </attribute>
     <!--${CPU1::Immutable_Events::FSBB::im_evt_precharge_ack}-->
     <attribute name="im_evt_precharge_ack" type="QEvt const" visibility="0x00" properties="0x00">
-     <code>= QEVT_INITIALIZER(PRECHARGE_TIMEOUT_SIG);</code>
+     <code>= QEVT_INITIALIZER(PRECHARGE_ACK_SIG);</code>
     </attribute>
     <!--${CPU1::Immutable_Events::FSBB::im_evt_precharge_nack}-->
     <attribute name="im_evt_precharge_nack" type="QEvt const" visibility="0x00" properties="0x00">
@@ -2730,6 +2738,8 @@ me-&gt;sys_data.fsbb_data = fsbb_public_data-&gt;data;</action>
        </tran>
        <!--${CM::AOs::AO_Communication::Communication::SM::Operation::SMU_START_PRECHARGE}-->
        <tran trig="SMU_START_PRECHARGE">
+        <action>//BSP_BKPT;
+Communication_start_precharge(me);</action>
         <tran_glyph conn="36,44,3,-1,18">
          <action box="0,-2,20,2"/>
         </tran_glyph>
@@ -3465,6 +3475,13 @@ me-&gt;sys_data = aux;</code>
     <!--${Shared::Types::Communication_Me~::payload}-->
     <attribute name="payload" type="com_payload" visibility="0x02" properties="0x00"/>
    </class>
+   <!--${Shared::Types::Communication_Message_0_Payload_~}-->
+   <class name="Communication_Message_0_Payload_t">
+    <!--${Shared::Types::Communication_Me~::com_sig}-->
+    <attribute name="com_sig" type="uint16_t" visibility="0x02" properties="0x00"/>
+    <!--${Shared::Types::Communication_Me~::message_size}-->
+    <attribute name="message_size" type="uint16_t" visibility="0x02" properties="0x00"/>
+   </class>
    <!--${Shared::Types::Setpoint_Data_t}-->
    <class name="Setpoint_Data_t">
     <!--${Shared::Types::Setpoint_Data_t::setpoint_id}-->
@@ -3622,6 +3639,13 @@ me-&gt;sys_data = aux;</code>
      <!--${Shared::Event_Types::OC::OC_Evt_Communica~::msg}-->
      <attribute name="msg" type="Communication_Message_t" visibility="0x00" properties="0x00"/>
     </class>
+    <!--${Shared::Event_Types::OC::OC_Evt_Communication_Message_0_P~}-->
+    <class name="OC_Evt_Communication_Message_0_Payload_t" superclass="Shared::Event_Types::OC::OC_Evt">
+     <!--${Shared::Event_Types::OC::OC_Evt_Communica~::msg}-->
+     <attribute name="msg" type="Communication_Message_0_Payload_t" visibility="0x00" properties="0x00"/>
+    </class>
+    <!--${Shared::Event_Types::OC::OC_Evt_IPC_No_Payload}-->
+    <class name="OC_Evt_IPC_No_Payload"/>
     <!--${Shared::Event_Types::OC::SPI}-->
     <package name="SPI" stereotype="0x00">
      <!--${Shared::Event_Types::OC::SPI::OC_Evt_SPI_Message_t}-->

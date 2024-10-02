@@ -119,6 +119,7 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
         }
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}
         case IPC_FULL_BUS_SIG: {
+            BSP_BKPT;
             status_ = Q_TRAN(&OC_IPC_Error);
             break;
         }

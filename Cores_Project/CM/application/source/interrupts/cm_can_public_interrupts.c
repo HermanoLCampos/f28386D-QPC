@@ -86,6 +86,7 @@ __interrupt void CAN_PUBLIC_ISR0(){
 //        break;
 //    }
     case MODULINK_CAN_MSG_EXT_IN_INDEX:{
+//        BSP_BKPT;
 
         OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
         CAN_Received->super.ID = OC_CAN_CAN_PUBLIC_ID;

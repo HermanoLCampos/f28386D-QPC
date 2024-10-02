@@ -150,7 +150,7 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}
         case CAN_RECEIVE_MSG_SIG: {
-            //BSP_BKPT;
+            BSP_BKPT;
 
             uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
             if(id>OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
