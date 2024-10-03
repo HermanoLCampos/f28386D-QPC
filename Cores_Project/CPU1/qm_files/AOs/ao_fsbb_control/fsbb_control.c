@@ -534,6 +534,8 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
             //(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             //);
 
+            me->state = FSBB_IN_PRECHARGE;
+
             OC_Evt_Communication_Message_0_Payload_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_0_Payload_t , IPC_SEND_MSG_SIG);
 
             Evt_Msg->super.ID    = OC_IPC_CPU1_CM_ID;
@@ -541,11 +543,19 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
             Evt_Msg->msg.message_size = 0;
 
             QACTIVE_POST( p_ao_communication , &Evt_Msg->super.super , (void *) 0 );
+
+            QTimeEvt_armX(
+                &me->time_evt_precharge_no_reply_timeout,
+                (uint16_t) ((PRECHARGE_SMU_TIMEOUT_RESPONSE_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((PRECHARGE_SMU_TIMEOUT_RESPONSE_MS)/(RTOS_TICK_PERIOD_MS))
+            );
             status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge}
         case Q_EXIT_SIG: {
+            QTimeEvt_disarm(&me->time_evt_precharge_no_reply_timeout);
+
             //QTimeEvt_disarm(&me->time_evt_check_params);
             //BSP_BKPT;
             status_ = Q_HANDLED();
@@ -581,6 +591,8 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_ACK}
         case PRECHARGE_ACK_SIG: {
             //BSP_BKPT;
+
+            QTimeEvt_disarm(&me->time_evt_precharge_no_reply_timeout);
             status_ = Q_HANDLED();
             break;
         }
@@ -588,6 +600,19 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
         case PRECHARGE_TIMEOUT_SIG: {
             //BSP_BKPT;
             status_ = Q_TRAN(&FSBB_Control_Uncharged);
+            break;
+        }
+        //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_NO_REPLY}
+        case PRECHARGE_NO_REPLY_SIG: {
+
+            OC_Evt_Communication_Message_0_Payload_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_0_Payload_t , IPC_SEND_MSG_SIG);
+
+            Evt_Msg->super.ID    = OC_IPC_CPU1_CM_ID;
+            Evt_Msg->msg.com_sig = COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE;
+            Evt_Msg->msg.message_size = 0;
+
+            QACTIVE_POST( p_ao_communication , &Evt_Msg->super.super , (void *) 0 );
+            status_ = Q_HANDLED();
             break;
         }
         default: {
@@ -834,17 +859,20 @@ void ao_fsbb_control_ctor(const QActive  * const pAO) {
                      );
 
     // Time Events
-    QTimeEvt_ctorX(&me->time_evt_check_params              , &me->super        , CHECK_PARAMS_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_cla_watchdog              , &me->super        , CHECK_CLA_WATCHDOG_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_settle                    , &me->super        , SETTLE_TIMEOUT_SIG, 0U);
-    QTimeEvt_ctorX(&me->time_evt_report_status             , &me->super        , REPORT_STATUS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_check_params               , &me->super        , CHECK_PARAMS_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_cla_watchdog               , &me->super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_settle                     , &me->super        , SETTLE_TIMEOUT_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_report_status              , &me->super        , REPORT_STATUS_SIG, 0U);
 
-    QTimeEvt_ctorX(&me->time_evt_skiip1_heartbeat_timeout  , &me->super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
-    QTimeEvt_ctorX(&me->time_evt_skiip2_heartbeat_timeout  , &me->super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+    QTimeEvt_ctorX(&me->time_evt_skiip1_heartbeat_timeout   , &me->super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+    QTimeEvt_ctorX(&me->time_evt_skiip2_heartbeat_timeout   , &me->super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
 
-    QTimeEvt_ctorX(&me->time_evt_update_measure_request    , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
 
-    QTimeEvt_ctorX(&me->time_evt_update_temperature_request, &me->super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
+    QTimeEvt_ctorX(&me->time_evt_precharge_no_reply_timeout , &me->super        , PRECHARGE_NO_REPLY_SIG , 0U);
+
+    QTimeEvt_ctorX(&me->time_evt_update_measure_request     , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
+
+    QTimeEvt_ctorX(&me->time_evt_update_temperature_request , &me->super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
 
     // Vars
     AO_Evt_Set_Multiple_Faults_t aux = {0};

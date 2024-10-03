@@ -194,6 +194,9 @@ void Communication_Can_Periodic_Msg(Communication * const me){
         case FSBB_RUNNING:
             CAN_WRITE_NAMED_VALUE(MODULINK_CAN_MSG_FSBB_RESPONSE_VPU , MODULINK_CAN_SIG_STATE , can_payload.byte_data , MODULINK_CAN_VALUE_RUNNING);
             break;
+        case FSBB_IN_PRECHARGE:
+            CAN_WRITE_NAMED_VALUE(MODULINK_CAN_MSG_FSBB_RESPONSE_VPU , MODULINK_CAN_SIG_STATE , can_payload.byte_data , MODULINK_CAN_VALUE_IN_PRECHARGE);
+            break;
         }
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;

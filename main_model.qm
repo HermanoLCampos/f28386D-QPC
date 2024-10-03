@@ -874,6 +874,8 @@ OC_MAX31865_spi_read_request(
      <attribute name="time_evt_skiip1_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_skiip2_heartbeat_timeou~}-->
      <attribute name="time_evt_skiip2_heartbeat_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_precharge_no_reply_time~}-->
+     <attribute name="time_evt_precharge_no_reply_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip1_faults}-->
      <attribute name="skiip1_faults" type="Skiip_CAN_Faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::skiip2_faults}-->
@@ -1374,14 +1376,24 @@ me-&gt;state = FSBB_INIT;</entry>
 //(uint16_t) ((CHECK_PARAMS_PRECHARGE_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 //);
 
+me-&gt;state = FSBB_IN_PRECHARGE;
+
 OC_Evt_Communication_Message_0_Payload_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_0_Payload_t , IPC_SEND_MSG_SIG);
 
 Evt_Msg-&gt;super.ID    = OC_IPC_CPU1_CM_ID;
 Evt_Msg-&gt;msg.com_sig = COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE;
 Evt_Msg-&gt;msg.message_size = 0;
 
-QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );</entry>
-        <exit>//QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
+QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );
+
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_precharge_no_reply_timeout,
+    (uint16_t) ((PRECHARGE_SMU_TIMEOUT_RESPONSE_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((PRECHARGE_SMU_TIMEOUT_RESPONSE_MS)/(RTOS_TICK_PERIOD_MS))
+);</entry>
+        <exit>QTimeEvt_disarm(&amp;me-&gt;time_evt_precharge_no_reply_timeout);
+
+//QTimeEvt_disarm(&amp;me-&gt;time_evt_check_params);
 //BSP_BKPT;</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::CHECK_PARAMS}-->
         <tran trig="CHECK_PARAMS">
@@ -1402,20 +1414,22 @@ QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );<
         <tran trig="PRECHARGE_FINISH" target="../../19">
          <action>//FSBB_Control_Finish_Precharge(me,e);
 //BSP_BKPT;</action>
-         <tran_glyph conn="84,20,3,1,28,18,-8">
+         <tran_glyph conn="84,20,3,1,30,18,-10">
           <action box="0,-2,16,2"/>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_NACK}-->
         <tran trig="PRECHARGE_NACK" target="../../17">
          <action>//BSP_BKPT;</action>
-         <tran_glyph conn="84,22,3,1,24,8,-32,-10,-2">
+         <tran_glyph conn="84,22,3,1,26,10,-34,-12,-2">
           <action box="0,-2,20,2"/>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_ACK}-->
         <tran trig="PRECHARGE_ACK">
-         <action>//BSP_BKPT;</action>
+         <action>//BSP_BKPT;
+
+QTimeEvt_disarm(&amp;me-&gt;time_evt_precharge_no_reply_timeout);</action>
          <tran_glyph conn="84,24,3,-1,18">
           <action box="0,-2,18,2"/>
          </tran_glyph>
@@ -1423,11 +1437,25 @@ QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );<
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_TIMEOUT}-->
         <tran trig="PRECHARGE_TIMEOUT" target="../../17">
          <action>//BSP_BKPT;</action>
-         <tran_glyph conn="104,26,1,1,-26,-8,-4">
-          <action box="-20,-2,22,2"/>
+         <tran_glyph conn="106,26,1,1,-28,-8,-4">
+          <action box="-22,-2,22,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="84,10,20,18">
+        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_NO_REPLY}-->
+        <tran trig="PRECHARGE_NO_REPLY">
+         <action>
+OC_Evt_Communication_Message_0_Payload_t * const Evt_Msg = Q_NEW(OC_Evt_Communication_Message_0_Payload_t , IPC_SEND_MSG_SIG);
+
+Evt_Msg-&gt;super.ID    = OC_IPC_CPU1_CM_ID;
+Evt_Msg-&gt;msg.com_sig = COM_SIG_IPC_CPU1_CM_SMU_START_PRECHARGE;
+Evt_Msg-&gt;msg.message_size = 0;
+
+QACTIVE_POST( p_ao_communication , &amp;Evt_Msg-&gt;super.super , (void *) 0 );</action>
+         <tran_glyph conn="84,28,3,-1,18">
+          <action box="0,-2,19,2"/>
+         </tran_glyph>
+        </tran>
+        <state_glyph node="84,10,22,20">
          <entry box="1,2,6,2"/>
          <exit box="1,4,6,2"/>
         </state_glyph>
@@ -1441,7 +1469,7 @@ me-&gt;state = FSBB_READY;
 </entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Idle::START_CONTROL}-->
         <tran trig="START_CONTROL" target="../../20">
-         <tran_glyph conn="84,42,3,3,32">
+         <tran_glyph conn="84,42,3,3,36">
           <action box="0,-2,14,2"/>
          </tran_glyph>
         </tran>
@@ -1459,11 +1487,11 @@ me-&gt;state = FSBB_RUNNING;
         <exit>me-&gt;state = FSBB_STOPPING;</exit>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Running::STOP_CONTROL}-->
         <tran trig="STOP_CONTROL" target="../../23">
-         <tran_glyph conn="116,40,3,1,22,14,-2">
+         <tran_glyph conn="120,40,3,1,22,14,-2">
           <action box="0,-2,14,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="116,34,20,12">
+        <state_glyph node="120,34,20,12">
          <entry box="1,2,6,2"/>
          <exit box="1,4,6,2"/>
         </state_glyph>
@@ -1571,15 +1599,15 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_settle);
          <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::To_Idle_1::CHECK_PARAMS::[abs(CLA2CPU_Message.skiip1_curr~}-->
          <choice target="../../../22">
           <guard>abs(CLA2CPU_Message.skiip1_current) &lt; IL_MIN_STOP</guard>
-          <choice_glyph conn="120,56,5,1,-16">
+          <choice_glyph conn="124,56,5,1,-20">
            <action box="-4,0,4,2"/>
           </choice_glyph>
          </choice>
-         <tran_glyph conn="136,56,1,-1,-16">
+         <tran_glyph conn="140,56,1,-1,-16">
           <action box="-14,-2,14,2"/>
          </tran_glyph>
         </tran>
-        <state_glyph node="116,50,20,12">
+        <state_glyph node="120,50,20,12">
          <entry box="1,2,6,2"/>
          <exit box="1,4,6,2"/>
         </state_glyph>
@@ -1622,17 +1650,20 @@ OC_MAX31865_ctor(&amp;me-&gt;max31865_inst[OC_MAX31865_B_ID],
                  );
 
 // Time Events
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params              , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog              , &amp;me-&gt;super        , CHECK_CLA_WATCHDOG_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle                    , &amp;me-&gt;super        , SETTLE_TIMEOUT_SIG, 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status             , &amp;me-&gt;super        , REPORT_STATUS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_check_params               , &amp;me-&gt;super        , CHECK_PARAMS_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_cla_watchdog               , &amp;me-&gt;super        , CHECK_CLA_WATCHDOG_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_settle                     , &amp;me-&gt;super        , SETTLE_TIMEOUT_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_report_status              , &amp;me-&gt;super        , REPORT_STATUS_SIG, 0U);
 
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip1_heartbeat_timeout  , &amp;me-&gt;super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout  , &amp;me-&gt;super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip1_heartbeat_timeout   , &amp;me-&gt;super        , SKIIP1_HEARTBEAT_TIMEOUT_SIG , 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout   , &amp;me-&gt;super        , SKIIP2_HEARTBEAT_TIMEOUT_SIG , 0U);
 
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request    , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
 
-QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_temperature_request, &amp;me-&gt;super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_precharge_no_reply_timeout , &amp;me-&gt;super        , PRECHARGE_NO_REPLY_SIG , 0U);
+
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_measure_request     , p_ao_communication, UPDATE_MEASURE_REQUEST_SIG , 0U);
+
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_update_temperature_request , &amp;me-&gt;super        , MAX31865_REQUEST_TEMPERATURE_SIG, 0U);
 
 // Vars
 AO_Evt_Set_Multiple_Faults_t aux = {0};
@@ -1873,6 +1904,7 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     PRECHARGE_TIMEOUT_SIG,
     PRECHARGE_ACK_SIG,
     PRECHARGE_NACK_SIG,
+    PRECHARGE_NO_REPLY_SIG ,
 
     SMU_ERROR_SIG,
 
@@ -3430,6 +3462,7 @@ me-&gt;sys_data = aux;</code>
    <attribute name="fsbb_control_state" type="enum" visibility="0x04" properties="0x00">
     <code>{
     FSBB_INIT,
+    FSBB_IN_PRECHARGE,
     FSBB_READY,
     FSBB_RUNNING,
     FSBB_STOPPING,
@@ -3815,6 +3848,10 @@ in payload the message</documentation>
     <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~}-->
     <attribute name="MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS" type="" visibility="0x03" properties="0x00">
      <documentation>50Hz</documentation>
+     <code>200</code>
+    </attribute>
+    <!--${Shared::Macros::TIME_MACROS::PRECHARGE_SMU_TIMEOUT_RESPONSE_M~}-->
+    <attribute name="PRECHARGE_SMU_TIMEOUT_RESPONSE_MS" type="" visibility="0x03" properties="0x00">
      <code>200</code>
     </attribute>
    </package>

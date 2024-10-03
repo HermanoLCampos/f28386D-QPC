@@ -202,6 +202,7 @@ enum fsbb_measures {
 //${Shared::Signals::fsbb_control_state} .....................................
 enum fsbb_control_state {
     FSBB_INIT,
+    FSBB_IN_PRECHARGE,
     FSBB_READY,
     FSBB_RUNNING,
     FSBB_STOPPING,
@@ -552,6 +553,9 @@ typedef struct {
 
 //${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~} ..........
 #define MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS 200
+
+//${Shared::Macros::TIME_MACROS::PRECHARGE_SMU_TIMEOUT_RESPONSE_M~} ..........
+#define PRECHARGE_SMU_TIMEOUT_RESPONSE_MS 200
 
 //${Shared::Macros::CONDITIONAL_LIMI~::IL_MIN_OPEN} ..........................
 #define IL_MIN_OPEN 20
