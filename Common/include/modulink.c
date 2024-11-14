@@ -1,7 +1,7 @@
 /************************************************************/
 // Automatically generated C source file from CAN DBC file
 // Source file name: modulink.dbc
-// Date created: 2024-10-02
+// Date created: 2024-11-14
 /************************************************************/
 
 
@@ -14,7 +14,7 @@ const MessageProprieties_t modulink_can_messages_proprieties[MODULINK_CAN_MAX_MS
         .msg_id     = 0x00fffffe,
         .frame_type = CAN_MSG_FRAME_EXT,
         .msg_type   = CAN_MSG_OBJ_TYPE_RX,
-        .mask       = 0x1e00fffe,
+        .mask       = 0x0000fffe,
         .flags      = CAN_MSG_OBJ_RX_INT_ENABLE|CAN_MSG_OBJ_USE_EXT_FILTER|CAN_MSG_OBJ_USE_ID_FILTER,
         .dlc        = 8,
             },
@@ -52,6 +52,38 @@ const MessageProprieties_t modulink_can_messages_proprieties[MODULINK_CAN_MAX_MS
     },
     [MODULINK_CAN_MSG_FSBB_FAULTS_1_INDEX] = {
         .msg_id = MODULINK_CAN_MSG_FSBB_FAULTS_1_FRAME_ID,
+        .frame_type = CAN_MSG_FRAME_EXT,
+        .msg_type= CAN_MSG_OBJ_TYPE_TX,
+        .mask   = 0x00000000,
+        .flags  = CAN_MSG_OBJ_NO_FLAGS,
+        .dlc    = 8,
+    },
+    [MODULINK_CAN_MSG_FSBB_MEASURES_3_INDEX] = {
+        .msg_id = MODULINK_CAN_MSG_FSBB_MEASURES_3_FRAME_ID,
+        .frame_type = CAN_MSG_FRAME_EXT,
+        .msg_type= CAN_MSG_OBJ_TYPE_TX,
+        .mask   = 0x00000000,
+        .flags  = CAN_MSG_OBJ_NO_FLAGS,
+        .dlc    = 8,
+    },
+    [MODULINK_CAN_MSG_FSBB_MEASURES_4_INDEX] = {
+        .msg_id = MODULINK_CAN_MSG_FSBB_MEASURES_4_FRAME_ID,
+        .frame_type = CAN_MSG_FRAME_EXT,
+        .msg_type= CAN_MSG_OBJ_TYPE_TX,
+        .mask   = 0x00000000,
+        .flags  = CAN_MSG_OBJ_NO_FLAGS,
+        .dlc    = 8,
+    },
+    [MODULINK_CAN_MSG_FSBB_MEASURES_5_INDEX] = {
+        .msg_id = MODULINK_CAN_MSG_FSBB_MEASURES_5_FRAME_ID,
+        .frame_type = CAN_MSG_FRAME_EXT,
+        .msg_type= CAN_MSG_OBJ_TYPE_TX,
+        .mask   = 0x00000000,
+        .flags  = CAN_MSG_OBJ_NO_FLAGS,
+        .dlc    = 8,
+    },
+    [MODULINK_CAN_MSG_FSBB_MEASURES_6_INDEX] = {
+        .msg_id = MODULINK_CAN_MSG_FSBB_MEASURES_6_FRAME_ID,
         .frame_type = CAN_MSG_FRAME_EXT,
         .msg_type= CAN_MSG_OBJ_TYPE_TX,
         .mask   = 0x00000000,

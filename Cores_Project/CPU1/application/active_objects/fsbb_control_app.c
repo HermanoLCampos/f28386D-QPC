@@ -40,6 +40,9 @@ void FSBB_Control_Change_Control_State(FSBB_Control * const me,
     uint16_t control_state){
 
     CPU2CLA_Message.FSBB_Control_State = control_state;
+
+//    BSP_BKPT;
+
     switch(control_state){
     case FSBB_CONTROL_INIT:
         //Leg Vin
@@ -170,7 +173,7 @@ void FSBB_Control_MAX_Update_Temperature(FSBB_Control * const me,
     QEvt const * const e){
 
     uint16_t id = Q_EVT_CAST(OC_Evt)->ID;
-    if(id>OC_SPI_NUM_OF_INST) system_assert(__FILE__,0);
+    if(id>OC_MAX31865_NUM_OF_INST) system_assert(__FILE__,0);
 
     QASM_DISPATCH( &(me->max31865_inst[id].super) ,e, (void *) 0 );
 
@@ -179,6 +182,7 @@ void FSBB_Control_MAX_Update_Temperature(FSBB_Control * const me,
         rtd_measure[id][me->max31865_inst[id].measure_read_id]
     ] = 0.0312f*(me->max31865_inst[id].measure_read_value.data)-256;
 
+    CPU1_CM_Message.fsbb_temp_measures[rtd_measure[id][me->max31865_inst[id].measure_read_id]] = 0.0312f*(me->max31865_inst[id].measure_read_value.data)-256;
 
 }
 

@@ -158,10 +158,9 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}
         case CHECK_PARAMS_SIG: {
-            #define warning_here 1
-            #define warning_here 2
+            //BSP_BKPT;
             if(
-                //!FSBB_Control_Check_Skiip_Error_IO(me)
+            //    !FSBB_Control_Check_Skiip_Error_IO(me)
                 1
             ){
                 QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
@@ -383,6 +382,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_MEASURE}
         case UPDATE_MEASURE_SIG: {
 
+
             AO_Evt_FSBB_Measure_Update_t const * evt_update_measure =  Q_EVT_CAST(AO_Evt_FSBB_Measure_Update_t);
 
             switch(evt_update_measure->data.measure_id){
@@ -391,6 +391,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
             case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
                 me->measures[evt_update_measure->data.measure_id] = evt_update_measure->data.measure-2731;
+                CPU1_CM_Message.fsbb_temp_measures[evt_update_measure->data.measure_id] = me->measures[evt_update_measure->data.measure_id]/10;
                 break;
             default:
                 system_assert("fsbb_control", 0);

@@ -867,7 +867,7 @@ OC_MAX31865_spi_read_request(
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::faults}-->
      <attribute name="faults" type="FSBB_Control_faults_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::measures[NUM_OF_FSBB_MEASURES]}-->
-     <attribute name="measures[NUM_OF_FSBB_MEASURES]" type="uint16_t" visibility="0x02" properties="0x00"/>
+     <attribute name="measures[NUM_OF_FSBB_MEASURES]" type="int16_t" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_update_measure_request}-->
      <attribute name="time_evt_update_measure_request" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::time_evt_skiip1_heartbeat_timeou~}-->
@@ -1012,10 +1012,9 @@ QACTIVE_POST(p_ao_communication, &amp;im_evt_init_skiip_can ,(void *)0);
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Start::CHECK_PARAMS}-->
        <tran trig="CHECK_PARAMS">
-        <action>#define warning_here 1
-#define warning_here 2
+        <action>//BSP_BKPT;
 if(
-    //!FSBB_Control_Check_Skiip_Error_IO(me)
+//    !FSBB_Control_Check_Skiip_Error_IO(me)
     1
 ){
     QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);
@@ -1237,6 +1236,7 @@ case SKIIP2_HEART_BEAT_SIG:
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::UPDATE_MEASURE}-->
        <tran trig="UPDATE_MEASURE">
         <action>
+
 AO_Evt_FSBB_Measure_Update_t const * evt_update_measure =  Q_EVT_CAST(AO_Evt_FSBB_Measure_Update_t);
 
 switch(evt_update_measure-&gt;data.measure_id){
@@ -1245,6 +1245,7 @@ case FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE:
 case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
 case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
     me-&gt;measures[evt_update_measure-&gt;data.measure_id] = evt_update_measure-&gt;data.measure-2731;
+    CPU1_CM_Message.fsbb_temp_measures[evt_update_measure-&gt;data.measure_id] = me-&gt;measures[evt_update_measure-&gt;data.measure_id]/10;
     break;
 default:
     system_assert(&quot;fsbb_control&quot;, 0);
@@ -1785,7 +1786,7 @@ QASM_DISPATCH( &amp;(me-&gt;ipc_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_RECEIVE_MSG}-->
        <tran trig="CAN_RECEIVE_MSG">
-        <action>BSP_BKPT;
+        <action>//BSP_BKPT;
 
 uint16_t id = Q_EVT_CAST(OC_Evt)-&gt;ID;
 if(id&gt;OC_CAN_NUM_OF_INST) system_assert(__FILE__,0);
@@ -4032,6 +4033,10 @@ $define${CPU1::AOs::AO_Communication}
 // Orthogonal Component
 #include &quot;OCs/oc_spi/oc_spi.h&quot;
 #include &quot;OCs/oc_max31865/oc_max31865.h&quot;
+
+#include &quot;cpu1_cm_memory_shared.h&quot;
+
+extern CPU1_CM_Message_t CPU1_CM_Message;
 
 $declare${CPU1::AOs::AO_FSBB_Control}
 

@@ -60,14 +60,13 @@ void OC_CAN_receive_msg(OC_CAN * const me,
 //===================================================================================
 //============================Treat the messages received============================
 //===================================================================================
-        case MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:
-        case MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:{
+        case MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:{
 
             uint16_t named_value_read;
             uint16_t named_value_yes;
 
-            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START , can_payload.byte_data );
-            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START , MODULINK_CAN_VALUE_YES);
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , MODULINK_CAN_VALUE_YES);
             if( named_value_read == named_value_yes){
                 msg_received->com_sig = COM_SIG_CAN_PUBLIC_CONTROL_START;
                 msg_received->message_size = 0;
@@ -75,8 +74,68 @@ void OC_CAN_receive_msg(OC_CAN * const me,
                 msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
             }
 
-            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_STOP , can_payload.byte_data);
-            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_STOP, MODULINK_CAN_VALUE_YES);
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , can_payload.byte_data);
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP, MODULINK_CAN_VALUE_NO);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_CONTROL_STOP;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_EMERGENCY_SHUTDOWN , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_EMERGENCY_SHUTDOWN , MODULINK_CAN_VALUE_YES);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_EMERGENCY_SHUTDOWN;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_PRECHARGE_START , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_PRECHARGE_START , MODULINK_CAN_VALUE_YES);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_PRECHARGE_START;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CLEAR_FAULT , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CLEAR_FAULT , MODULINK_CAN_VALUE_YES);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_CLEAR_FAULT;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_SOFT_RESET , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB , MODULINK_CAN_SIG_SOFT_RESET , MODULINK_CAN_VALUE_YES);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_RESET;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+            break;
+        }
+        case MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:{
+
+            uint16_t named_value_read;
+            uint16_t named_value_yes;
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , can_payload.byte_data );
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , MODULINK_CAN_VALUE_YES);
+            if( named_value_read == named_value_yes){
+                msg_received->com_sig = COM_SIG_CAN_PUBLIC_CONTROL_START;
+                msg_received->message_size = 0;
+                buffer_index = buffer_index + msg_received->message_size + 2;
+                msg_received = (Communication_Message_t *) (((uint16_t *) me->msg_buffer)+buffer_index);
+            }
+
+            named_value_read = CAN_GET_ENCODED_VALUE(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP , can_payload.byte_data);
+            named_value_yes  = CAN_GET_VALUE_BY_NAME(MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB , MODULINK_CAN_SIG_CONTROL_START_STOP, MODULINK_CAN_VALUE_NO);
             if( named_value_read == named_value_yes){
                 msg_received->com_sig = COM_SIG_CAN_PUBLIC_CONTROL_STOP;
                 msg_received->message_size = 0;

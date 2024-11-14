@@ -23,6 +23,8 @@ typedef struct{
     uint16_t sbc_muxout;
     uint16_t FSBB_IL_Setpoint;
 
+    int16_t fsbb_temp_measures[NUM_OF_FSBB_MEASURES];
+
     uint32_t V_L;
     uint16_t P_COMP;
     uint16_t I_COMP;

@@ -37,6 +37,10 @@
 #include "OCs/oc_spi/oc_spi.h"
 #include "OCs/oc_max31865/oc_max31865.h"
 
+#include "cpu1_cm_memory_shared.h"
+
+extern CPU1_CM_Message_t CPU1_CM_Message;
+
 //$declare${CPU1::AOs::AO_FSBB_Control} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //${CPU1::AOs::AO_FSBB_Control::FSBB_Control} ................................
@@ -53,7 +57,7 @@ typedef struct {
     QTimeEvt time_evt_settle;
     QTimeEvt time_evt_report_status;
     FSBB_Control_faults_t faults;
-    uint16_t measures[NUM_OF_FSBB_MEASURES];
+    int16_t measures[NUM_OF_FSBB_MEASURES];
     QTimeEvt time_evt_update_measure_request;
     QTimeEvt time_evt_skiip1_heartbeat_timeout;
     QTimeEvt time_evt_skiip2_heartbeat_timeout;
