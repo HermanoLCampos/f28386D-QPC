@@ -87,13 +87,34 @@ __interrupt void CAN_PUBLIC_ISR0(){
 //    }
     case MODULINK_CAN_MSG_EXT_IN_INDEX:{
 //        BSP_BKPT;
-
-        OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
-        CAN_Received->super.ID = OC_CAN_CAN_PUBLIC_ID;
-        CAN_readMessageWithID(CAN_PUBLIC_BASE, status , &frameType, &CAN_Received->Message_ID , (uint8_t *) CAN_Received->Data);
+        OC_Evt_CAN_Message_Received_t CAN_Received_1;
+        CAN_readMessageWithID(CAN_PUBLIC_BASE, status , &frameType, &CAN_Received_1.Message_ID , (uint8_t *) CAN_Received_1.Data);
         CAN_clearInterruptStatus(CAN_PUBLIC_BASE, status );
 
-        QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
+        switch(CAN_Received_1.Message_ID & 0x00FFFF00){
+        case MODULINK_CAN_MSG_VPU_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:
+        case MODULINK_CAN_MSG_IHM_COMMANDS_1_FSBB_FRAME_ID & 0x00FFFF00:
+        case MODULINK_CAN_MSG_VPU_SETPOINTS_1_FSBB_FRAME_ID & 0x00FFFF00:
+        case MODULINK_CAN_MSG_IHM_SETPOINTS_1_FSBB_FRAME_ID & 0x00FFFF00:
+        case MODULINK_CAN_MSG_SMU_COMMANDS_FSBB_FRAME_ID & 0x00FFFF00:{
+            OC_Evt_CAN_Message_Received_t * CAN_Received = Q_NEW_FROM_ISR(OC_Evt_CAN_Message_Received_t,CAN_RECEIVE_MSG_SIG);
+            CAN_Received->super.ID  = OC_CAN_CAN_PUBLIC_ID;
+            CAN_Received->Message_ID = CAN_Received_1.Message_ID;
+            CAN_Received->Data[0]    = CAN_Received_1.Data[0];
+            CAN_Received->Data[1]    = CAN_Received_1.Data[1];
+            CAN_Received->Data[2]    = CAN_Received_1.Data[2];
+            CAN_Received->Data[3]    = CAN_Received_1.Data[3];
+            if(QEvt_verify_(&CAN_Received->super.super) == 0){
+                system_assert("cm_can_public",0);
+            }
+            QACTIVE_POST_FROM_ISR(p_ao_communication, &CAN_Received->super.super,&xHigherPriorityTaskWoken,(void *)0);
+
+
+            break;
+        }
+        default:
+            break;
+        }
 
         /* Parser Data */
 

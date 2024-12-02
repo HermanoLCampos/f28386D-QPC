@@ -7,7 +7,7 @@
 
 #include "application.h"
 
-static QEvt const *communication_queue_sto[10];
+static QEvt const *communication_queue_sto[64];
 static StackType_t communication_stack[(unsigned int)(configMINIMAL_STACK_SIZE)];
 
 #pragma DATA_SECTION(communication_stack, ".freertosStaticStack")

@@ -496,10 +496,10 @@ typedef struct {
 #define OC_CAN_MSG_BUFFER_SIZE 512
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT} ...........
-#define CRITICAL_LIMIT_SKIIP_CURRENT 200
+#define CRITICAL_LIMIT_SKIIP_CURRENT 400
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE} ...........
-#define CRITICAL_LIMIT_SKIIP_VOLTAGE 500
+#define CRITICAL_LIMIT_SKIIP_VOLTAGE 800
 
 //${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE} .......
 #define CRITICAL_LIMIT_SKIIP_TEMPERATURE 90
@@ -529,7 +529,7 @@ typedef struct {
 #define CHECK_PARAMS_IL_TIME_MS 10
 
 //${Shared::Macros::TIME_MACROS::MAX_SETTLE_TIME_MS} .........................
-#define MAX_SETTLE_TIME_MS 100
+#define MAX_SETTLE_TIME_MS 10000
 
 //${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS} ...............
 #define REPORT_STATUS_PERIOD_TIME_MS 1000
@@ -550,7 +550,7 @@ typedef struct {
 #define CAN_PERIODIC_MSG_CONTROL_TIME_MS 10
 
 //${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~} ..........
-#define MEASURE_TEMPERATURE_PERIOD_TIME_MS 10000
+#define MEASURE_TEMPERATURE_PERIOD_TIME_MS 1000
 
 //${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~} ..........
 #define MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS 200
@@ -601,19 +601,16 @@ typedef struct {
 #define EPWM_PRD 50000
 
 //${Shared::Event Pools::EVT_POOL_1_SIZE} ....................................
-#define EVT_POOL_1_SIZE 8
-
+#define EVT_POOL_1_SIZE 32
 
 //${Shared::Event Pools::EVT_POOL_2_SIZE} ....................................
-#define EVT_POOL_2_SIZE 8
-
+#define EVT_POOL_2_SIZE 32
 
 //${Shared::Event Pools::EVT_POOL_3_SIZE} ....................................
-#define EVT_POOL_3_SIZE 8
-
+#define EVT_POOL_3_SIZE 32
 
 //${Shared::Event Pools::EVT_POOL_4_SIZE} ....................................
-#define EVT_POOL_4_SIZE 8
+#define EVT_POOL_4_SIZE 32
 
 
 //${Shared::Event Pools::evt_pool_payload_1_t} ...............................
@@ -755,11 +752,13 @@ enum private_signals {
     INIT_SKIIP_CAN_SIG,
     UPDATE_MEASURE_SIG,
 
+    CAN_SKIIP_TEMPERATURE_TIMEOUT_SIG,
+
     PRECHARGE_FINISH_SIG,
     PRECHARGE_TIMEOUT_SIG,
     PRECHARGE_ACK_SIG,
     PRECHARGE_NACK_SIG,
-    PRECHARGE_NO_REPLY_SIG ,
+    PRECHARGE_NO_REPLY_SIG,
 
     SMU_ERROR_SIG,
 

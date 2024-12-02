@@ -128,6 +128,7 @@ PID_Control_t FSBB_IL_PID_Control;
 #endif
 
 #ifdef PI_CONTROL
+
 PID_Control_t FSBB_IL_PID_Control_mvp;
 #endif
 
@@ -239,7 +240,7 @@ __interrupt void Cla1Task2 ( void )
 #define BUCK_BOOST_FACTOR 0.05f
     float duty_to_mod = 0;
 
-    FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip1_current_fp;
+    FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip2_current_fp;
     duty_to_mod = PID_Control_Exe( &FSBB_IL_PID_Control_mvp );
 
     if(duty_to_mod < -BUCK_BOOST_FACTOR){ //BUCK MODE
@@ -272,13 +273,25 @@ __interrupt void Cla1Task2 ( void )
         duty_cicle_switch_vin  = MIN_OFF_DUTY_CICLE_VIN;
         duty_cicle_switch_vout = MIN_OFF_DUTY_CICLE_VOUT;
 
+
 #ifdef FLC_CONTROL
         FSBB_IL_PID_Control.I_Component = 0;
         FSBB_IL_PID_Control.Error_Prev = 0;
 #endif
 
 #ifdef PI_CONTROL
-        FSBB_IL_PID_Control_mvp.I_Component = -1;
+        float32_t d_act;
+
+        if(skiip1_voltage_fp<skiip2_voltage_fp){
+            d_act = (skiip1_voltage_fp / skiip2_voltage_fp) - 1.0;
+            FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip2_current_fp;
+            FSBB_IL_PID_Control_mvp.I_Component = d_act -  FSBB_IL_PID_Control_mvp.Kp*FSBB_IL_PID_Control_mvp.Error;
+        }else{
+            d_act = 1.0 - (skiip2_voltage_fp / skiip1_voltage_fp);
+            FSBB_IL_PID_Control_mvp.Error = CPU2CLA_Message.FSBB_IL_Setpoint - skiip2_current_fp;
+            FSBB_IL_PID_Control_mvp.I_Component = d_act -  FSBB_IL_PID_Control_mvp.Kp*FSBB_IL_PID_Control_mvp.Error;
+        }
+
 #endif
 
     }
@@ -298,7 +311,9 @@ __interrupt void Cla1Task2 ( void )
         duty_cicle_switch_vout = MAX_DUTY_CICLE_VOUT_SWITCH;
     }
 
-    uint16_t counter_comp = EPWM_PRD-(EPWM_PRD-1)*duty_cicle_switch_vin;
+    uint16_t counter_comp;
+
+    counter_comp = EPWM_PRD-(EPWM_PRD-1)*duty_cicle_switch_vout;
 
     if(counter_comp < EPWM_DEAD_TIME_COUNT+1) counter_comp = EPWM_DEAD_TIME_COUNT+1;
 
@@ -307,7 +322,7 @@ __interrupt void Cla1Task2 ( void )
     EPWM_setCounterCompareValue(FO_HB_1_BASE, EPWM_COUNTER_COMPARE_A, counter_comp);
     EPWM_setCounterCompareValue(FO_HB_1_BASE, EPWM_COUNTER_COMPARE_B, counter_comp-EPWM_DEAD_TIME_COUNT);
 
-    counter_comp = 1+(EPWM_PRD-1)*duty_cicle_switch_vout;
+    counter_comp = 1+(EPWM_PRD-1)*duty_cicle_switch_vin;
     if(counter_comp < EPWM_DEAD_TIME_COUNT+1) counter_comp = EPWM_DEAD_TIME_COUNT+1;
 
     EPWM_setCounterCompareValue(GD_HB_2_BASE, EPWM_COUNTER_COMPARE_A, counter_comp);
@@ -425,18 +440,18 @@ __interrupt void Cla1Task8 ( void )
 
 #ifdef PI_CONTROL
     // Inductor Current Control MVP
-    FSBB_IL_PID_Control_mvp.Kp                   = 9.99999975e-05;
-    FSBB_IL_PID_Control_mvp.Ki                   = 0.00999999978;
+    FSBB_IL_PID_Control_mvp.Kp                   = 5e-05;
+    FSBB_IL_PID_Control_mvp.Ki                   = 5e-03;
     FSBB_IL_PID_Control_mvp.Kd                   = 0.00000;
     FSBB_IL_PID_Control_mvp.Tau                  = 0.50000;
     FSBB_IL_PID_Control_mvp.Ktt                  = 0.5;
 
-    FSBB_IL_PID_Control_mvp.Klim = FSBB_IL_PID_Control_mvp.Ki/(FSBB_IL_PID_Control_mvp.Kp*FSBB_IL_PID_Control_mvp.Ktt);
+    FSBB_IL_PID_Control_mvp.Klim                 = FSBB_IL_PID_Control_mvp.Ki/(FSBB_IL_PID_Control_mvp.Kp*FSBB_IL_PID_Control_mvp.Ktt);
 
     FSBB_IL_PID_Control_mvp.I_Component          = 0;
     FSBB_IL_PID_Control_mvp.D_Component          = 0;
 
-    FSBB_IL_PID_Control_mvp.BackCalculation = 0;
+    FSBB_IL_PID_Control_mvp.BackCalculation      = 0;
 
     FSBB_IL_PID_Control_mvp.Min_Lim              = -1;
     FSBB_IL_PID_Control_mvp.Max_Lim              = 1;

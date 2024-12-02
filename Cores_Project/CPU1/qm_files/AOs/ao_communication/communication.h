@@ -47,6 +47,7 @@ typedef struct {
 // private:
     OC_IPC ipc_inst[OC_IPC_NUM_OF_INST];
     OC_CAN can_inst[OC_CAN_NUM_OF_INST];
+    QTimeEvt time_evt_can_skiip_timeout;
 } Communication;
 
 // public:
@@ -57,6 +58,8 @@ void Communication_can_process_msg(Communication * const me,
 void Communication_update_measure_request(Communication * const me,
     QEvt const * const e);
 void Communication_skiip_can_open_config(Communication * const me);
+void Communication_can_skiip_clean_queue(Communication * const me,
+    QEvt const * const e);
 
 // protected:
 QState Communication_initial(Communication * const me, void const * const par);

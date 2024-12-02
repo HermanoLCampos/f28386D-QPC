@@ -61,6 +61,7 @@ void Communication_ipc_process_msg(Communication * const me,
 }
 
 void Communication_skiip_can_open_config(Communication * const me){
+
     OC_Evt_CAN_Send_Message_t evt_to_send;
 
     evt_to_send.super = im_evt_can_send_msg[OC_CAN_CAN_SKIIP_ID];
@@ -74,12 +75,16 @@ void Communication_skiip_can_open_config(Communication * const me){
         can_payload.byte_data ,
         0X2B
     );
+
+    // Heatbeat
     CAN_WRITE_NAMED_VALUE(
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
         DBC_SKIIP_CAN_SIG_OBJ_ID,
         can_payload.byte_data,
         DBC_SKIIP_CAN_VALUE_OBJ_NUMBER_PRODUCER_HEARTBEAT
     );
+
+    // Payload 0
     CAN_WRITE_ENCODED_VALUE(
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
         DBC_SKIIP_CAN_SIG_SUB_INDEX,
@@ -87,18 +92,18 @@ void Communication_skiip_can_open_config(Communication * const me){
         0x00
     );
 
-    // Two Bytes data
+    // Two Bytes data with the heartbeat ts
     CAN_WRITE_ENCODED_VALUE(
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
         DBC_SKIIP_CAN_SIG_DATA_BYTE_1,
         can_payload.byte_data,
-        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) << 0 ) & 0xFF)
+        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) >> 0 ) & 0xFF)
     );
     CAN_WRITE_ENCODED_VALUE(
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1,
         DBC_SKIIP_CAN_SIG_DATA_BYTE_2,
         can_payload.byte_data,
-        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) << 8 ) & 0xFF)
+        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) >> 8 ) & 0xFF)
     );
     *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
     }
@@ -132,13 +137,13 @@ void Communication_skiip_can_open_config(Communication * const me){
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
         DBC_SKIIP_CAN_SIG_DATA_BYTE_1,
         can_payload.byte_data,
-        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) << 0 ) & 0xFF)
+        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5 ) ) >> 0 ) & 0xFF)
     );
     CAN_WRITE_ENCODED_VALUE(
         DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2,
         DBC_SKIIP_CAN_SIG_DATA_BYTE_2,
         can_payload.byte_data,
-        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) << 8 ) & 0xFF)
+        ( ( ( (uint16_t) (SKIIP_HEARTBEAT_TIMEOUT_MS*0.5)) >> 8 ) & 0xFF)
     );
     *((uint64_t *) evt_to_send.Data) = can_payload.full_payload;
 
@@ -336,4 +341,16 @@ static void Communication_send_default_message(Communication_Message_t * com_mes
     }else{
         //Invalid Size of Data
     }
+}
+
+#include "bsp_can_fifo.h"
+
+void Communication_can_skiip_clean_queue(Communication * const me,
+    QEvt const * const e){
+
+    extern CAN_FIFO_t CAN_SKIIP_1_fifo;
+    extern CAN_FIFO_t CAN_SKIIP_2_fifo;
+
+    BSP_CAN_fifo_clean(&CAN_SKIIP_1_fifo);
+    BSP_CAN_fifo_clean(&CAN_SKIIP_2_fifo);
 }

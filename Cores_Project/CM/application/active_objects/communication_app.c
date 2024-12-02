@@ -32,6 +32,9 @@ void Communication_ipc_process_msg(Communication * const me,
                     break;
                 // Change cases to perform better
                 default:
+                    if(msg_to_process->com_sig >= COM_SIG_IPC_CPU1_CM_MAX){
+                        system_assert("communication_app", 0);
+                    }
                     Communication_send_default_message(msg_to_process,&com_signals_ipc_cpu1_cm[msg_to_process->com_sig]);
                     break;
                 }
@@ -76,6 +79,9 @@ void Communication_can_process_msg(Communication * const me,
             if(msg_received->com_sig < COM_SIG_CAN_PUBLIC_NOTHING){
                 switch(msg_received->com_sig){
                 default:
+                    if(msg_received->com_sig >= COM_SIG_CAN_PUBLIC_MAX){
+                        system_assert("communication_app", 1);
+                    }
                     Communication_send_default_message(msg_received,&com_signals_can_public[msg_received->com_sig]);
                     break;
                 }
@@ -86,6 +92,7 @@ void Communication_can_process_msg(Communication * const me,
                 break;
             }
         }else if(ID == OC_CAN_MCAN_ID){
+            BSP_BKPT;
             if(msg_received->com_sig < COM_SIG_MCAN_NOTHING){
                 switch(msg_received->com_sig){
                 default:
@@ -209,9 +216,9 @@ void Communication_Can_Periodic_Msg(Communication * const me){
 
         Can_Payload_t can_payload = {0};
 
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_ANALOG_TEMP      , can_payload.byte_data , CPU1_CM_Message->skiip1_temp/10.0f );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_DCB_TEMPERATURE  , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_PCB_TEMPERATURE  , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE] );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_ANALOG_TEMP      , can_payload.byte_data , (CPU1_CM_Message->skiip1_temp/10.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_DCB_TEMPERATURE  , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP1_DCB_TEMPERATURE]*0.1f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_3 , MODULINK_CAN_SIG_SKIIP1_PCB_TEMPERATURE  , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE]*0.1f) );
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
 
@@ -223,9 +230,9 @@ void Communication_Can_Periodic_Msg(Communication * const me){
 
         Can_Payload_t can_payload = {0};
 
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_ANALOG_TEMP      , can_payload.byte_data , CPU1_CM_Message->skiip2_temp/10.0f );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_DCB_TEMPERATURE  , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_PCB_TEMPERATURE  , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE] );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_ANALOG_TEMP      , can_payload.byte_data , (CPU1_CM_Message->skiip2_temp/10.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_DCB_TEMPERATURE  , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE]*0.1f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_4 , MODULINK_CAN_SIG_SKIIP2_PCB_TEMPERATURE  , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE]*0.1f) );
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
 
@@ -237,10 +244,10 @@ void Communication_Can_Periodic_Msg(Communication * const me){
 
         Can_Payload_t can_payload = {0};
 
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_CAPACITOR_1_TEMP       , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA1_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_1      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA2_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_2      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA3_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_3      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA4_TEMPERATURE] );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_CAPACITOR_1_TEMP       , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA1_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_1      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA2_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_2      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA3_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_5 , MODULINK_CAN_SIG_INDUCTOR_1_TEMP_3      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDA4_TEMPERATURE]*1.0f) );
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
 
@@ -252,10 +259,10 @@ void Communication_Can_Periodic_Msg(Communication * const me){
 
         Can_Payload_t can_payload = {0};
 
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_CAPACITOR_2_TEMP       , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB1_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_1      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB2_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_2      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB3_TEMPERATURE] );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_3      , can_payload.byte_data , CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB4_TEMPERATURE] );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_CAPACITOR_2_TEMP       , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB1_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_1      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB2_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_2      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB3_TEMPERATURE]*1.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_6 , MODULINK_CAN_SIG_INDUCTOR_2_TEMP_3      , can_payload.byte_data , (CPU1_CM_Message->fsbb_temp_measures[FSBB_MEASURE_RTDB4_TEMPERATURE]*1.0f) );
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
 
@@ -299,8 +306,8 @@ void Communication_Can_Periodic_Msg_Control(Communication * const me){
 
         CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_D_VIN  , can_payload.byte_data , (   CPU1_CM_Message->D_VIN*0.001   ) );
         CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_D_VOUT , can_payload.byte_data , (   CPU1_CM_Message->D_VOUT*0.001  ) );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_I_COMP , can_payload.byte_data , (CPU1_CM_Message->I_COMP*0.1-100.0f) );
-        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_P_COMP , can_payload.byte_data , (CPU1_CM_Message->P_COMP*0.1-100.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_I_COMP , can_payload.byte_data , (CPU1_CM_Message->I_COMP*0.1-10.0f) );
+        CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_P_COMP , can_payload.byte_data , (CPU1_CM_Message->P_COMP*0.1-10.0f) );
         CAN_WRITE_DECODED_VALUE( MODULINK_CAN_MSG_FSBB_MEASURES_2 , MODULINK_CAN_SIG_VL     , can_payload.byte_data , ( CPU1_CM_Message->V_L*0.001-10.0f ) );
 
         *((uint64_t *) evt_can_msg.Data) = can_payload.full_payload;
@@ -339,26 +346,41 @@ void Communication_start_precharge(Communication * const me){
 
 static void Communication_send_default_message(Communication_Message_t * com_message, const com_tag_t * const com_tag){
     if(com_message->message_size==0){ //Imutable Event
+        if(QEvt_verify_(com_tag->im_evt) == 0){
+            system_assert("communication_app",2);
+        }
         QACTIVE_POST(*com_tag->p_ao , com_tag->im_evt , (void *) 0);
     }else
     if(com_message->message_size*sizeof(uint16_t) <= ( sizeof(EvtPool1_t)-sizeof(QEvt)) ){
         // Mutable Event
         EvtPool1_t * evt_to_send = Q_NEW( EvtPool1_t , com_tag->im_evt->sig);
+        if(QEvt_verify_(&evt_to_send->super) == 0){
+            system_assert("communication_app",2);
+        }
         evt_to_send->payload = * ((evt_pool_payload_1_t *) &com_message->payload);
         QACTIVE_POST( *com_tag->p_ao , &evt_to_send->super , (void *)0);
     }else
     if(com_message->message_size*sizeof(uint16_t) <= ( sizeof(EvtPool2_t)-sizeof(QEvt)) ){
         EvtPool2_t * evt_to_send = Q_NEW( EvtPool2_t , com_tag->im_evt->sig);
+        if(QEvt_verify_(&evt_to_send->super) == 0){
+            system_assert("communication_app",3);
+        }
         evt_to_send->payload = * ((evt_pool_payload_2_t *) &com_message->payload);
         QACTIVE_POST( *com_tag->p_ao , &evt_to_send->super , (void *)0);
     }else
     if(com_message->message_size*sizeof(uint16_t) <= ( sizeof(EvtPool3_t)-sizeof(QEvt)) ){
         EvtPool3_t * evt_to_send = Q_NEW( EvtPool3_t , com_tag->im_evt->sig);
+        if(QEvt_verify_(&evt_to_send->super) == 0){
+            system_assert("communication_app",4);
+        }
         evt_to_send->payload = * ((evt_pool_payload_3_t *) &com_message->payload);
         QACTIVE_POST( *com_tag->p_ao , &evt_to_send->super , (void *)0);
     }else
     if(com_message->message_size*sizeof(uint16_t) <= ( sizeof(EvtPool4_t)-sizeof(QEvt)) ){
         EvtPool4_t * evt_to_send = Q_NEW( EvtPool4_t , com_tag->im_evt->sig);
+        if(QEvt_verify_(&evt_to_send->super) == 0){
+            system_assert("communication_app",5);
+        }
         evt_to_send->payload = * ((evt_pool_payload_4_t *) &com_message->payload);
         QACTIVE_POST( *com_tag->p_ao , &evt_to_send->super , (void *)0);
     }else{

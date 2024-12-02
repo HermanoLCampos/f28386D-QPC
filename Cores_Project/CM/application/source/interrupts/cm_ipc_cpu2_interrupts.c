@@ -22,9 +22,9 @@ __interrupt void IPC_CPU2_ISR1(){
 
     IPC_ackFlagRtoL(IPC_CM_L_CPU2_R, IPC_FLAG1);
 
-//    BSP_BKPT;
+    BSP_BKPT;
 #ifdef DUALCORE
-    QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
+//    QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_receive_msg[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
 
 #else
     BSP_BKPT;
@@ -60,7 +60,7 @@ __interrupt void IPC_CPU2_ISR3(){
 
     IPC_ackFlagRtoL(IPC_CM_L_CPU2_R, IPC_FLAG3);
 
-//    BSP_BKPT;
+    BSP_BKPT;
 
 #ifdef DUALCORE
     uint32_t command,addr,data;
@@ -68,10 +68,10 @@ __interrupt void IPC_CPU2_ISR3(){
 
     switch (command) {
         case OC_IPC_CMD_REMOTE_RESET:
-            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_remote_reset[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
+//            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_remote_reset[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
             break;
         case OC_IPC_CMD_RESET_COMPLETE:
-            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_reset_complete[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
+//            QACTIVE_POST_FROM_ISR( p_ao_communication , &im_evt_ipc_reset_complete[OC_IPC_CM_CPU2_ID].super , &xHigherPriorityTaskWoken , (void *) 0 );
             break;
         default:
             break;

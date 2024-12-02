@@ -120,6 +120,7 @@ QState OC_IPC_Operation(OC_IPC * const me, QEvt const * const e) {
         //${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}
         case IPC_FULL_BUS_SIG: {
             BSP_BKPT;
+
             status_ = Q_TRAN(&OC_IPC_Error);
             break;
         }
@@ -175,11 +176,11 @@ QState OC_IPC_Error(OC_IPC * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             //BSP_BKPT;
             //me->fault_cont++;
-            //QACTIVE_POST(
-            //    me->owner,
-            //    &im_evt_ipc_reset_ch[me->id].super,
-            //    (void *)0
-            //);
+            QACTIVE_POST(
+                me->owner,
+                &im_evt_ipc_reset_ch[me->id].super,
+                (void *)0
+            );
             status_ = Q_HANDLED();
             break;
         }

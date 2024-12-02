@@ -176,13 +176,29 @@ QState Communication_Operation(Communication * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_Communication::Communication::SM::Operation::UPDATE_MEASURE_REQUEST}
         case UPDATE_MEASURE_REQUEST_SIG: {
+
             Communication_update_measure_request(me,e);
+            QTimeEvt_armX(
+                &me->time_evt_can_skiip_timeout,
+                (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS/2)/(RTOS_TICK_PERIOD_MS)),
+                0
+            );
+
+
             status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_Communication::Communication::SM::Operation::INIT_SKIIP_CAN}
         case INIT_SKIIP_CAN_SIG: {
+            //BSP_BKPT;
+
             Communication_skiip_can_open_config(me);
+            status_ = Q_HANDLED();
+            break;
+        }
+        //${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_SKIIP_TEMPERATURE_TIMEOUT}
+        case CAN_SKIIP_TEMPERATURE_TIMEOUT_SIG: {
+            //Communication_can_skiip_clean_queue(me,e);
             status_ = Q_HANDLED();
             break;
         }
@@ -213,6 +229,9 @@ void ao_communication_ctor(const QActive  * const pAO) {
     OC_IPC_ctor(&me->ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&me->super, OC_IPC_CPU1_CM_ID  );
 
     OC_CAN_ctor(&me->can_inst[OC_CAN_CAN_SKIIP_ID] ,&me->super, OC_CAN_CAN_SKIIP_ID);
+
+    // Time Events
+    QTimeEvt_ctorX(&me->time_evt_can_skiip_timeout, &me->super, CAN_SKIIP_TEMPERATURE_TIMEOUT_SIG, 0U);
 }
 //$enddef${CPU1::AOs::AO_Communication} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

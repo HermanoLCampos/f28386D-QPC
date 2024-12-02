@@ -28,6 +28,9 @@ void OC_IPC_send_msg(OC_IPC * const me,
             IPC_NONBLOCKING_CALL
         )
     ){
+        if(QEvt_verify_(&im_evt_ipc_full_bus[me->id].super) == 0){
+            system_assert("ipc_app",0);
+        }
         QACTIVE_POST(
             me->owner,
             &im_evt_ipc_full_bus[me->id].super,

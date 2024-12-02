@@ -135,17 +135,17 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
                 (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
             );
 
-            //QTimeEvt_armX(
-            //    &me->time_evt_skiip1_heartbeat_timeout,
-            //    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-            //    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-            //);
+            QTimeEvt_armX(
+                &me->time_evt_skiip1_heartbeat_timeout,
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+            );
 
-            //QTimeEvt_armX(
-            //    &me->time_evt_skiip2_heartbeat_timeout,
-            //    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-            //    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-            //);
+            QTimeEvt_armX(
+                &me->time_evt_skiip2_heartbeat_timeout,
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+                (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+            );
 
             QASM_DISPATCH( &(me->spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&im_evt_init_complete, (void *) 0 );
             QASM_DISPATCH( &(me->max31865_inst[OC_MAX31865_A_ID].super) ,&im_evt_init_complete, (void *) 0 );
@@ -160,9 +160,9 @@ QState FSBB_Control_Start(FSBB_Control * const me, QEvt const * const e) {
         case CHECK_PARAMS_SIG: {
             //BSP_BKPT;
             if(
-            //    !FSBB_Control_Check_Skiip_Error_IO(me)
-                1
+                !FSBB_Control_Check_Skiip_Error_IO(me)
             ){
+                //BSP_BKPT;
                 QACTIVE_POST(&me->super,&im_evt_init_complete,(void *)0);
             }
             status_ = Q_HANDLED();
@@ -197,6 +197,8 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}
         case SET_FAULT_SIG: {
+            BSP_BKPT;
+
             AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
             switch(Evt_Set_Fault->fault_id){
             case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
@@ -319,6 +321,8 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         case SETTLE_TIMEOUT_SIG: // intentionally fall through
         case SKIIP1_HEARTBEAT_TIMEOUT_SIG: // intentionally fall through
         case SKIIP2_HEARTBEAT_TIMEOUT_SIG: {
+            BSP_BKPT;
+
             switch(e->sig){
             case EMERGENCY_SHUTDOWN_SIG:
                 me->faults.emergency_shutdown = 1;
@@ -341,6 +345,8 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}
         case SET_MULTIPLE_FAULTS_SIG: {
             AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
+
+            BSP_BKPT;
 
             typedef union{
                 FSBB_Control_faults_t faults;
@@ -391,7 +397,7 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
             case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
             case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
                 me->measures[evt_update_measure->data.measure_id] = evt_update_measure->data.measure-2731;
-                CPU1_CM_Message.fsbb_temp_measures[evt_update_measure->data.measure_id] = me->measures[evt_update_measure->data.measure_id]/10;
+                CPU1_CM_Message.fsbb_temp_measures[evt_update_measure->data.measure_id] = me->measures[evt_update_measure->data.measure_id];
                 break;
             default:
                 system_assert("fsbb_control", 0);
@@ -480,6 +486,8 @@ QState FSBB_Control_Operation(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SMU_ERROR}
         case SMU_ERROR_SIG: {
             me->faults.smu_error = 1;
+
+            BSP_BKPT;
             status_ = Q_TRAN(&FSBB_Control_Fault);
             break;
         }
@@ -497,7 +505,7 @@ QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e) {
     switch (e->sig) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}
         case Q_ENTRY_SIG: {
-            //BSP_BKPT;
+            BSP_BKPT;
 
             me->state = FSBB_INIT;
             status_ = Q_HANDLED();
@@ -505,7 +513,7 @@ QState FSBB_Control_Uncharged(FSBB_Control * const me, QEvt const * const e) {
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}
         case PRECHARGE_START_SIG: {
-            //BSP_BKPT;
+            BSP_BKPT;
             status_ = Q_TRAN(&FSBB_Control_Precharge);
             break;
         }
@@ -600,7 +608,7 @@ QState FSBB_Control_Precharge(FSBB_Control * const me, QEvt const * const e) {
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_TIMEOUT}
         case PRECHARGE_TIMEOUT_SIG: {
             //BSP_BKPT;
-            status_ = Q_TRAN(&FSBB_Control_Uncharged);
+            status_ = Q_HANDLED();
             break;
         }
         //${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_NO_REPLY}

@@ -1,7 +1,7 @@
 /************************************************************/
 // Automatically generated C source file from CAN DBC file
 // Source file name: modulink.dbc
-// Date created: 2024-11-14
+// Date created: 2024-11-22
 /************************************************************/
 
 
@@ -11,10 +11,10 @@
 
 const MessageProprieties_t modulink_can_messages_proprieties[MODULINK_CAN_MAX_MSG] = {
     [MODULINK_CAN_MSG_EXT_IN_INDEX] = {
-        .msg_id     = 0x00fffffe,
+        .msg_id     = 0x00ffff05,
         .frame_type = CAN_MSG_FRAME_EXT,
         .msg_type   = CAN_MSG_OBJ_TYPE_RX,
-        .mask       = 0x0000fffe,
+        .mask       = 0x0000ff05,
         .flags      = CAN_MSG_OBJ_RX_INT_ENABLE|CAN_MSG_OBJ_USE_EXT_FILTER|CAN_MSG_OBJ_USE_ID_FILTER,
         .dlc        = 8,
             },

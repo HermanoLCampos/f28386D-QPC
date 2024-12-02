@@ -155,7 +155,8 @@ OC_IPC_send_msg(me,e);
       </tran>
       <!--${OCs::OC_IPC::OC_IPC::SM::Operation::IPC_FULL_BUS}-->
       <tran trig="IPC_FULL_BUS" target="../6">
-       <action>BSP_BKPT;</action>
+       <action>BSP_BKPT;
+</action>
        <tran_glyph conn="36,44,3,3,20">
         <action box="0,-2,12,2"/>
        </tran_glyph>
@@ -187,11 +188,11 @@ OC_IPC_send_msg(me,e);
       <state name="Error">
        <entry>//BSP_BKPT;
 //me-&gt;fault_cont++;
-//QACTIVE_POST(
-//    me-&gt;owner,
-//    &amp;im_evt_ipc_reset_ch[me-&gt;id].super,
-//    (void *)0
-//);</entry>
+QACTIVE_POST(
+    me-&gt;owner,
+    &amp;im_evt_ipc_reset_ch[me-&gt;id].super,
+    (void *)0
+);</entry>
        <!--${OCs::OC_IPC::OC_IPC::SM::Operation::Error::IPC_RECEIVE_MSG, IPC_SEND_MSG}-->
        <tran trig="IPC_RECEIVE_MSG, IPC_SEND_MSG">
         <tran_glyph conn="56,46,3,-1,16">
@@ -988,17 +989,17 @@ QTimeEvt_armX(
     (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS)/(RTOS_TICK_PERIOD_MS))
 );
 
-//QTimeEvt_armX(
-//    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
-//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-//);
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_skiip1_heartbeat_timeout,
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+);
 
-//QTimeEvt_armX(
-//    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
-//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
-//    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
-//);
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS)),
+    (uint16_t) ((SKIIP_HEARTBEAT_TIMEOUT_MS)/(RTOS_TICK_PERIOD_MS))
+);
 
 QASM_DISPATCH( &amp;(me-&gt;spi_inst[OC_SPI_RTD_SPI_ID]    .super) ,&amp;im_evt_init_complete, (void *) 0 );
 QASM_DISPATCH( &amp;(me-&gt;max31865_inst[OC_MAX31865_A_ID].super) ,&amp;im_evt_init_complete, (void *) 0 );
@@ -1014,9 +1015,9 @@ QACTIVE_POST(p_ao_communication, &amp;im_evt_init_skiip_can ,(void *)0);
        <tran trig="CHECK_PARAMS">
         <action>//BSP_BKPT;
 if(
-//    !FSBB_Control_Check_Skiip_Error_IO(me)
-    1
+    !FSBB_Control_Check_Skiip_Error_IO(me)
 ){
+    //BSP_BKPT;
     QACTIVE_POST(&amp;me-&gt;super,&amp;im_evt_init_complete,(void *)0);
 }</action>
         <tran_glyph conn="8,32,3,-1,14">
@@ -1048,7 +1049,9 @@ QTimeEvt_rearm(&amp;me-&gt;time_evt_skiip2_heartbeat_timeout,
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_FAULT}-->
        <tran trig="SET_FAULT" target="../21">
-        <action>AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
+        <action>BSP_BKPT;
+
+AO_Evt_Set_Fault_t const * Evt_Set_Fault = Q_EVT_CAST(AO_Evt_Set_Fault_t);
 switch(Evt_Set_Fault-&gt;fault_id){
 case FSBB_FAULT_SKIIP1_OVERVOLTAGE:
     me-&gt;faults.skiip1_overvoltage = 1;
@@ -1171,7 +1174,9 @@ QACTIVE_POST( p_ao_communication , &amp;report_message-&gt;super.super , (void *
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::EMERGENCY_SHUTDOWN, SETTLE_TIMEO~}-->
        <tran trig="EMERGENCY_SHUTDOWN, SETTLE_TIMEOUT, SKIIP1_HEARTBEAT_TIMEOUT, SKIIP2_HEARTBEAT_TIMEOUT" target="../21">
-        <action>switch(e-&gt;sig){
+        <action>BSP_BKPT;
+
+switch(e-&gt;sig){
 case EMERGENCY_SHUTDOWN_SIG:
     me-&gt;faults.emergency_shutdown = 1;
     break;
@@ -1194,6 +1199,8 @@ default:
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SET_MULTIPLE_FAULTS}-->
        <tran trig="SET_MULTIPLE_FAULTS" target="../21">
         <action>AO_Evt_Set_Multiple_Faults_t const * mult_fault = Q_EVT_CAST(AO_Evt_Set_Multiple_Faults_t);
+
+BSP_BKPT;
 
 typedef union{
     FSBB_Control_faults_t faults;
@@ -1245,7 +1252,7 @@ case FSBB_MEASURE_SKIIP1_PCB_TEMPERATURE:
 case FSBB_MEASURE_SKIIP2_DCB_TEMPERATURE:
 case FSBB_MEASURE_SKIIP2_PCB_TEMPERATURE:
     me-&gt;measures[evt_update_measure-&gt;data.measure_id] = evt_update_measure-&gt;data.measure-2731;
-    CPU1_CM_Message.fsbb_temp_measures[evt_update_measure-&gt;data.measure_id] = me-&gt;measures[evt_update_measure-&gt;data.measure_id]/10;
+    CPU1_CM_Message.fsbb_temp_measures[evt_update_measure-&gt;data.measure_id] = me-&gt;measures[evt_update_measure-&gt;data.measure_id];
     break;
 default:
     system_assert(&quot;fsbb_control&quot;, 0);
@@ -1340,7 +1347,9 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::SMU_ERROR}-->
        <tran trig="SMU_ERROR" target="../21">
-        <action>me-&gt;faults.smu_error = 1;</action>
+        <action>me-&gt;faults.smu_error = 1;
+
+BSP_BKPT;</action>
         <tran_glyph conn="36,40,3,3,18">
          <action box="0,-2,13,2"/>
         </tran_glyph>
@@ -1348,12 +1357,12 @@ QASM_DISPATCH( &amp;(me-&gt;max31865_inst[id].super) ,e, (void *) 0 );</action>
        <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged}-->
        <state name="Uncharged">
         <documentation>this state waits the command to charge the  capacitors.</documentation>
-        <entry>//BSP_BKPT;
+        <entry>BSP_BKPT;
 
 me-&gt;state = FSBB_INIT;</entry>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Uncharged::PRECHARGE_START}-->
         <tran trig="PRECHARGE_START" target="../../18">
-         <action>//BSP_BKPT;</action>
+         <action>BSP_BKPT;</action>
          <tran_glyph conn="54,16,3,3,30">
           <action box="0,-2,18,2"/>
          </tran_glyph>
@@ -1436,9 +1445,9 @@ QTimeEvt_disarm(&amp;me-&gt;time_evt_precharge_no_reply_timeout);</action>
          </tran_glyph>
         </tran>
         <!--${CPU1::AOs::AO_FSBB_Control::FSBB_Control::SM::Operation::Precharge::PRECHARGE_TIMEOUT}-->
-        <tran trig="PRECHARGE_TIMEOUT" target="../../17">
+        <tran trig="PRECHARGE_TIMEOUT">
          <action>//BSP_BKPT;</action>
-         <tran_glyph conn="106,26,1,1,-28,-8,-4">
+         <tran_glyph conn="106,26,1,-1,-20">
           <action box="-22,-2,22,2"/>
          </tran_glyph>
         </tran>
@@ -1684,6 +1693,8 @@ me-&gt;state = FSBB_INIT;</code>
      <attribute name="ipc_inst[OC_IPC_NUM_OF_INST]" type="OC_IPC" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_Communication::Communication::can_inst[OC_CAN_NUM_OF_INST]}-->
      <attribute name="can_inst[OC_CAN_NUM_OF_INST]" type="OC_CAN" visibility="0x02" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::time_evt_can_skiip_timeout}-->
+     <attribute name="time_evt_can_skiip_timeout" type="QTimeEvt" visibility="0x02" properties="0x00"/>
      <!--${CPU1::AOs::AO_Communication::Communication::ipc_process_msg}-->
      <operation name="ipc_process_msg" type="void" visibility="0x00" properties="0x00">
       <!--${CPU1::AOs::AO_Communication::Communication::ipc_process_msg::e}-->
@@ -1701,6 +1712,11 @@ me-&gt;state = FSBB_INIT;</code>
      </operation>
      <!--${CPU1::AOs::AO_Communication::Communication::skiip_can_open_config}-->
      <operation name="skiip_can_open_config" type="void" visibility="0x00" properties="0x00"/>
+     <!--${CPU1::AOs::AO_Communication::Communication::can_skiip_clean_queue}-->
+     <operation name="can_skiip_clean_queue" type="void" visibility="0x00" properties="0x00">
+      <!--${CPU1::AOs::AO_Communication::Communication::can_skiip_clean_~::e}-->
+      <parameter name="e" type="QEvt const * const"/>
+     </operation>
      <!--${CPU1::AOs::AO_Communication::Communication::SM}-->
      <statechart properties="0x00">
       <!--${CPU1::AOs::AO_Communication::Communication::SM::initial}-->
@@ -1811,19 +1827,36 @@ QASM_DISPATCH( &amp;(me-&gt;can_inst[id].super) ,e, (void *) 0 );</action>
        </tran>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::UPDATE_MEASURE_REQUEST}-->
        <tran trig="UPDATE_MEASURE_REQUEST">
-        <action>Communication_update_measure_request(me,e);</action>
-        <tran_glyph conn="36,48,3,-1,22">
+        <action>
+Communication_update_measure_request(me,e);
+QTimeEvt_armX(
+    &amp;me-&gt;time_evt_can_skiip_timeout,
+    (uint16_t) ((MEASURE_TEMPERATURE_PERIOD_TIME_MS/2)/(RTOS_TICK_PERIOD_MS)),
+    0
+);
+
+</action>
+        <tran_glyph conn="36,44,3,-1,28">
          <action box="0,-2,23,2"/>
         </tran_glyph>
        </tran>
        <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::INIT_SKIIP_CAN}-->
        <tran trig="INIT_SKIIP_CAN">
-        <action>Communication_skiip_can_open_config(me);</action>
-        <tran_glyph conn="36,46,3,-1,22">
+        <action>//BSP_BKPT;
+
+Communication_skiip_can_open_config(me);</action>
+        <tran_glyph conn="36,42,3,-1,28">
          <action box="0,-2,16,2"/>
         </tran_glyph>
        </tran>
-       <state_glyph node="36,4,38,50"/>
+       <!--${CPU1::AOs::AO_Communication::Communication::SM::Operation::CAN_SKIIP_TEMPERATURE_TIMEOUT}-->
+       <tran trig="CAN_SKIIP_TEMPERATURE_TIMEOUT">
+        <action>//Communication_can_skiip_clean_queue(me,e);</action>
+        <tran_glyph conn="36,46,3,-1,28">
+         <action box="0,-2,27,2"/>
+        </tran_glyph>
+       </tran>
+       <state_glyph node="36,4,38,56"/>
       </state>
       <state_diagram size="82,68"/>
      </statechart>
@@ -1850,7 +1883,10 @@ OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CPU2_ID] ,&amp;me-&gt;super, OC_IPC
 #endif
 OC_IPC_ctor(&amp;me-&gt;ipc_inst[OC_IPC_CPU1_CM_ID  ] ,&amp;me-&gt;super, OC_IPC_CPU1_CM_ID  );
 
-OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN_CAN_SKIIP_ID);</code>
+OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN_CAN_SKIIP_ID);
+
+// Time Events
+QTimeEvt_ctorX(&amp;me-&gt;time_evt_can_skiip_timeout, &amp;me-&gt;super, CAN_SKIIP_TEMPERATURE_TIMEOUT_SIG, 0U);</code>
      </operation>
     </package>
    </package>
@@ -1901,11 +1937,13 @@ OC_CAN_ctor(&amp;me-&gt;can_inst[OC_CAN_CAN_SKIIP_ID] ,&amp;me-&gt;super, OC_CAN
     INIT_SKIIP_CAN_SIG,
     UPDATE_MEASURE_SIG,
 
+    CAN_SKIIP_TEMPERATURE_TIMEOUT_SIG,
+
     PRECHARGE_FINISH_SIG,
     PRECHARGE_TIMEOUT_SIG,
     PRECHARGE_ACK_SIG,
     PRECHARGE_NACK_SIG,
-    PRECHARGE_NO_REPLY_SIG ,
+    PRECHARGE_NO_REPLY_SIG,
 
     SMU_ERROR_SIG,
 
@@ -3769,11 +3807,11 @@ in payload the message</documentation>
    <package name="CRITICAL_LIMITS" stereotype="0x00">
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_CURRENT}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_CURRENT" type="" visibility="0x03" properties="0x00">
-     <code>200</code>
+     <code>400</code>
     </attribute>
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_VOLTAGE}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_VOLTAGE" type="" visibility="0x03" properties="0x00">
-     <code>500</code>
+     <code>800</code>
     </attribute>
     <!--${Shared::Macros::CRITICAL_LIMITS::CRITICAL_LIMIT_SKIIP_TEMPERATURE}-->
     <attribute name="CRITICAL_LIMIT_SKIIP_TEMPERATURE" type="" visibility="0x03" properties="0x00">
@@ -3816,7 +3854,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::MAX_SETTLE_TIME_MS}-->
     <attribute name="MAX_SETTLE_TIME_MS" type="" visibility="0x03" properties="0x00">
-     <code>100</code>
+     <code>10000</code>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::REPORT_STATUS_PERIOD_TIME_MS}-->
     <attribute name="REPORT_STATUS_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
@@ -3844,7 +3882,7 @@ in payload the message</documentation>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_PERIOD_TIME_~}-->
     <attribute name="MEASURE_TEMPERATURE_PERIOD_TIME_MS" type="" visibility="0x03" properties="0x00">
-     <code>10000</code>
+     <code>1000</code>
     </attribute>
     <!--${Shared::Macros::TIME_MACROS::MEASURE_TEMPERATURE_TIMEOUT_PERI~}-->
     <attribute name="MEASURE_TEMPERATURE_TIMEOUT_PERIOD_MS" type="" visibility="0x03" properties="0x00">
@@ -3923,22 +3961,19 @@ in payload the message</documentation>
   <package name="Event Pools" stereotype="0x00">
    <!--${Shared::Event Pools::EVT_POOL_1_SIZE}-->
    <attribute name="EVT_POOL_1_SIZE" type="" visibility="0x03" properties="0x00">
-    <code>8
-</code>
+    <code>32</code>
    </attribute>
    <!--${Shared::Event Pools::EVT_POOL_2_SIZE}-->
    <attribute name="EVT_POOL_2_SIZE" type="" visibility="0x03" properties="0x00">
-    <code>8
-</code>
+    <code>32</code>
    </attribute>
    <!--${Shared::Event Pools::EVT_POOL_3_SIZE}-->
    <attribute name="EVT_POOL_3_SIZE" type="" visibility="0x03" properties="0x00">
-    <code>8
-</code>
+    <code>32</code>
    </attribute>
    <!--${Shared::Event Pools::EVT_POOL_4_SIZE}-->
    <attribute name="EVT_POOL_4_SIZE" type="" visibility="0x03" properties="0x00">
-    <code>8
+    <code>32
 </code>
    </attribute>
    <!--${Shared::Event Pools::evt_pool_payload_1_t}-->

@@ -7,13 +7,13 @@
 
 #include "application.h"
 
-static QEvt const *fsbb_control_queue_sto[10]; /* event queue buffer for fsbb control */
+static QEvt const *fsbb_control_queue_sto[16]; /* event queue buffer for fsbb control */
 static StackType_t  fsbb_control_stack[(unsigned int)(configMINIMAL_STACK_SIZE)]; /* stack for fsbb control */
 
 #pragma DATA_SECTION(fsbb_control_stack, ".freertosStaticStack")
 #pragma DATA_ALIGN ( fsbb_control_stack , portBYTE_ALIGNMENT)
 
-static QEvt const *communication_queue_sto[10];
+static QEvt const *communication_queue_sto[16];
 static StackType_t communication_stack[(unsigned int)(configMINIMAL_STACK_SIZE)];
 
 #pragma DATA_SECTION(communication_stack, ".freertosStaticStack")

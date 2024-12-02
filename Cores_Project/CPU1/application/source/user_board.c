@@ -85,6 +85,9 @@ void user_msg_box_init(){
         );
     }
 
+
+
+
     i_msg = DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX;
     CAN_setupMessageObject(
         CAN_SKIIP_BASE,                                             //Base

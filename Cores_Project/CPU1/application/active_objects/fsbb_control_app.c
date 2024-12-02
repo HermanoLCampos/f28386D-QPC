@@ -116,8 +116,8 @@ void FSBB_Control_Change_Control_State(FSBB_Control * const me,
 bool FSBB_Control_Check_Skiip_Error_IO(FSBB_Control * const me){
     return
         (
-            GPIO_readPin(HALT1)        ||
-            GPIO_readPin(HALT2)        ||
+//            GPIO_readPin(HALT1)        ||
+//            GPIO_readPin(HALT2)        ||
             GPIO_readPin(ERROR_OUT1)   ||
             GPIO_readPin(ERROR_OUT2)
         );

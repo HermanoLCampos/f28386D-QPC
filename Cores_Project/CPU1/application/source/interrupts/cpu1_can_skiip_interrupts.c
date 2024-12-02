@@ -112,6 +112,18 @@ __interrupt void INT_CAN_SKIIP_0_ISR(){
         CAN_Received->super.ID = OC_CAN_CAN_SKIIP_ID;
 
         CAN_readMessageWithID(CAN_SKIIP_BASE, status , &frameType, &CAN_Received->Message_ID , data);
+
+//        BSP_BKPT;
+
+        if(CAN_Received->Message_ID == 0x5AC){
+
+            BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_1_fifo);
+        }
+
+        if(CAN_Received->Message_ID == 0x5AD){
+            BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_2_fifo);
+        }
+
         ((c2000_can_data_adapter_t *)CAN_Received->Data)->data1 = data[0];
         ((c2000_can_data_adapter_t *)CAN_Received->Data)->data2 = data[1];
         ((c2000_can_data_adapter_t *)CAN_Received->Data)->data3 = data[2];
@@ -130,12 +142,13 @@ __interrupt void INT_CAN_SKIIP_0_ISR(){
     }
 
     case DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP1_INDEX:{
-        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_1_fifo);
+//        BSP_BKPT;
+//        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_1_fifo);
         CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
         break;
     }
     case DBC_SKIIP_CAN_MSG_FSBB_MESSAGE_SKIIP2_INDEX:{
-        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_2_fifo);
+//        BSP_CAN_fifo_msg_transmited(&CAN_SKIIP_2_fifo);
         CAN_clearInterruptStatus(CAN_SKIIP_BASE, status );
         break;
     }
